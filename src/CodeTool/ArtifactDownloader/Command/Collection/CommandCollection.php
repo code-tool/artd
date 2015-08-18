@@ -3,15 +3,25 @@
 namespace CodeTool\ArtifactDownloader\Command\Collection;
 
 use CodeTool\ArtifactDownloader\Command\CommandInterface;
-use CodeTool\ArtifactDownloader\Command\Result\CommandResult;
 use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
+use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
 
 class CommandCollection implements CommandCollectionInterface
 {
     /**
+     * @var CommandResultFactoryInterface
+     */
+    private $commandResultFactory;
+
+    /**
      * @var CommandInterface[]
      */
     private $commands = [];
+
+    public function __construct(CommandResultFactoryInterface $commandResultFactory)
+    {
+        $this->commandResultFactory = $commandResultFactory;
+    }
 
     /**
      * @param CommandInterface $command
@@ -35,6 +45,6 @@ class CommandCollection implements CommandCollectionInterface
             }
         }
 
-        return new CommandResult(null);
+        return $this->commandResultFactory->createSuccess();
     }
 }

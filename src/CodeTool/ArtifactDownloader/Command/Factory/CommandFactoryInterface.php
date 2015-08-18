@@ -5,6 +5,7 @@ namespace CodeTool\ArtifactDownloader\Command\Factory;
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollection;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
+use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
 use CodeTool\ArtifactDownloader\Command\CommandSetFilePermissions;
 use CodeTool\ArtifactDownloader\Command\CommandUnpackArchive;
@@ -60,4 +61,13 @@ interface CommandFactoryInterface
      * @return CommandCollection
      */
     public function createCollection();
+
+    /**
+     * @param string $path
+     * @param int    $mode
+     * @param bool   $recursive
+     *
+     * @return CommandMkDir
+     */
+    public function createMkDirCommand($path, $mode = 0777, $recursive = false);
 }

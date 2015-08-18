@@ -24,4 +24,11 @@ interface CommandResultFactoryInterface
      * @return CommandResultInterface
      */
     public function createErrorFromGetLast($prefix);
+
+    /**
+     * @param \Exception $exception
+     *
+     * @return CommandResultInterface
+     */
+    public function createErrorFromException(\Exception $exception);
 }

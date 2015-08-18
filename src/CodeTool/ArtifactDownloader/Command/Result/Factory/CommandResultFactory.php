@@ -36,4 +36,14 @@ class CommandResultFactory implements CommandResultFactoryInterface
 
         return $this->createError(sprintf('%s. %s', $prefix, $lastError['message']));
     }
+
+    /**
+     * @param \Exception $exception
+     *
+     * @return CommandResultInterface
+     */
+    public function createErrorFromException(\Exception $exception)
+    {
+        return $this->createError($exception->getMessage());
+    }
 }

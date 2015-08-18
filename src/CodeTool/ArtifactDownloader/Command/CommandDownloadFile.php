@@ -3,9 +3,15 @@
 namespace CodeTool\ArtifactDownloader\Command;
 
 use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
+use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
 
 class CommandDownloadFile implements CommandInterface
 {
+    /**
+     * @var CommandResultFactoryInterface
+     */
+    private $commandResultFactory;
+
     /**
      * @var string
      */
@@ -17,11 +23,13 @@ class CommandDownloadFile implements CommandInterface
     private $target;
 
     /**
-     * @param string $url
-     * @param string $target
+     * @param CommandResultFactoryInterface $commandResultFactory
+     * @param string                        $url
+     * @param string                        $target
      */
-    public function __construct($url, $target)
+    public function __construct(CommandResultFactoryInterface $commandResultFactory, $url, $target)
     {
+        $this->commandResultFactory = $commandResultFactory;
         $this->url = $url;
         $this->target = $target;
     }
@@ -41,5 +49,7 @@ class CommandDownloadFile implements CommandInterface
         curl_close($ch);
 
         fclose($targetFileHandle);
+
+        return $this->commandResultFactory->createSuccess();
     }
 }

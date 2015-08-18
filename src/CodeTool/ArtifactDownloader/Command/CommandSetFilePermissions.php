@@ -2,11 +2,16 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Command\Result\CommandResult;
 use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
+use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
 
 class CommandSetFilePermissions implements CommandInterface
 {
+    /**
+     * @var CommandResultFactoryInterface
+     */
+    private $commandResultFactory;
+
     /**
      * @var string
      */
@@ -18,11 +23,13 @@ class CommandSetFilePermissions implements CommandInterface
     private $mode;
 
     /**
-     * @param string $filePath
-     * @param string $mode
+     * @param CommandResultFactoryInterface $commandResultFactory
+     * @param string                        $filePath
+     * @param string                        $mode
      */
-    public function __construct($filePath, $mode)
+    public function __construct(CommandResultFactoryInterface $commandResultFactory, $filePath, $mode)
     {
+        $this->commandResultFactory = $commandResultFactory;
         $this->filePath = $filePath;
         $this->mode = $mode;
     }
@@ -33,13 +40,11 @@ class CommandSetFilePermissions implements CommandInterface
     public function execute()
     {
         if (false === @chmod($this->filePath, $this->mode)) {
-            $lastError = error_get_last();
-
-            return new CommandResult(
-                sprintf('Can\' set permissions "%s" on "%s". %s', $this->mode, $this->filePath, $lastError['message'])
+            return $this->commandResultFactory->createErrorFromGetLast(
+                sprintf('Can\' set permissions "%s" on "%s"', $this->mode, $this->filePath)
             );
         }
 
-        return new CommandResult(null);
+        return $this->commandResultFactory->createSuccess();
     }
 }

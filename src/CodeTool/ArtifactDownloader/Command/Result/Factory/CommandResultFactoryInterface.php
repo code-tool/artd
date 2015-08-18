@@ -17,4 +17,11 @@ interface CommandResultFactoryInterface
      * @return CommandResultInterface
      */
     public function createError($error);
+
+    /**
+     * @param string $prefix
+     *
+     * @return CommandResultInterface
+     */
+    public function createErrorFromGetLast($prefix);
 }

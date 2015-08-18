@@ -24,4 +24,16 @@ class CommandResultFactory implements CommandResultFactoryInterface
     {
         return new CommandResult($error);
     }
+
+    /**
+     * @param string $prefix
+     *
+     * @return CommandResultInterface
+     */
+    public function createErrorFromGetLast($prefix)
+    {
+        $lastError = error_get_last();
+
+        return $this->createError(sprintf('%s. %s', $prefix, $lastError['message']));
+    }
 }

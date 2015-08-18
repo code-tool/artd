@@ -47,4 +47,12 @@ class CommandCollection implements CommandCollectionInterface
 
         return $this->commandResultFactory->createSuccess();
     }
+
+    /**
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->commands);
+    }
 }

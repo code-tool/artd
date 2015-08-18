@@ -2,6 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader\Command\Factory;
 
+use CodeTool\ArtifactDownloader\Command\Collection\CommandCollection;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
@@ -81,5 +82,13 @@ class CommandFactory implements CommandFactoryInterface
     public function createUnpackArchiveCommand($path, $target)
     {
         return new CommandUnpackArchive($this->commandResultFactory, $path, $target);
+    }
+
+    /**
+     * @return CommandCollection
+     */
+    public function createCollection()
+    {
+        return new CommandCollection($this->commandResultFactory);
     }
 }

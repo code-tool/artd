@@ -7,6 +7,7 @@ use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
+use CodeTool\ArtifactDownloader\Command\CommandRm;
 use CodeTool\ArtifactDownloader\Command\CommandSetFilePermissions;
 use CodeTool\ArtifactDownloader\Command\CommandUnpackArchive;
 use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
@@ -103,5 +104,15 @@ class CommandFactory implements CommandFactoryInterface
     public function createMkDirCommand($path, $mode = 0777, $recursive = false)
     {
         return new CommandMkDir($this->commandResultFactory, $path, $mode, $recursive);
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return CommandRm
+     */
+    public function createRmCommand($path)
+    {
+        return new CommandRm($this->commandResultFactory, $path);
     }
 }

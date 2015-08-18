@@ -7,6 +7,7 @@ use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
+use CodeTool\ArtifactDownloader\Command\CommandRm;
 use CodeTool\ArtifactDownloader\Command\CommandSetFilePermissions;
 use CodeTool\ArtifactDownloader\Command\CommandUnpackArchive;
 
@@ -70,4 +71,11 @@ interface CommandFactoryInterface
      * @return CommandMkDir
      */
     public function createMkDirCommand($path, $mode = 0777, $recursive = false);
+
+    /**
+     * @param string $path
+     *
+     * @return CommandRm
+     */
+    public function createRmCommand($path);
 }

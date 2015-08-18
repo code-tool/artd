@@ -1,0 +1,11 @@
+{
+  "name": "code-tool/artifact-downloader",
+  "license": "MIT",
+  "autoload": {
+    "psr-0": {
+      "": [
+        "src/"
+      ]
+    }
+  }
+}

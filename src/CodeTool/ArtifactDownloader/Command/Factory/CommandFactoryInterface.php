@@ -6,6 +6,7 @@ use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
 use CodeTool\ArtifactDownloader\Command\CommandSetFilePermissions;
+use CodeTool\ArtifactDownloader\Command\CommandUnpackArchive;
 
 interface CommandFactoryInterface
 {
@@ -44,5 +45,13 @@ interface CommandFactoryInterface
      *
      * @return CommandSetFilePermissions
      */
-    public function createSetFilePermissions($filePath, $mode);
+    public function createSetFilePermissionsCommand($filePath, $mode);
+
+    /**
+     * @param string $path
+     * @param string $target
+     *
+     * @return CommandUnpackArchive
+     */
+    public function createUnpackArchiveCommand($path, $target);
 }

@@ -11,6 +11,7 @@ use CodeTool\ArtifactDownloader\Command\CommandRm;
 use CodeTool\ArtifactDownloader\Command\CommandSetFilePermissions;
 use CodeTool\ArtifactDownloader\Command\CommandUnpackArchive;
 use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+use CodeTool\ArtifactDownloader\ResourceCredentials\Repository\ResourceCredentialsRepositoryInterface;
 
 class CommandFactory implements CommandFactoryInterface
 {
@@ -20,11 +21,20 @@ class CommandFactory implements CommandFactoryInterface
     private $commandResultFactory;
 
     /**
-     * @param CommandResultFactoryInterface $commandResultFactory
+     * @var ResourceCredentialsRepositoryInterface
      */
-    public function __construct(CommandResultFactoryInterface $commandResultFactory)
-    {
+    private $resourceCredentialsRepository;
+
+    /**
+     * @param CommandResultFactoryInterface          $commandResultFactory
+     * @param ResourceCredentialsRepositoryInterface $resourceCredentialsRepository
+     */
+    public function __construct(
+        CommandResultFactoryInterface $commandResultFactory,
+        ResourceCredentialsRepositoryInterface $resourceCredentialsRepository
+    ) {
         $this->commandResultFactory = $commandResultFactory;
+        $this->resourceCredentialsRepository = $resourceCredentialsRepository;
     }
 
     /**
@@ -50,7 +60,12 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createDownloadFileCommand($url, $target)
     {
-        return new CommandDownloadFile($this->commandResultFactory, $url, $target);
+        return new CommandDownloadFile(
+            $this->commandResultFactory,
+            $this->resourceCredentialsRepository,
+            $url,
+            $target
+        );
     }
 
     /**

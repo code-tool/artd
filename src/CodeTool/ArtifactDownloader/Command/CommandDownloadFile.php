@@ -53,6 +53,7 @@ class CommandDownloadFile implements CommandInterface
             return;
         }
 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_SSLCERT, $resourceCredentials->getClientCertPath());
         curl_setopt($ch, CURLOPT_SSLCERT, $resourceCredentials->getClientCertPassword());
     }
@@ -74,14 +75,20 @@ class CommandDownloadFile implements CommandInterface
         curl_setopt($ch, CURLOPT_FILE, $targetFileHandle);
 
         curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
         $this->addResourceCredentials($ch);
 
-        curl_exec($ch); // get curl response
-        curl_close($ch);
+        if (false === curl_exec($ch)) {
+            curl_close($ch);
 
-        fclose($targetFileHandle);
+            return $this->commandResultFactory->createError(sprintf(
+                'Can\'t download file %s. %s', $this->url, curl_error($ch)
+            ));
+        }
+
+        fclose($targetFileHandle); // non-fatal error. ignore
 
         return $this->commandResultFactory->createSuccess();
     }

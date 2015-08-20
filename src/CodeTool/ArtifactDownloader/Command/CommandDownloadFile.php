@@ -64,7 +64,13 @@ class CommandDownloadFile implements CommandInterface
     {
         $ch = curl_init($this->url);
 
-        $targetFileHandle = fopen($this->target, 'w+');
+        if (false === ($targetFileHandle = @fopen($this->target, 'w+'))) {
+            curl_close($ch);
+
+            return $this->commandResultFactory->createErrorFromGetLast(
+                sprintf('Can\'t open file "%s" for writing.', $this->target)
+            );
+        }
         curl_setopt($ch, CURLOPT_FILE, $targetFileHandle);
 
         curl_setopt($ch, CURLOPT_TIMEOUT, 50);

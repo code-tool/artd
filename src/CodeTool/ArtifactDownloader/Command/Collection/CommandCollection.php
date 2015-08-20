@@ -31,6 +31,8 @@ class CommandCollection implements CommandCollectionInterface
     public function add(CommandInterface $command)
     {
         $this->commands[] = $command;
+
+        return $this;
     }
 
     /**

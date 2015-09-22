@@ -4,6 +4,7 @@ namespace CodeTool\ArtifactDownloader\Command\Factory;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
+use CodeTool\ArtifactDownloader\Command\CommandCopyFile;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
@@ -78,4 +79,12 @@ interface CommandFactoryInterface
      * @return CommandRm
      */
     public function createRmCommand($path);
+
+    /**
+     * @param string $sourcePath
+     * @param string $targetPath
+     *
+     * @return CommandCopyFile
+     */
+    public function createCopyFileCommand($sourcePath, $targetPath);
 }

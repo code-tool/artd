@@ -4,6 +4,7 @@ namespace CodeTool\ArtifactDownloader\Command\Factory;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollection;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
+use CodeTool\ArtifactDownloader\Command\CommandCopyFile;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
@@ -129,5 +130,16 @@ class CommandFactory implements CommandFactoryInterface
     public function createRmCommand($path)
     {
         return new CommandRm($this->commandResultFactory, $path);
+    }
+
+    /**
+     * @param string $sourcePath
+     * @param string $targetPath
+     *
+     * @return CommandCopyFile
+     */
+    public function createCopyFileCommand($sourcePath, $targetPath)
+    {
+        return new CommandCopyFile($this->commandResultFactory, $sourcePath, $targetPath);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader\Command\Factory;
 
-use CodeTool\ArtifactDownloader\Command\Collection\CommandCollection;
+use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
@@ -59,7 +59,7 @@ interface CommandFactoryInterface
     public function createUnpackArchiveCommand($path, $target);
 
     /**
-     * @return CommandCollection
+     * @return CommandCollectionInterface
      */
     public function createCollection();
 

@@ -5,6 +5,12 @@ namespace CodeTool\ArtifactDownloader\Command;
 use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
 use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
 
+/**
+ * Class CommandSetFilePermissions
+ *
+ * @todo implement recursive
+ * @package CodeTool\ArtifactDownloader\Command
+ */
 class CommandSetFilePermissions implements CommandInterface
 {
     /**

@@ -1,5 +1,14 @@
 {
   "name": "code-tool/artifact-downloader",
+  "authors": [
+    {
+      "name": "Yuriy Berest",
+      "email": "djua.com@gmail.com"
+    }
+  ],
+  "require": {
+    "psr/log": "~1"
+  },
   "license": "MIT",
   "autoload": {
     "psr-0": {

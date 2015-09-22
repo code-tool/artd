@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: programmer
- * Date: 18.08.15
- * Time: 23:24
- */
 
 namespace CodeTool\ArtifactDownloader\Command;
 
@@ -40,8 +34,7 @@ class CommandRm implements CommandInterface
             return @unlink($path);
         }
 
-        foreach (scandir($path) as $object)
-        {
+        foreach (scandir($path) as $object) {
             if ('.' === $object || '..' === $object) {
                 continue;
             }
@@ -53,7 +46,6 @@ class CommandRm implements CommandInterface
 
         return @rmdir($path);
     }
-
 
     /**
      * @return CommandResultInterface

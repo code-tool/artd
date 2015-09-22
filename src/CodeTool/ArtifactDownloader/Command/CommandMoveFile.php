@@ -41,7 +41,7 @@ class CommandMoveFile implements CommandInterface
     {
         if (false === @rename($this->sourcePath, $this->targetPath)) {
             return $this->commandResultFactory->createErrorFromGetLast(
-                sprintf('Can\' move "%s" to "%s"', $this->sourcePath, $this->targetPath)
+                sprintf('Can\'t move "%s" to "%s"', $this->sourcePath, $this->targetPath)
             );
         }
 

@@ -7,15 +7,15 @@ interface ConfigInterface
     /**
      * @return string
      */
-    public function getVersion();
+    public function getUnitName();
 
     /**
      * @return int
      */
-    public function getTimestamp();
+    public function getStatusDirectoryPath();
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getScopes();
+    public function getConfigPath();
 }

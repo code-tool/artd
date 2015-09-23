@@ -4,7 +4,7 @@ namespace CodeTool\ArtifactDownloader\EtcdClient\Response;
 
 use CodeTool\ArtifactDownloader\EtcdClient\Response\Node\EtcdClientResponseNodeInterface;
 
-class EtcdClientSingleNodeResponse extends EtcdClientResponse
+class EtcdClientSingleNodeResponse extends EtcdClientResponse implements EtcdClientSingleNodeResponseInterface
 {
     /**
      * @var EtcdClientResponseNodeInterface

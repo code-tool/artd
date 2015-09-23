@@ -51,7 +51,7 @@ class EtcdClient implements EtcdClientInterface
         $this->httpClient = $httpClient;
         $this->etcdClientResultFactory = $etcdClientResultFactory;
 
-        $this->root = trim($root, '/');
+        $this->root = $root;
         $this->server = rtrim($server, '/');
         $this->apiVersion = $apiVersion;
     }
@@ -84,7 +84,7 @@ class EtcdClient implements EtcdClientInterface
             $key = '/' . $key;
         }
 
-        $result = sprintf('/%s/keys/%s/%s', $this->apiVersion, $this->root, $key);
+        $result = sprintf('%s/%s/keys%s%s', $this->server, $this->apiVersion, $this->root, $key);
 
         if ([] !== $params) {
             $result .= '?' . http_build_query($params);

@@ -4,6 +4,7 @@ namespace CodeTool\ArtifactDownloader\Command;
 
 use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
 use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+use CodeTool\ArtifactDownloader\HttpClient\HttpClientInterface;
 use CodeTool\ArtifactDownloader\ResourceCredentials\Repository\ResourceCredentialsRepositoryInterface;
 
 class CommandDownloadFile implements CommandInterface
@@ -14,9 +15,9 @@ class CommandDownloadFile implements CommandInterface
     private $commandResultFactory;
 
     /**
-     * @var ResourceCredentialsRepositoryInterface
+     * @var HttpClientInterface
      */
-    private $resourceCredentialsRepository;
+    private $httpClient;
 
     /**
      * @var string
@@ -29,33 +30,21 @@ class CommandDownloadFile implements CommandInterface
     private $target;
 
     /**
-     * @param CommandResultFactoryInterface          $commandResultFactory
-     * @param ResourceCredentialsRepositoryInterface $resourceCredentialsRepository
-     * @param string                                 $url
-     * @param string                                 $target
+     * @param CommandResultFactoryInterface $commandResultFactory
+     * @param HttpClientInterface           $httpClient
+     * @param string                        $url
+     * @param string                        $target
      */
     public function __construct(
         CommandResultFactoryInterface $commandResultFactory,
-        ResourceCredentialsRepositoryInterface $resourceCredentialsRepository,
+        HttpClientInterface $httpClient,
         $url,
         $target
     ) {
         $this->commandResultFactory = $commandResultFactory;
-        $this->resourceCredentialsRepository = $resourceCredentialsRepository;
+        $this->httpClient = $httpClient;
         $this->url = $url;
         $this->target = $target;
-    }
-
-    private function addResourceCredentials($ch)
-    {
-        $resourceCredentials = $this->resourceCredentialsRepository->getCredentialsByResourcePath($this->url);
-        if (null === $resourceCredentials) {
-            return;
-        }
-
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSLCERT, $resourceCredentials->getClientCertPath());
-        curl_setopt($ch, CURLOPT_SSLCERT, $resourceCredentials->getClientCertPassword());
     }
 
     /**
@@ -63,32 +52,9 @@ class CommandDownloadFile implements CommandInterface
      */
     public function execute()
     {
-        $ch = curl_init($this->url);
-
-        if (false === ($targetFileHandle = @fopen($this->target, 'w+'))) {
-            curl_close($ch);
-
-            return $this->commandResultFactory->createErrorFromGetLast(
-                sprintf('Can\'t open file "%s" for writing.', $this->target)
-            );
+        if (null !== ($error = $this->httpClient->downloadFile($this->url, $this->target))) {
+            return $this->commandResultFactory->createError($error);
         }
-        curl_setopt($ch, CURLOPT_FILE, $targetFileHandle);
-
-        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-
-        $this->addResourceCredentials($ch);
-
-        if (false === curl_exec($ch)) {
-            curl_close($ch);
-
-            return $this->commandResultFactory->createError(
-                sprintf('Can\'t download file %s. %s', $this->url, curl_error($ch))
-            );
-        }
-
-        fclose($targetFileHandle); // non-fatal error. ignore
 
         return $this->commandResultFactory->createSuccess();
     }

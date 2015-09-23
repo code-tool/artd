@@ -69,4 +69,16 @@ class EtcdClientError implements EtcdClientErrorInterface
     {
         return $this->message;
     }
+
+    public function __toString()
+    {
+        return sprintf(
+            '%s: %s (cause: %s, errorCode: %d, index: %s)',
+            __CLASS__,
+            $this->getMessage(),
+            $this->getCause(),
+            $this->getErrorCode(),
+            $this->getIndex()
+        );
+    }
 }

@@ -8,7 +8,7 @@ use CodeTool\ArtifactDownloader\EtcdClient\Response\EtcdClientResponseInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Response\EtcdClientSingleNodeResponse;
 use CodeTool\ArtifactDownloader\EtcdClient\Response\Node\Factory\EtcdClientResponseNodeFactoryInterface;
 
-class EtcdClientResponseFactory
+class EtcdClientResponseFactory implements EtcdClientResponseFactoryInterface
 {
     /**
      * @var DomainObjectFactoryInterface

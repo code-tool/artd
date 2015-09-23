@@ -63,6 +63,7 @@ class HttpClient implements HttpClientInterface
     {
         $ch = $this->getNewCurlHandle($uri);
 
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 
         if (false === empty($body)) {
@@ -79,7 +80,10 @@ class HttpClient implements HttpClientInterface
             return strlen($header);
         });
 
-        $response = curl_exec($ch);
+        if (false === ($response = curl_exec($ch))) {
+            throw new \RuntimeException(curl_error($ch));
+        }
+
         $requestInfo = curl_getinfo($ch);
         curl_close($ch);
 

@@ -227,4 +227,20 @@ class EtcdClient implements EtcdClientInterface
 
         return $this->doRequest($this->buildKeyUri($key, $query), HttpClientInterface::METHOD_DELETE);
     }
+
+    /**
+     * @param string $key
+     * @param int    $waitIndex
+     *
+     * @return Result\EtcdClientResultInterface
+     */
+    public function watch($key, $waitIndex)
+    {
+        $query = [
+            'wait' => 'true',
+            'waitIndex' => $waitIndex
+        ];
+
+        return $this->doRequest($this->buildKeyUri($key, $query), HttpClientInterface::METHOD_GET);
+    }
 }

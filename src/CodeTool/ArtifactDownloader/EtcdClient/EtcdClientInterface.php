@@ -83,4 +83,12 @@ interface EtcdClientInterface
      * @return Result\EtcdClientResultInterface
      */
     public function rmdir($key, $recursive = false);
+
+    /**
+     * @param string $key
+     * @param int    $waitIndex
+     *
+     * @return Result\EtcdClientResultInterface
+     */
+    public function watch($key, $waitIndex);
 }

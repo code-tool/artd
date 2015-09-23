@@ -15,7 +15,7 @@ interface EtcdClientResponseNodeInterface
     public function getValue();
 
     /**
-     * @return string
+     * @return int
      */
     public function getModifiedIndex();
 

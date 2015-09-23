@@ -83,9 +83,9 @@ class CommandDownloadFile implements CommandInterface
         if (false === curl_exec($ch)) {
             curl_close($ch);
 
-            return $this->commandResultFactory->createError(sprintf(
-                'Can\'t download file %s. %s', $this->url, curl_error($ch)
-            ));
+            return $this->commandResultFactory->createError(
+                sprintf('Can\'t download file %s. %s', $this->url, curl_error($ch))
+            );
         }
 
         fclose($targetFileHandle); // non-fatal error. ignore

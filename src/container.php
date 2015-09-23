@@ -8,6 +8,7 @@ namespace {
     use CodeTool\ArtifactDownloader\Command;
     use CodeTool\ArtifactDownloader\DomainObject;
     use CodeTool\ArtifactDownloader\EtcdClient;
+    use CodeTool\ArtifactDownloader\UnitStatusBuilder;
 
 
     $container = new Container();
@@ -82,6 +83,11 @@ namespace {
             $container['http_client'],
             $container['etcd_client.result.factory']
         );
+    };
+
+    //
+    $container['unit_state_status_builder'] = function () {
+        return new UnitStatusBuilder\UnitStatusBuilder();
     };
 
     return $container;

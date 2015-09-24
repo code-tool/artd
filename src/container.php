@@ -7,6 +7,7 @@ namespace {
     use CodeTool\ArtifactDownloader\HttpClient;
     use CodeTool\ArtifactDownloader\Command;
     use CodeTool\ArtifactDownloader\DomainObject;
+    use CodeTool\ArtifactDownloader\Util;
     use CodeTool\ArtifactDownloader\EtcdClient;
     use CodeTool\ArtifactDownloader\UnitStatusBuilder;
 
@@ -50,6 +51,19 @@ namespace {
     //
     $container['domain_object.factory'] = function () {
         return new DomainObject\Factory\DomainObjectFactory();
+    };
+
+    //
+    $container['util.basic_util'] = function () {
+        return new Util\BasicUtil();
+    };
+
+    $container['util.cmd_runner.result.factory'] = function () {
+        return new Util\CmdRunner\Result\Factory\CmdRunnerResultFactory();
+    };
+
+    $container['util.cmd_runner'] = function (Container $container) {
+        return new Util\CmdRunner\CmdRunner($container['util.cmd_runner.result.factory']);
     };
 
     //

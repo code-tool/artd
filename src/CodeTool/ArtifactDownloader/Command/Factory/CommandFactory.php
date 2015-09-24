@@ -4,6 +4,8 @@ namespace CodeTool\ArtifactDownloader\Command\Factory;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollection;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
+use CodeTool\ArtifactDownloader\Command\CommandChgrp;
+use CodeTool\ArtifactDownloader\Command\CommandChown;
 use CodeTool\ArtifactDownloader\Command\CommandCopyFile;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
@@ -90,6 +92,28 @@ class CommandFactory implements CommandFactoryInterface
     public function createChmodCommand($filePath, $mode)
     {
         return new CommandChmod($this->commandResultFactory, $filePath, $mode);
+    }
+
+    /**
+     * @param string $filePath
+     * @param string $user
+     *
+     * @return CommandChown
+     */
+    public function createChownCommand($filePath, $user)
+    {
+        return new CommandChown($this->commandResultFactory, $filePath, $user);
+    }
+
+    /**
+     * @param string $filePath
+     * @param string $group
+     *
+     * @return CommandChgrp
+     */
+    public function createChgrpCommand($filePath, $group)
+    {
+        return new CommandChgrp($this->commandResultFactory, $filePath, $group);
     }
 
     /**

@@ -42,7 +42,7 @@ class UnitStatusBuilder implements UnitStatusBuilderInterface
         return json_encode([
             'ts' => time(),
             'status' => $this->status,
-            'last_errors' => $this->errors,
+            'last_errors' => array_reverse($this->errors),
             'config_version' => $this->configVersion
         ]);
     }

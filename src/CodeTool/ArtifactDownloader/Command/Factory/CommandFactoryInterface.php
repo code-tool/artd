@@ -12,6 +12,7 @@ use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
 use CodeTool\ArtifactDownloader\Command\CommandRm;
 use CodeTool\ArtifactDownloader\Command\CommandChmod;
+use CodeTool\ArtifactDownloader\Command\CommandSymlink;
 use CodeTool\ArtifactDownloader\Command\CommandUnpackArchive;
 
 interface CommandFactoryInterface
@@ -105,4 +106,12 @@ interface CommandFactoryInterface
      * @return CommandCopyFile
      */
     public function createCopyFileCommand($sourcePath, $targetPath);
+
+    /**
+     * @param string $targetPath
+     * @param string $sourcePath
+     *
+     * @return CommandSymlink
+     */
+    public function createSymlinkCommand($targetPath, $sourcePath);
 }

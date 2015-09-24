@@ -32,6 +32,11 @@ class ScopeConfig implements ScopeConfigInterface
         return $this->scopePath;
     }
 
+    public function isExactMatchRequired()
+    {
+        return true;
+    }
+
     /**
      * @return ScopeConfigChildNodeInterface[]
      */

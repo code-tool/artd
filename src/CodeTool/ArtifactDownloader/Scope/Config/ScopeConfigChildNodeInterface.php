@@ -2,32 +2,12 @@
 
 namespace CodeTool\ArtifactDownloader\Scope\Config;
 
-interface ScopeConfigChildNodeInterface
-{
-    public function getRelativePath();
+use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
 
+interface ScopeConfigChildNodeInterface extends DomainObjectInterface
+{
     /**
      * @return string [file / directory / symlink]
      */
     public function getType();
-
-    /**
-     * @return string
-     */
-    public function getSourcePath();
-
-    /**
-     * @return string
-     */
-    public function getSourceHash();
-
-    /**
-     * @return string
-     */
-    public function getTarget();
-
-    /**
-     * @return string
-     */
-    public function getPermissions();
 }

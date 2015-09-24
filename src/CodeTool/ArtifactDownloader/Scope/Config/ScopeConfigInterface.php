@@ -10,6 +10,11 @@ interface ScopeConfigInterface
     public function getScopePath();
 
     /**
+     * @return bool
+     */
+    public function isExactMatchRequired();
+
+    /**
      * @return ScopeConfigChildNodeInterface[]
      */
     public function getChildNodes();

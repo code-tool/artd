@@ -1,8 +1,8 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Config;
+namespace CodeTool\ArtifactDownloader\UnitConfig;
 
-interface ConfigInterface
+interface UnitConfigInterface
 {
     /**
      * @return string

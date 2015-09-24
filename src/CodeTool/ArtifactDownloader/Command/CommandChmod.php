@@ -11,7 +11,7 @@ use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInter
  * @todo implement recursive
  * @package CodeTool\ArtifactDownloader\Command
  */
-class CommandSetFilePermissions implements CommandInterface
+class CommandChmod implements CommandInterface
 {
     /**
      * @var CommandResultFactoryInterface

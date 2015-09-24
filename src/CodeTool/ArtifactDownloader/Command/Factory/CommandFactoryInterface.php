@@ -9,7 +9,7 @@ use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
 use CodeTool\ArtifactDownloader\Command\CommandRm;
-use CodeTool\ArtifactDownloader\Command\CommandSetFilePermissions;
+use CodeTool\ArtifactDownloader\Command\CommandChmod;
 use CodeTool\ArtifactDownloader\Command\CommandUnpackArchive;
 
 interface CommandFactoryInterface
@@ -47,9 +47,9 @@ interface CommandFactoryInterface
      * @param string $filePath
      * @param string $mode
      *
-     * @return CommandSetFilePermissions
+     * @return CommandChmod
      */
-    public function createSetFilePermissionsCommand($filePath, $mode);
+    public function createChmodCommand($filePath, $mode);
 
     /**
      * @param string $path

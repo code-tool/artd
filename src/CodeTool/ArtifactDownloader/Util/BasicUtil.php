@@ -4,6 +4,11 @@ namespace CodeTool\ArtifactDownloader\Util;
 
 class BasicUtil
 {
+    /**
+     * @param string $binName
+     *
+     * @return null|string
+     */
     public function getBinPath($binName)
     {
         $sbinPaths = ['/sbin', '/usr/sbin', '/usr/local/sbin'];
@@ -22,5 +27,13 @@ class BasicUtil
         }
 
         return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTmpPath()
+    {
+        return tempnam(sys_get_temp_dir(), 'arifact-downloader-' . posix_getpid());
     }
 }

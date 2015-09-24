@@ -39,6 +39,7 @@ class CommandSymlink implements CommandInterface
      */
     public function execute()
     {
+        // todo Handle case when link already exists and valid
         if (false === @symlink($this->source, $this->target)) {
             return $this->commandResultFactory->createErrorFromGetLast(
                 sprintf('Can\' create symlink with name "%s" to "%s"', $this->source, $this->target)

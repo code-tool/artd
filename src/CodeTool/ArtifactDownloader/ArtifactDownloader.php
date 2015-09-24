@@ -45,6 +45,14 @@ class ArtifactDownloader
         $this->unitStatusBuilder = $unitStatusBuilder;
     }
 
+    private function logErrorAndPushToUnitStatus($message)
+    {
+        $this->logger->error($message);
+        $this->unitStatusBuilder->addError($message);
+
+        return $this;
+    }
+
     private function updateUnitStatus()
     {
         $newUnitStatus = $this->unitStatusBuilder->build();
@@ -81,13 +89,12 @@ class ArtifactDownloader
     private function handleEtcdClientResult(EtcdClientResultInterface $etcdClientResult)
     {
         if (null !== $etcdClientResult->getError()) {
-            $this->logger->error(sprintf(
-                'Fail while getting new config revision: %s',
-                $etcdClientResult->getError()->getMessage()
-            ));
-
-            $this->unitStatusBuilder->addError($etcdClientResult->getError()->getMessage());
-            $this->updateUnitStatus();
+            $this
+                ->logErrorAndPushToUnitStatus(sprintf(
+                    'Fail while getting new config revision: %s',
+                    $etcdClientResult->getError()->getMessage()
+                ))
+                ->updateUnitStatus();
 
             return;
         }
@@ -98,13 +105,16 @@ class ArtifactDownloader
             return;
         }
 
+        // Get config revision
         $this->lastConfigModifiedIndex = $etcdClientResult->getResponse()->getNode()->getModifiedIndex();
         $this->logger->debug(sprintf('New configModifiedIndex: %d', $this->lastConfigModifiedIndex));
 
         // Parse config and build collection
         $configString = $etcdClientResult->getResponse()->getNode()->getValue();
+        $this->logger->debug('Got new config: %s', $configString);
 
         // Parse Config ->
+        $version = 'undefined';
 
         // BuildCollection
         $commandCollection = $this->buildCollectionFromConfig($configString);
@@ -112,8 +122,9 @@ class ArtifactDownloader
         // Apply command collection
         $configApplyResult = $commandCollection->execute();
         if (null !== $configApplyResult->getError()) {
-            $this->unitStatusBuilder->addError($configApplyResult->getError());
-            $this->updateUnitStatus();
+            $this
+                ->logErrorAndPushToUnitStatus($configApplyResult->getError())
+                ->updateUnitStatus();
 
             return;
         }
@@ -131,11 +142,13 @@ class ArtifactDownloader
         while (true) {
             if (null === $this->lastConfigModifiedIndex) {
                 $this->logger->debug('Try to get last config revision.');
-                // At start get latest config revision
                 $result = $this->etcdClient->get($this->unitConfig->getConfigPath());
             } else {
                 $this->logger->debug('Waiting for new config revision.');
-                $result = $this->etcdClient->watch($this->unitConfig->getConfigPath(), $this->lastConfigModifiedIndex + 1);
+                $result = $this->etcdClient->watch(
+                    $this->unitConfig->getConfigPath(),
+                    $this->lastConfigModifiedIndex + 1
+                );
             }
 
             $this->handleEtcdClientResult($result);

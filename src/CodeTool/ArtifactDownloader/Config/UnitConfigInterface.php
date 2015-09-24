@@ -7,7 +7,7 @@ interface UnitConfigInterface
     /**
      * @return string
      */
-    public function getUnitName();
+    public function getName();
 
     /**
      * @return int

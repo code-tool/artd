@@ -1,19 +1,18 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
+$container = require_once __DIR__ . '/../src/container.php';
+
+/** @var \CodeTool\ArtifactDownloader\ArtifactDownloader $artifactDownloader */
+$artifactDownloader = $container['artifact_downloader'];
+$artifactDownloader->work();
+
+/*
+return;
+
+$commandFactory = $container['command.factory'];
 
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigChildNode;
-
-$logger = new \Psr\Log\NullLogger();
-$resourceCredentialsRepository =
-    new \CodeTool\ArtifactDownloader\ResourceCredentials\Repository\ResourceCredentialsRepository();
-
-$commandResultFactory = new \CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactory();
-$commandFactory = new \CodeTool\ArtifactDownloader\Command\Factory\CommandFactory(
-    $commandResultFactory,
-    $resourceCredentialsRepository
-);
-
 $scopeConfig = new \CodeTool\ArtifactDownloader\Scope\Config\ScopeConfig(
     __DIR__ . '/../test',
     [
@@ -27,3 +26,4 @@ $scopeConfig = new \CodeTool\ArtifactDownloader\Scope\Config\ScopeConfig(
 
 $syncer = new \CodeTool\ArtifactDownloader\Scope\State\ScopeStateSynchronizer($commandFactory, $logger, $scopeConfig);
 var_dump($syncer->sync());
+*/

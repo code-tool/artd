@@ -3,6 +3,7 @@
 namespace {
     use Pimple\Container;
     use Psr\Log;
+    use CodeTool\ArtifactDownloader\ArtifactDownloader;
     use CodeTool\ArtifactDownloader\ResourceCredentials;
     use CodeTool\ArtifactDownloader\HttpClient;
     use CodeTool\ArtifactDownloader\Command;
@@ -100,8 +101,18 @@ namespace {
     };
 
     //
-    $container['unit_state_status_builder'] = function () {
+    $container['unit_status_builder'] = function () {
         return new UnitStatusBuilder\UnitStatusBuilder();
+    };
+
+    //
+    $container['artifact_downloader'] = function (Container $container) {
+        return new ArtifactDownloader(
+            $container['logger'],
+            $container['unit_config'],
+            $container['etcd_client'],
+            $container['unit_status_builder']
+        );
     };
 
     return $container;

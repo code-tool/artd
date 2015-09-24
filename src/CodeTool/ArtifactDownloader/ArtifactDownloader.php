@@ -3,9 +3,9 @@
 namespace CodeTool\ArtifactDownloader;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
-use CodeTool\ArtifactDownloader\UnitConfig\UnitConfigInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\EtcdClientInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Result\EtcdClientResultInterface;
+use CodeTool\ArtifactDownloader\UnitConfig\UnitConfigInterface;
 use CodeTool\ArtifactDownloader\UnitStatusBuilder\UnitStatusBuilderInterface;
 use Psr\Log\LoggerInterface;
 
@@ -31,6 +31,9 @@ class ArtifactDownloader
      */
     private $unitStatusBuilder;
 
+    /**
+     * @var int|null
+     */
     private $lastConfigModifiedIndex;
 
     public function __construct(

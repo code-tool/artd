@@ -97,7 +97,7 @@ class ArtifactDownloader
             return false;
         }
 
-        $this->logger->info('Successfully updated unit status to %s', $newUnitStatus);
+        $this->logger->info(sprintf('Successfully updated unit status to %s', $newUnitStatus));
 
         return true;
     }
@@ -122,29 +122,31 @@ class ArtifactDownloader
         }
 
         // Get config revision
-        $this->lastConfigModifiedIndex = $etcdClientResult->getResponse()->getNode()->getModifiedIndex();
         $this->logger->debug(sprintf('New configModifiedIndex: %d', $this->lastConfigModifiedIndex));
 
         // Parse config and build collection
         $configString = $etcdClientResult->getResponse()->getNode()->getValue();
-        $this->logger->debug('Got new config: %s', $configString);
+        $this->logger->debug(sprintf('Got new config: %s', $configString));
 
         // Parse Config ->
         $parsedConfig = $this->configFactory->createFromJson($configString);
 
         // BuildCollection
         $commandCollection = $this->scopeStateBuilder->buildForScopes($parsedConfig->getScopesConfig());
-        $this->logger->debug('Built command collection: %s', $commandCollection);
+        $this->logger->debug(sprintf('Built command collection: %s%s', PHP_EOL, $commandCollection));
 
         // Apply command collection
         $configApplyResult = $commandCollection->execute();
         if (null !== $configApplyResult->getError()) {
             $this
-                ->logErrorAndPushToUnitStatus($configApplyResult->getError())
+                ->logErrorAndPushToUnitStatus($configApplyResult->getError()->getMessage())
                 ->updateUnitStatus();
 
             return;
         }
+
+        // Update applied config index
+        $this->lastConfigModifiedIndex = $etcdClientResult->getResponse()->getNode()->getModifiedIndex();
 
         // $this-> UpdateVersion UnitScopeConfigVersiosn
         $this->unitStatusBuilder->setConfigVersion($parsedConfig->getVersion());
@@ -158,7 +160,10 @@ class ArtifactDownloader
 
         while (true) {
             if (null === $this->lastConfigModifiedIndex) {
-                $this->logger->debug('Try to get last config revision.');
+                $this->logger->debug(sprintf(
+                    'Try to get last config revision (%s).',
+                    $this->unitConfig->getConfigPath()
+                ));
                 $result = $this->etcdClient->get($this->unitConfig->getConfigPath());
             } else {
                 $this->logger->debug('Waiting for new config revision.');

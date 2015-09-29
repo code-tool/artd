@@ -5,6 +5,7 @@ namespace {
     use CodeTool\ArtifactDownloader\Archive;
     use CodeTool\ArtifactDownloader\ArtifactDownloader;
     use CodeTool\ArtifactDownloader\Command;
+    use CodeTool\ArtifactDownloader\Config\Factory\ConfigFactory;
     use CodeTool\ArtifactDownloader\DomainObject;
     use CodeTool\ArtifactDownloader\Error;
     use CodeTool\ArtifactDownloader\EtcdClient;
@@ -130,6 +131,11 @@ namespace {
     //
     $container['scope.info.factory'] = function () {
         return new Scope\Info\Factory\ScopeInfoFactory();
+    };
+
+    //
+    $container['config.factory'] = function (Container $container) {
+        return new ConfigFactory($container['domain_object.factory'], $container['scope.config.factory']);
     };
 
     //

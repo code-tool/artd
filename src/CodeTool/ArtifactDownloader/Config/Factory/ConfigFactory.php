@@ -55,7 +55,7 @@ class ConfigFactory implements ConfigFactoryInterface
         $scopesConfig = $do->get('scope');
         $scopesConfigArray = [];
         foreach ($scopesConfig as $scopePath => $config) {
-            $scopesConfigArray = $this->scopeConfigFactory->createFromDo($scopePath, $config);
+            $scopesConfigArray[] = $this->scopeConfigFactory->createFromDo($scopePath, $config);
         }
 
         return $this->create($do->get('version'), $do->get('timestamp'), $scopesConfigArray);

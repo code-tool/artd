@@ -2,15 +2,15 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
-use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 class CommandChown implements CommandInterface
 {
     /**
-     * @var CommandResultFactoryInterface
+     * @var ResultFactoryInterface
      */
-    private $commandResultFactory;
+    private $resultFactory;
 
     /**
      * @var string
@@ -23,30 +23,29 @@ class CommandChown implements CommandInterface
     private $user;
 
     /**
-     * @param CommandResultFactoryInterface $commandResultFactory
+     * @param ResultFactoryInterface $resultFactory
      * @param string                        $target
      * @param string                        $user
      */
-    public function __construct(CommandResultFactoryInterface $commandResultFactory, $target, $user)
+    public function __construct(ResultFactoryInterface $resultFactory, $target, $user)
     {
-        $this->commandResultFactory = $commandResultFactory;
+        $this->resultFactory = $resultFactory;
 
         $this->target = $target;
         $this->user = $user;
     }
 
-
     /**
-     * @return CommandResultInterface
+     * @return ResultInterface
      */
     public function execute()
     {
         if (false === @chown($this->target, $this->user)) {
-            return $this->commandResultFactory->createErrorFromGetLast(
+            return $this->resultFactory->createErrorFromGetLast(
                 sprintf('Can\'t chown "%s" to "%s"', $this->target, $this->user)
             );
         }
 
-        return $this->commandResultFactory->createSuccess();
+        return $this->resultFactory->createSuccessful();
     }
 }

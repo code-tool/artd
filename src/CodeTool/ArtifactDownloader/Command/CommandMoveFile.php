@@ -2,15 +2,15 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
-use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 class CommandMoveFile implements CommandInterface
 {
     /**
-     * @var CommandResultFactoryInterface
+     * @var ResultFactoryInterface
      */
-    private $commandResultFactory;
+    private $resultFactory;
 
     /**
      * @var string
@@ -23,28 +23,28 @@ class CommandMoveFile implements CommandInterface
     private $targetPath;
 
     /**
-     * @param CommandResultFactoryInterface $commandResultFactory
-     * @param string                        $sourcePath
-     * @param string                        $targetPath
+     * @param ResultFactoryInterface $resultFactory
+     * @param string                 $sourcePath
+     * @param string                 $targetPath
      */
-    public function __construct(CommandResultFactoryInterface $commandResultFactory, $sourcePath, $targetPath)
+    public function __construct(ResultFactoryInterface $resultFactory, $sourcePath, $targetPath)
     {
-        $this->commandResultFactory = $commandResultFactory;
+        $this->resultFactory = $resultFactory;
         $this->sourcePath = $sourcePath;
         $this->targetPath = $targetPath;
     }
 
     /**
-     * @return CommandResultInterface
+     * @return ResultInterface
      */
     public function execute()
     {
         if (false === @rename($this->sourcePath, $this->targetPath)) {
-            return $this->commandResultFactory->createErrorFromGetLast(
+            return $this->resultFactory->createErrorFromGetLast(
                 sprintf('Can\'t move "%s" to "%s"', $this->sourcePath, $this->targetPath)
             );
         }
 
-        return $this->commandResultFactory->createSuccess();
+        return $this->resultFactory->createSuccessful();
     }
 }

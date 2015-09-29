@@ -3,15 +3,15 @@
 namespace CodeTool\ArtifactDownloader\Command\Collection;
 
 use CodeTool\ArtifactDownloader\Command\CommandInterface;
-use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
-use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 class CommandCollection implements CommandCollectionInterface
 {
     /**
-     * @var CommandResultFactoryInterface
+     * @var ResultFactoryInterface
      */
-    private $commandResultFactory;
+    private $resultFactory;
 
     /**
      * @var CommandInterface[]
@@ -19,11 +19,11 @@ class CommandCollection implements CommandCollectionInterface
     private $commands = [];
 
     /**
-     * @param CommandResultFactoryInterface $commandResultFactory
+     * @param ResultFactoryInterface $resultFactory
      */
-    public function __construct(CommandResultFactoryInterface $commandResultFactory)
+    public function __construct(ResultFactoryInterface $resultFactory)
     {
-        $this->commandResultFactory = $commandResultFactory;
+        $this->resultFactory = $resultFactory;
     }
 
     /**
@@ -39,7 +39,7 @@ class CommandCollection implements CommandCollectionInterface
     }
 
     /**
-     * @return CommandResultInterface
+     * @return ResultInterface
      */
     public function execute()
     {
@@ -50,7 +50,7 @@ class CommandCollection implements CommandCollectionInterface
             }
         }
 
-        return $this->commandResultFactory->createSuccess();
+        return $this->resultFactory->createSuccessful();
     }
 
     /**
@@ -66,7 +66,7 @@ class CommandCollection implements CommandCollectionInterface
      */
     public function __toString()
     {
-        $result  = [];
+        $result = [];
 
         foreach ($this->commands as $command) {
             $result[] = sprintf("\t%s", $command);

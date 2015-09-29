@@ -2,15 +2,16 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
-use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 class CommandChgrp implements CommandInterface
 {
     /**
-     * @var CommandResultFactoryInterface
+     * @var ResultFactoryInterface
      */
-    private $commandResultFactory;
+    private $resultFactory;
 
     /**
      * @var string
@@ -23,29 +24,29 @@ class CommandChgrp implements CommandInterface
     private $group;
 
     /**
-     * @param CommandResultFactoryInterface $commandResultFactory
-     * @param string                        $target
-     * @param string                        $group
+     * @param ResultFactoryInterface $resultFactory
+     * @param string                 $target
+     * @param string                 $group
      */
-    public function __construct(CommandResultFactoryInterface $commandResultFactory, $target, $group)
+    public function __construct(ResultFactoryInterface $resultFactory, $target, $group)
     {
-        $this->commandResultFactory = $commandResultFactory;
+        $this->resultFactory = $resultFactory;
 
         $this->target = $target;
         $this->group = $group;
     }
 
     /**
-     * @return CommandResultInterface
+     * @return ResultInterface
      */
     public function execute()
     {
         if (false === @chgrp($this->target, $this->group)) {
-            return $this->commandResultFactory->createErrorFromGetLast(
+            return $this->resultFactory->createErrorFromGetLast(
                 sprintf('Can\'t chgrp "%s" to "%s"', $this->target, $this->group)
             );
         }
 
-        return $this->commandResultFactory->createSuccess();
+        return $this->resultFactory->createSuccessful();
     }
 }

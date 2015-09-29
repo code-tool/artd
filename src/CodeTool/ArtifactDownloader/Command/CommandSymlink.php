@@ -2,15 +2,15 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
-use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 class CommandSymlink implements CommandInterface
 {
     /**
-     * @var CommandResultFactoryInterface
+     * @var ResultFactoryInterface
      */
-    private $commandResultFactory;
+    private $resultFactory;
 
     /**
      * @var string
@@ -23,29 +23,29 @@ class CommandSymlink implements CommandInterface
     private $source;
 
     /**
-     * @param CommandResultFactoryInterface $commandResultFactory
-     * @param string                        $target
-     * @param string                        $source
+     * @param ResultFactoryInterface $resultFactory
+     * @param string                 $target
+     * @param string                 $source
      */
-    public function __construct(CommandResultFactoryInterface $commandResultFactory, $target, $source)
+    public function __construct(ResultFactoryInterface $resultFactory, $target, $source)
     {
-        $this->commandResultFactory = $commandResultFactory;
+        $this->resultFactory = $resultFactory;
         $this->target = $target;
         $this->source = $source;
     }
 
     /**
-     * @return CommandResultInterface
+     * @return ResultInterface
      */
     public function execute()
     {
         // todo Handle case when link already exists and valid
         if (false === @symlink($this->source, $this->target)) {
-            return $this->commandResultFactory->createErrorFromGetLast(
+            return $this->resultFactory->createErrorFromGetLast(
                 sprintf('Can\' create symlink with name "%s" to "%s"', $this->source, $this->target)
             );
         }
 
-        return $this->commandResultFactory->createSuccess();
+        return $this->resultFactory->createSuccessful();
     }
 }

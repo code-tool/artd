@@ -2,15 +2,15 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
-use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+
 use CodeTool\ArtifactDownloader\HttpClient\HttpClientInterface;
-use CodeTool\ArtifactDownloader\ResourceCredentials\Repository\ResourceCredentialsRepositoryInterface;
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 class CommandDownloadFile implements CommandInterface
 {
     /**
-     * @var CommandResultFactoryInterface
+     * @var ResultFactoryInterface
      */
     private $commandResultFactory;
 
@@ -30,13 +30,13 @@ class CommandDownloadFile implements CommandInterface
     private $target;
 
     /**
-     * @param CommandResultFactoryInterface $commandResultFactory
-     * @param HttpClientInterface           $httpClient
-     * @param string                        $url
-     * @param string                        $target
+     * @param ResultFactoryInterface $commandResultFactory
+     * @param HttpClientInterface    $httpClient
+     * @param string                 $url
+     * @param string                 $target
      */
     public function __construct(
-        CommandResultFactoryInterface $commandResultFactory,
+        ResultFactoryInterface $commandResultFactory,
         HttpClientInterface $httpClient,
         $url,
         $target
@@ -48,7 +48,7 @@ class CommandDownloadFile implements CommandInterface
     }
 
     /**
-     * @return CommandResultInterface
+     * @return ResultInterface
      */
     public function execute()
     {
@@ -56,6 +56,6 @@ class CommandDownloadFile implements CommandInterface
             return $this->commandResultFactory->createError($error);
         }
 
-        return $this->commandResultFactory->createSuccess();
+        return $this->commandResultFactory->createSuccessful();
     }
 }

@@ -2,18 +2,17 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Command\Result\CommandResult;
-use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
-use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 class CommandCheckFileSignature implements CommandInterface
 {
     const DEFAULT_ALGORITHM = 'sha256';
 
     /**
-     * @var CommandResultFactoryInterface
+     * @var ResultFactoryInterface
      */
-    private $commandResultFactory;
+    private $resultFactory;
 
     /**
      * @var string
@@ -31,31 +30,31 @@ class CommandCheckFileSignature implements CommandInterface
     private $expectedHash;
 
     /**
-     * @param CommandResultFactoryInterface $commandResultFactory
-     * @param string                        $filePath
-     * @param string                        $expectedHash
-     * @param string                        $algorithm
+     * @param ResultFactoryInterface $resultFactory
+     * @param string                 $filePath
+     * @param string                 $expectedHash
+     * @param string                 $algorithm
      */
     public function __construct(
-        CommandResultFactoryInterface $commandResultFactory,
+        ResultFactoryInterface $resultFactory,
         $filePath,
         $expectedHash,
         $algorithm = self::DEFAULT_ALGORITHM
     ) {
-        $this->commandResultFactory = $commandResultFactory;
+        $this->resultFactory = $resultFactory;
         $this->filePath = $filePath;
         $this->algorithm = $algorithm;
         $this->expectedHash = $expectedHash;
     }
 
     /**
-     * @return CommandResultInterface
+     * @return ResultInterface
      */
     public function execute()
     {
         $fileHash = hash_file($this->algorithm, $this->filePath, false);
         if ($fileHash !== $this->expectedHash) {
-            return $this->commandResultFactory->createError(
+            return $this->resultFactory->createError(
                 sprintf(
                     'Invalid "%s" file hash. Expected "%s" got "%s"',
                     $this->filePath,
@@ -65,6 +64,6 @@ class CommandCheckFileSignature implements CommandInterface
             );
         }
 
-        return $this->commandResultFactory->createSuccess();
+        return $this->resultFactory->createSuccessful();
     }
 }

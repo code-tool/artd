@@ -2,24 +2,25 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
-use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 class CommandRm implements CommandInterface
 {
     /**
-     * @var CommandResultFactoryInterface
+     * @var ResultFactoryInterface
      */
-    private $commandResultFactory;
+    private $resultFactory;
 
     /**
      * @var string
      */
     private $path;
 
-    public function __construct(CommandResultFactoryInterface $commandResultFactory, $path)
+    public function __construct(ResultFactoryInterface $resultFactory, $path)
     {
-        $this->commandResultFactory = $commandResultFactory;
+        $this->resultFactory = $resultFactory;
         $this->path = $path;
     }
 
@@ -48,16 +49,16 @@ class CommandRm implements CommandInterface
     }
 
     /**
-     * @return CommandResultInterface
+     * @return ResultInterface
      */
     public function execute()
     {
         if (false === $this->doRm($this->path)) {
-            return $this->commandResultFactory->createErrorFromGetLast(
+            return $this->resultFactory->createErrorFromGetLast(
                 sprintf('Can\' delete path "%s.', $this->path)
             );
         }
 
-        return $this->commandResultFactory->createSuccess();
+        return $this->resultFactory->createSuccessful();
     }
 }

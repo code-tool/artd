@@ -5,25 +5,24 @@ namespace CodeTool\ArtifactDownloader\Command\Factory;
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollection;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandChgrp;
+use CodeTool\ArtifactDownloader\Command\CommandChmod;
 use CodeTool\ArtifactDownloader\Command\CommandChown;
 use CodeTool\ArtifactDownloader\Command\CommandCopyFile;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
 use CodeTool\ArtifactDownloader\Command\CommandRm;
-use CodeTool\ArtifactDownloader\Command\CommandChmod;
 use CodeTool\ArtifactDownloader\Command\CommandSymlink;
 use CodeTool\ArtifactDownloader\Command\CommandUnpackArchive;
-use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
 use CodeTool\ArtifactDownloader\HttpClient\HttpClientInterface;
-use CodeTool\ArtifactDownloader\ResourceCredentials\Repository\ResourceCredentialsRepositoryInterface;
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 
 class CommandFactory implements CommandFactoryInterface
 {
     /**
-     * @var CommandResultFactoryInterface
+     * @var ResultFactoryInterface
      */
-    private $commandResultFactory;
+    private $resultFactory;
 
     /**
      * @var HttpClientInterface
@@ -31,14 +30,14 @@ class CommandFactory implements CommandFactoryInterface
     private $httpClient;
 
     /**
-     * @param CommandResultFactoryInterface $commandResultFactory
-     * @param HttpClientInterface           $httpClient
+     * @param ResultFactoryInterface $resultFactory
+     * @param HttpClientInterface    $httpClient
      */
     public function __construct(
-        CommandResultFactoryInterface $commandResultFactory,
+        ResultFactoryInterface $resultFactory,
         HttpClientInterface $httpClient
     ) {
-        $this->commandResultFactory = $commandResultFactory;
+        $this->resultFactory = $resultFactory;
         $this->httpClient = $httpClient;
     }
 
@@ -54,7 +53,7 @@ class CommandFactory implements CommandFactoryInterface
         $expectedHash,
         $algorithm = CommandCheckFileSignature::DEFAULT_ALGORITHM
     ) {
-        return new CommandCheckFileSignature($this->commandResultFactory, $filePath, $expectedHash, $algorithm);
+        return new CommandCheckFileSignature($this->resultFactory, $filePath, $expectedHash, $algorithm);
     }
 
     /**
@@ -66,7 +65,7 @@ class CommandFactory implements CommandFactoryInterface
     public function createDownloadFileCommand($url, $target)
     {
         return new CommandDownloadFile(
-            $this->commandResultFactory,
+            $this->resultFactory,
             $this->httpClient,
             $url,
             $target
@@ -81,7 +80,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createMoveFileCommand($sourcePath, $targetPath)
     {
-        return new CommandMoveFile($this->commandResultFactory, $sourcePath, $targetPath);
+        return new CommandMoveFile($this->resultFactory, $sourcePath, $targetPath);
     }
 
     /**
@@ -92,7 +91,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createChmodCommand($filePath, $mode)
     {
-        return new CommandChmod($this->commandResultFactory, $filePath, $mode);
+        return new CommandChmod($this->resultFactory, $filePath, $mode);
     }
 
     /**
@@ -103,7 +102,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createChownCommand($filePath, $user)
     {
-        return new CommandChown($this->commandResultFactory, $filePath, $user);
+        return new CommandChown($this->resultFactory, $filePath, $user);
     }
 
     /**
@@ -114,7 +113,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createChgrpCommand($filePath, $group)
     {
-        return new CommandChgrp($this->commandResultFactory, $filePath, $group);
+        return new CommandChgrp($this->resultFactory, $filePath, $group);
     }
 
     /**
@@ -125,7 +124,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createUnpackArchiveCommand($path, $target)
     {
-        return new CommandUnpackArchive($this->commandResultFactory, $path, $target);
+        // return new CommandUnpackArchive($this->resultFactory, $path, $target);
     }
 
     /**
@@ -133,7 +132,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createCollection()
     {
-        return new CommandCollection($this->commandResultFactory);
+        return new CommandCollection($this->resultFactory);
     }
 
     /**
@@ -145,7 +144,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createMkDirCommand($path, $mode = 0777, $recursive = false)
     {
-        return new CommandMkDir($this->commandResultFactory, $path, $mode, $recursive);
+        return new CommandMkDir($this->resultFactory, $path, $mode, $recursive);
     }
 
     /**
@@ -155,7 +154,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createRmCommand($path)
     {
-        return new CommandRm($this->commandResultFactory, $path);
+        return new CommandRm($this->resultFactory, $path);
     }
 
     /**
@@ -166,7 +165,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createCopyFileCommand($sourcePath, $targetPath)
     {
-        return new CommandCopyFile($this->commandResultFactory, $sourcePath, $targetPath);
+        return new CommandCopyFile($this->resultFactory, $sourcePath, $targetPath);
     }
 
     /**
@@ -177,6 +176,6 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createSymlinkCommand($targetPath, $sourcePath)
     {
-        return new CommandSymlink($this->commandResultFactory, $targetPath, $sourcePath);
+        return new CommandSymlink($this->resultFactory, $targetPath, $sourcePath);
     }
 }

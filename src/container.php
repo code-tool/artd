@@ -52,15 +52,8 @@ namespace {
     };
 
     //
-    $container['command.result.factory'] = function () {
-        return new Command\Result\Factory\CommandResultFactory();
-    };
-
     $container['command.factory'] = function (Container $container) {
-        return new Command\Factory\CommandFactory(
-            $container['command.result.factory'],
-            $container['http_client']
-        );
+        return new Command\Factory\CommandFactory($container['result.factory'], $container['http_client']);
     };
 
     //

@@ -2,21 +2,20 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
-use CodeTool\ArtifactDownloader\Command\Result\Factory\CommandResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 /**
  * Class CommandSetFilePermissions
  *
- * @todo implement recursive
  * @package CodeTool\ArtifactDownloader\Command
  */
 class CommandChmod implements CommandInterface
 {
     /**
-     * @var CommandResultFactoryInterface
+     * @var ResultFactoryInterface
      */
-    private $commandResultFactory;
+    private $resultFactory;
 
     /**
      * @var string
@@ -29,28 +28,28 @@ class CommandChmod implements CommandInterface
     private $mode;
 
     /**
-     * @param CommandResultFactoryInterface $commandResultFactory
+     * @param ResultFactoryInterface $resultFactory
      * @param string                        $filePath
      * @param string                        $mode
      */
-    public function __construct(CommandResultFactoryInterface $commandResultFactory, $filePath, $mode)
+    public function __construct(ResultFactoryInterface $resultFactory, $filePath, $mode)
     {
-        $this->commandResultFactory = $commandResultFactory;
+        $this->resultFactory = $resultFactory;
         $this->filePath = $filePath;
         $this->mode = $mode;
     }
 
     /**
-     * @return CommandResultInterface
+     * @return ResultInterface
      */
     public function execute()
     {
         if (false === @chmod($this->filePath, $this->mode)) {
-            return $this->commandResultFactory->createErrorFromGetLast(
+            return $this->resultFactory->createErrorFromGetLast(
                 sprintf('Can\' set permissions "%s" on "%s"', $this->mode, $this->filePath)
             );
         }
 
-        return $this->commandResultFactory->createSuccess();
+        return $this->resultFactory->createSuccessful();
     }
 }

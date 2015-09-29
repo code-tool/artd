@@ -2,12 +2,12 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Command\Result\CommandResultInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 interface CommandInterface
 {
     /**
-     * @return CommandResultInterface
+     * @return ResultInterface
      */
     public function execute();
 }

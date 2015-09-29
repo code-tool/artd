@@ -67,7 +67,7 @@ class EtcdClient implements EtcdClientInterface
     {
         $httpResponse = $this->httpClient->makeRequest($uri, $method, $parameters);
 
-        return $this->etcdClientResultFactory->createFromJson($httpResponse->getBody());
+        return $this->etcdClientResultFactory->createFromJson($httpResponse->getResponse()->getBody());
     }
 
     /**
@@ -80,10 +80,6 @@ class EtcdClient implements EtcdClientInterface
      */
     private function buildKeyUri($key, array $params = [])
     {
-        if (strpos('/', $key) === false) {
-            $key = '/' . $key;
-        }
-
         $result = sprintf('%s/%s/keys%s%s', $this->server, $this->apiVersion, $this->root, $key);
 
         if ([] !== $params) {

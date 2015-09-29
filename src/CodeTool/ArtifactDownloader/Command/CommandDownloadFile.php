@@ -52,11 +52,7 @@ class CommandDownloadFile implements CommandInterface
      */
     public function execute()
     {
-        if (null !== ($error = $this->httpClient->downloadFile($this->url, $this->target))) {
-            return $this->commandResultFactory->createError($error);
-        }
-
-        return $this->commandResultFactory->createSuccessful();
+        return $this->httpClient->downloadFile($this->url, $this->target);
     }
 
     public function __toString()

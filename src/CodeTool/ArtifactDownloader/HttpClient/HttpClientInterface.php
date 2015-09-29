@@ -2,6 +2,8 @@
 
 namespace CodeTool\ArtifactDownloader\HttpClient;
 
+use CodeTool\ArtifactDownloader\HttpClient\Result\HttpClientResultInterface;
+
 interface HttpClientInterface
 {
     const METHOD_GET = 'GET';
@@ -17,7 +19,7 @@ interface HttpClientInterface
      * @param string       $method
      * @param string|array $body
      *
-     * @return Response\HttpClientResponse
+     * @return HttpClientResultInterface
      */
     public function makeRequest($uri, $method, $body);
 
@@ -25,7 +27,7 @@ interface HttpClientInterface
      * @param string $url
      * @param string $target
      *
-     * @return null|string
+     * @return HttpClientResultInterface
      */
     public function downloadFile($url, $target);
 }

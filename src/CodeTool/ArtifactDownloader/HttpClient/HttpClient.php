@@ -3,10 +3,17 @@
 namespace CodeTool\ArtifactDownloader\HttpClient;
 
 use CodeTool\ArtifactDownloader\HttpClient\Response\Factory\HttpClientResponseFactoryInterface;
+use CodeTool\ArtifactDownloader\HttpClient\Result\Factory\HttpClientResultFactoryInterface;
+use CodeTool\ArtifactDownloader\HttpClient\Result\HttpClientResultInterface;
 use CodeTool\ArtifactDownloader\ResourceCredentials\Repository\ResourceCredentialsRepositoryInterface;
 
 class HttpClient implements HttpClientInterface
 {
+    /**
+     * @var HttpClientResultFactoryInterface
+     */
+    private $httpClientResultFactory;
+
     /**
      * @var HttpClientResponseFactoryInterface
      */
@@ -17,14 +24,25 @@ class HttpClient implements HttpClientInterface
      */
     private $resourceCredentialsRepository;
 
+    /**
+     * @var string[]
+     */
+    private $responseHeaders = [];
+
     public function __construct(
+        HttpClientResultFactoryInterface $httpClientResultFactory,
         HttpClientResponseFactoryInterface $httpClientResponseFactory,
         ResourceCredentialsRepositoryInterface $resourceCredentialsRepository
     ) {
+        $this->httpClientResultFactory = $httpClientResultFactory;
         $this->httpClientResponseFactory = $httpClientResponseFactory;
         $this->resourceCredentialsRepository = $resourceCredentialsRepository;
     }
 
+    /**
+     * @param resource $ch
+     * @param string   $url
+     */
     private function addResourceCredentials($ch, $url)
     {
         $resourceCredentials = $this->resourceCredentialsRepository->getCredentialsByResourcePath($url);
@@ -37,6 +55,9 @@ class HttpClient implements HttpClientInterface
         curl_setopt($ch, CURLOPT_SSLCERT, $resourceCredentials->getClientCertPassword());
     }
 
+    /**
+     * @param resource $ch
+     */
     private function setBasicCurlParameters($ch)
     {
         curl_setopt($ch, CURLOPT_TIMEOUT, 50);
@@ -44,12 +65,44 @@ class HttpClient implements HttpClientInterface
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     }
 
+    /**
+     * @param string $url
+     *
+     * @return resource
+     */
     private function getNewCurlHandle($url)
     {
         $ch = curl_init($url);
         $this->setBasicCurlParameters($ch);
 
+        $this->responseHeaders = [];
+        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$responseHeaders) {
+            $this->responseHeaders[] = $header;
+
+            return strlen($header);
+        });
+
         return $ch;
+    }
+
+    private function createResultFromChAndResponse($ch)
+    {
+        if (false === ($response = curl_exec($ch))) {
+            return $this->httpClientResultFactory->createError(curl_error($ch));
+        }
+
+        $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode < 200 || $httpCode > 399) {
+            return $this->httpClientResultFactory->createError(sprintf('HTTP error: code %d', $httpCode));
+        }
+
+        return $this->httpClientResultFactory->createSuccessful(
+            $httpCode,
+            $this->responseHeaders,
+            $response
+        );
     }
 
     /**
@@ -57,7 +110,7 @@ class HttpClient implements HttpClientInterface
      * @param string       $method
      * @param string|array $body
      *
-     * @return Response\HttpClientResponse
+     * @return HttpClientResultInterface
      */
     public function makeRequest($uri, $method, $body)
     {
@@ -72,33 +125,15 @@ class HttpClient implements HttpClientInterface
             }
             curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         }
-        //
-        $responseHeaders = [];
-        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$responseHeaders) {
-            $responseHeaders[] = $header;
 
-            return strlen($header);
-        });
-
-        if (false === ($response = curl_exec($ch))) {
-            throw new \RuntimeException(curl_error($ch));
-        }
-
-        $requestInfo = curl_getinfo($ch);
-        curl_close($ch);
-
-        return $this->httpClientResponseFactory->make(
-            (int)$requestInfo['http_code'],
-            $responseHeaders,
-            $response
-        );
+        return $this->createResultFromChAndResponse($ch);
     }
 
     /**
      * @param string $url
      * @param string $target
      *
-     * @return null|string
+     * @return HttpClientResultInterface
      */
     public function downloadFile($url, $target)
     {
@@ -107,19 +142,15 @@ class HttpClient implements HttpClientInterface
         if (false === ($targetFileHandle = @fopen($target, 'w+'))) {
             curl_close($ch);
 
-            return sprintf('Can\'t open file "%s" for writing.', $target);
+            return $this->httpClientResultFactory->createError(sprintf('Can\'t open file "%s" for writing.', $target));
         }
 
         curl_setopt($ch, CURLOPT_FILE, $targetFileHandle);
         $this->addResourceCredentials($ch, $url);
 
-        if (false === curl_exec($ch)) {
-            curl_close($ch);
-
-            return sprintf('Can\'t download file %s. %s', $url, curl_error($ch));
-        }
+        $result = $this->createResultFromChAndResponse($ch);
         fclose($targetFileHandle);
 
-        return null;
+        return $result;
     }
 }

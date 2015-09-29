@@ -16,6 +16,7 @@ namespace {
     use CodeTool\ArtifactDownloader\UnitStatusBuilder;
     use CodeTool\ArtifactDownloader\Util;
     use CodeTool\ArtifactDownloader\Scope;
+    use fool\echolog\Echolog;
     use Pimple\Container;
     use Psr\Log;
 
@@ -23,7 +24,7 @@ namespace {
 
     //
     $container['logger'] = function () {
-        return new Log\NullLogger();
+        return new Echolog(); // Log\NullLogger();
     };
 
     //
@@ -48,8 +49,16 @@ namespace {
         return new HttpClient\Response\Factory\HttpClientResponseFactory();
     };
 
+    $container['http_client.result.factory'] = function (Container $container) {
+        return new HttpClient\Result\Factory\HttpClientResultFactory(
+            $container['http_client.response.factory'],
+            $container['error.factory']
+        );
+    };
+
     $container['http_client'] = function (Container $container) {
         return new HttpClient\HttpClient(
+            $container['http_client.result.factory'],
             $container['http_client.response.factory'],
             $container['resource_credentials.repository']
         );

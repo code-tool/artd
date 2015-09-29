@@ -1,23 +1,29 @@
 <?php
 
 namespace {
-    use Pimple\Container;
-    use Psr\Log;
+
     use CodeTool\ArtifactDownloader\ArtifactDownloader;
-    use CodeTool\ArtifactDownloader\ResourceCredentials;
-    use CodeTool\ArtifactDownloader\HttpClient;
     use CodeTool\ArtifactDownloader\Command;
     use CodeTool\ArtifactDownloader\DomainObject;
-    use CodeTool\ArtifactDownloader\Util;
+    use CodeTool\ArtifactDownloader\Error;
     use CodeTool\ArtifactDownloader\EtcdClient;
+    use CodeTool\ArtifactDownloader\HttpClient;
+    use CodeTool\ArtifactDownloader\ResourceCredentials;
     use CodeTool\ArtifactDownloader\UnitStatusBuilder;
-
+    use CodeTool\ArtifactDownloader\Util;
+    use Pimple\Container;
+    use Psr\Log;
 
     $container = new Container();
 
     //
     $container['logger'] = function () {
         return new Log\NullLogger();
+    };
+
+    //
+    $container['error.factory'] = function () {
+        return new Error\Factory\ErrorFactory();
     };
 
     //
@@ -30,7 +36,7 @@ namespace {
         return new HttpClient\Response\Factory\HttpClientResponseFactory();
     };
 
-    $container['http_client'] = function(Container $container) {
+    $container['http_client'] = function (Container $container) {
         return new HttpClient\HttpClient(
             $container['http_client.response.factory'],
             $container['resource_credentials.repository']

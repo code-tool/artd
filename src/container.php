@@ -13,6 +13,7 @@ namespace {
     use CodeTool\ArtifactDownloader\Result;
     use CodeTool\ArtifactDownloader\UnitStatusBuilder;
     use CodeTool\ArtifactDownloader\Util;
+    use CodeTool\ArtifactDownloader\Scope;
     use Pimple\Container;
     use Psr\Log;
 
@@ -119,6 +120,11 @@ namespace {
             $container['http_client'],
             $container['etcd_client.result.factory']
         );
+    };
+
+    //
+    $container['scope.info.factory'] = function () {
+        return new Scope\Info\Factory\ScopeInfoFactory();
     };
 
     //

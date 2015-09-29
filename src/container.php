@@ -9,6 +9,7 @@ namespace {
     use CodeTool\ArtifactDownloader\EtcdClient;
     use CodeTool\ArtifactDownloader\HttpClient;
     use CodeTool\ArtifactDownloader\ResourceCredentials;
+    use CodeTool\ArtifactDownloader\Result;
     use CodeTool\ArtifactDownloader\UnitStatusBuilder;
     use CodeTool\ArtifactDownloader\Util;
     use Pimple\Container;
@@ -24,6 +25,13 @@ namespace {
     //
     $container['error.factory'] = function () {
         return new Error\Factory\ErrorFactory();
+    };
+
+    //
+    $container['result.factory'] = function (Container $container) {
+        return new Result\Factory\ResultFactory(
+            $container['error.factory']
+        );
     };
 
     //

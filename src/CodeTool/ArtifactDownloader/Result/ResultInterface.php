@@ -6,7 +6,7 @@ use CodeTool\ArtifactDownloader\Error\ErrorInterface;
 
 interface ResultInterface
 {
-    public function isSuccess();
+    public function isSuccessful();
 
     /**
      * @return ErrorInterface|null

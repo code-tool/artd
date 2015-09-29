@@ -30,7 +30,7 @@ class Result implements ResultInterface
     /**
      * @return bool
      */
-    public function isSuccess()
+    public function isSuccessful()
     {
         return null === $this->getError();
     }

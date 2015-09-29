@@ -121,6 +121,7 @@ class ArtifactDownloader
 
         // BuildCollection
         $commandCollection = $this->buildCollectionFromConfig($configString);
+        $this->logger->debug('Built command collection: %s', $commandCollection);
 
         // Apply command collection
         $configApplyResult = $commandCollection->execute();

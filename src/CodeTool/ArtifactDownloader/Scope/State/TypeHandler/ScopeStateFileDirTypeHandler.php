@@ -23,26 +23,10 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
      */
     private $commandFactory;
 
-    /**
-     * @var ScopeStateGMOSectionHandler
-     */
-    private $scopeStateGMOSectionHandler;
-
-    /**
-     * @var SourceSectionCollectionBuilder
-     */
-    private $sourceSectionCollectionBuilder;
-
-    public function __construct(
-        BasicUtil $basicUtil,
-        CommandFactoryInterface $commandFactory,
-        ScopeStateGMOSectionHandler $scopeStateGMOSectionHandler,
-        SourceSectionCollectionBuilder $sourceSectionCollectionBuilder
-    ) {
+    public function __construct(BasicUtil $basicUtil, CommandFactoryInterface $commandFactory)
+    {
         $this->basicUtil = $basicUtil;
         $this->commandFactory = $commandFactory;
-        $this->scopeStateGMOSectionHandler = $scopeStateGMOSectionHandler;
-        $this->sourceSectionCollectionBuilder = $sourceSectionCollectionBuilder;
     }
 
     private function addGMOCommands(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)

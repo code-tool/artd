@@ -38,6 +38,7 @@ class ScopeStateBuilder
         array $typeHandlers
     ) {
         $this->commandFactory = $commandFactory;
+        $this->scopeInfoFactory = $scopeInfoFactory;
         $this->typeHandlers = $typeHandlers;
     }
 

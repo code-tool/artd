@@ -123,6 +123,11 @@ namespace {
     };
 
     //
+    $container['scope.config.factory'] = function () {
+        return new Scope\Config\Factory\ScopeConfigFactory();
+    };
+
+    //
     $container['scope.info.factory'] = function () {
         return new Scope\Info\Factory\ScopeInfoFactory();
     };

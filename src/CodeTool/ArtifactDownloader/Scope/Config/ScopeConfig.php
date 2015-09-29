@@ -16,11 +16,13 @@ class ScopeConfig implements ScopeConfigInterface
 
     /**
      * @param string                          $scopePath
+     * @param bool                            $exactMatchRequired
      * @param ScopeConfigChildNodeInterface[] $childNodes
      */
-    public function __construct($scopePath, array $childNodes)
+    public function __construct($scopePath, $exactMatchRequired, array $childNodes)
     {
         $this->scopePath = $scopePath;
+        $this->exactMatchRequired = $exactMatchRequired;
         $this->childNodes = $childNodes;
     }
 
@@ -32,9 +34,12 @@ class ScopeConfig implements ScopeConfigInterface
         return $this->scopePath;
     }
 
+    /**
+     * @return bool
+     */
     public function isExactMatchRequired()
     {
-        return true;
+        return $this->exactMatchRequired;
     }
 
     /**

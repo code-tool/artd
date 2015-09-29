@@ -5,6 +5,11 @@ namespace CodeTool\ArtifactDownloader\Scope\Info;
 interface ScopeInfoInterface
 {
     /**
+     * @return bool
+     */
+    public function isScopeExists();
+
+    /**
      * @param string $target
      *
      * @return string

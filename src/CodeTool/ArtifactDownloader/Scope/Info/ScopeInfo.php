@@ -19,6 +19,11 @@ class ScopeInfo implements ScopeInfoInterface
         $this->scopeConfig = $scopeConfig;
     }
 
+    public function isScopeExists()
+    {
+        return file_exists($this->scopeConfig->getScopePath());
+    }
+
     public function getAbsPathByForTarget($target)
     {
         return $this->scopeConfig->getScopePath() . DIRECTORY_SEPARATOR . $target;

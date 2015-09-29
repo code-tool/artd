@@ -134,6 +134,33 @@ namespace {
     };
 
     //
+    $container['scope.state.type_handler.file_dir'] = function (Container $container) {
+        return new Scope\State\TypeHandler\ScopeStateFileDirTypeHandler(
+            $container['util.basic_util'],
+            $container['command.factory']
+        );
+    };
+
+    $container['scope.state.type_handler.symlink'] = function (Container $container) {
+        return new Scope\State\TypeHandler\ScopeStateSymlinkTypeHandler(
+            $container['util.basic_util'],
+            $container['command.factory']
+        );
+    };
+
+    //
+    $container['scope.state_builder'] = function (Container $container) {
+        return new Scope\State\ScopeStateBuilder(
+            $container['command.factory'],
+            $container['scope.info.factory'],
+            [
+                $container['scope.state.type_handler.symlink'],
+                $container['scope.state.type_handler.file_dir'],
+            ]
+        );
+    };
+
+    //
     $container['config.factory'] = function (Container $container) {
         return new ConfigFactory($container['domain_object.factory'], $container['scope.config.factory']);
     };
@@ -149,6 +176,8 @@ namespace {
             $container['logger'],
             $container['unit_config'],
             $container['etcd_client'],
+            $container['config.factory'],
+            $container['scope.state_builder'],
             $container['unit_status_builder']
         );
     };

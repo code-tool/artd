@@ -2,9 +2,10 @@
 
 namespace CodeTool\ArtifactDownloader;
 
-use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
+use CodeTool\ArtifactDownloader\Config\Factory\ConfigFactoryInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\EtcdClientInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Result\EtcdClientResultInterface;
+use CodeTool\ArtifactDownloader\Scope\State\ScopeStateBuilder;
 use CodeTool\ArtifactDownloader\UnitConfig\UnitConfigInterface;
 use CodeTool\ArtifactDownloader\UnitStatusBuilder\UnitStatusBuilderInterface;
 use Psr\Log\LoggerInterface;
@@ -22,6 +23,11 @@ class ArtifactDownloader
     private $unitConfig;
 
     /**
+     * @var ConfigFactoryInterface
+     */
+    private $configFactory;
+
+    /**
      * @var EtcdClientInterface
      */
     private $etcdClient;
@@ -32,6 +38,11 @@ class ArtifactDownloader
     private $unitStatusBuilder;
 
     /**
+     * @var ScopeStateBuilder
+     */
+    private $scopeStateBuilder;
+
+    /**
      * @var int|null
      */
     private $lastConfigModifiedIndex;
@@ -40,14 +51,23 @@ class ArtifactDownloader
         LoggerInterface $logger,
         UnitConfigInterface $unitConfig,
         EtcdClientInterface $etcdClient,
+        ConfigFactoryInterface $configFactory,
+        ScopeStateBuilder $scopeStateBuilder,
         UnitStatusBuilderInterface $unitStatusBuilder
     ) {
         $this->logger = $logger;
         $this->unitConfig = $unitConfig;
         $this->etcdClient = $etcdClient;
+        $this->configFactory = $configFactory;
+        $this->scopeStateBuilder = $scopeStateBuilder;
         $this->unitStatusBuilder = $unitStatusBuilder;
     }
 
+    /**
+     * @param string $message
+     *
+     * @return $this
+     */
     private function logErrorAndPushToUnitStatus($message)
     {
         $this->logger->error($message);
@@ -56,6 +76,9 @@ class ArtifactDownloader
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     private function updateUnitStatus()
     {
         $newUnitStatus = $this->unitStatusBuilder->build();
@@ -77,16 +100,6 @@ class ArtifactDownloader
         $this->logger->info('Successfully updated unit status to %s', $newUnitStatus);
 
         return true;
-    }
-
-    /**
-     * @param string $configString
-     *
-     * @return CommandCollectionInterface
-     */
-    private function buildCollectionFromConfig($configString)
-    {
-        //
     }
 
     private function handleEtcdClientResult(EtcdClientResultInterface $etcdClientResult)
@@ -117,10 +130,10 @@ class ArtifactDownloader
         $this->logger->debug('Got new config: %s', $configString);
 
         // Parse Config ->
-        $version = 'undefined';
+        $parsedConfig = $this->configFactory->createFromJson($configString);
 
         // BuildCollection
-        $commandCollection = $this->buildCollectionFromConfig($configString);
+        $commandCollection = $this->scopeStateBuilder->buildForScopes($parsedConfig->getScopesConfig());
         $this->logger->debug('Built command collection: %s', $commandCollection);
 
         // Apply command collection
@@ -134,7 +147,7 @@ class ArtifactDownloader
         }
 
         // $this-> UpdateVersion UnitScopeConfigVersiosn
-        $this->unitStatusBuilder->setConfigVersion($version);
+        $this->unitStatusBuilder->setConfigVersion($parsedConfig->getVersion());
         $this->updateUnitStatus();
     }
 

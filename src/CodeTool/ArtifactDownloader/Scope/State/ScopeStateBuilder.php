@@ -62,9 +62,8 @@ class ScopeStateBuilder
         return false;
     }
 
-    public function build(ScopeConfigInterface $scopeConfig)
+    private function addCommands(CommandCollectionInterface $collection, ScopeConfigInterface $scopeConfig)
     {
-        $collection = $this->commandFactory->createCollection();
         $scopeInfo = $this->scopeInfoFactory->makeForConfig($scopeConfig);
 
         foreach ($scopeConfig->getChildNodes() as $childNode) {
@@ -75,6 +74,22 @@ class ScopeStateBuilder
 
         if (true === $scopeConfig->isExactMatchRequired()) {
             // todo Implement
+        }
+
+        return $collection;
+    }
+
+    /**
+     * @param ScopeConfigInterface[] $scopesConfig
+     *
+     * @return CommandCollectionInterface
+     */
+    public function buildForScopes(array $scopesConfig)
+    {
+        $collection = $this->commandFactory->createCollection();
+
+        foreach ($scopesConfig as $scopeConfig) {
+            $this->addCommands($collection, $scopeConfig);
         }
 
         return $collection;

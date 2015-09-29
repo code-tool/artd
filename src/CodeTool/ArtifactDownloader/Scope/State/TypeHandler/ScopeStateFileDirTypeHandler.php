@@ -27,6 +27,11 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
         $this->commandFactory = $commandFactory;
     }
 
+    /**
+     * @param CommandCollectionInterface $collection
+     * @param string                     $target
+     * @param DomainObjectInterface      $do
+     */
     private function addGMOCommands(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
     {
         if ($do->has('group')) {
@@ -97,6 +102,7 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
 
             // unarchive
             $collection
+                ->add($this->commandFactory->createMkDirCommand($moveSourcePath))
                 ->add($this->commandFactory->createUnarchiveCommand(
                     $downloadPath,
                     $moveSourcePath,
@@ -148,6 +154,15 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
 
         if ($targetExists) {
             $target = $this->basicUtil->getTmpPath();
+            // $collection->add();
+        }
+
+        if ('dir' === $type) {
+            if ($targetExists) {
+                //$collection->add($this->commandFactory->createMoveFileCommand($target, 0777, true));
+            } else {
+                $collection->add($this->commandFactory->createMkDirCommand($target, 0777, true));
+            }
         }
 
         // $content => setContent

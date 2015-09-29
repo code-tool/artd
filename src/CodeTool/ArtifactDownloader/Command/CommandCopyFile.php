@@ -47,4 +47,9 @@ class CommandCopyFile implements CommandInterface
 
         return $this->resultFactory->createSuccessful();
     }
+
+    public function __toString()
+    {
+        return sprintf('%s: cp %s -> %s', __CLASS__, $this->sourcePath, $this->targetPath);
+    }
 }

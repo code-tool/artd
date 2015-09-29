@@ -61,4 +61,9 @@ class CommandMkDir implements CommandInterface
 
         return $this->resultFactory->createSuccessful();
     }
+
+    public function __toString()
+    {
+        return sprintf('%s: mkdir(%s, %s, %s)', __CLASS__, $this->path, $this->mode, $this->recursive ? 't': 'f');
+    }
 }

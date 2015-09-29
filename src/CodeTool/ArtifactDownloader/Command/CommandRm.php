@@ -61,4 +61,9 @@ class CommandRm implements CommandInterface
 
         return $this->resultFactory->createSuccessful();
     }
+
+    public function __toString()
+    {
+        return sprintf('%s: rm %s', __CLASS__, $this->path);
+    }
 }

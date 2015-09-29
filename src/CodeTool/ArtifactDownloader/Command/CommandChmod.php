@@ -52,4 +52,9 @@ class CommandChmod implements CommandInterface
 
         return $this->resultFactory->createSuccessful();
     }
+
+    public function __toString()
+    {
+        return sprintf('%s: chmod(%s, %s)', __CLASS__, $this->filePath, $this->mode);
+    }
 }

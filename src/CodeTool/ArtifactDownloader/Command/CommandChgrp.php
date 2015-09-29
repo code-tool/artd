@@ -49,4 +49,9 @@ class CommandChgrp implements CommandInterface
 
         return $this->resultFactory->createSuccessful();
     }
+
+    public function __toString()
+    {
+        return sprintf('%s: chgrp(%s, %s)', __CLASS__, $this->target, $this->group);
+    }
 }

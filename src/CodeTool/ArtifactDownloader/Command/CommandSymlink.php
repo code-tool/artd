@@ -48,4 +48,9 @@ class CommandSymlink implements CommandInterface
 
         return $this->resultFactory->createSuccessful();
     }
+
+    public function __toString()
+    {
+        return sprintf('%s: ls %s -> %s', __CLASS__, $this->source, $this->target);
+    }
 }

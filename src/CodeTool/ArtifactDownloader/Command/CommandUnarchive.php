@@ -42,4 +42,9 @@ class CommandUnarchive implements CommandInterface
     {
         return $this->unarchiver->unarchive($this->source, $this->target);
     }
+
+    public function __toString()
+    {
+        return sprintf('%s: unarchive %s -> %s', __CLASS__, $this->source, $this->target);
+    }
 }

@@ -47,4 +47,9 @@ class CommandMoveFile implements CommandInterface
 
         return $this->resultFactory->createSuccessful();
     }
+
+    public function __toString()
+    {
+        return sprintf('%s: mv %s -> %s', __CLASS__, $this->sourcePath, $this->targetPath);
+    }
 }

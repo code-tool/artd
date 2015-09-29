@@ -48,4 +48,9 @@ class CommandChown implements CommandInterface
 
         return $this->resultFactory->createSuccessful();
     }
+
+    public function __toString()
+    {
+        return sprintf('%s: chown(%s, %s)', __CLASS__, $this->target, $this->user);
+    }
 }

@@ -47,6 +47,7 @@ class CommandFactory implements CommandFactoryInterface
     ) {
         $this->resultFactory = $resultFactory;
         $this->httpClient = $httpClient;
+        $this->unarchiverFactory = $unarchiverFactory;
     }
 
     /**

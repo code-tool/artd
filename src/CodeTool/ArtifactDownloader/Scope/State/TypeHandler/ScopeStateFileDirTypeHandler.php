@@ -110,12 +110,16 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
         $this->addHashCheck($collection, $downloadPath, $do);
 
         $moveSourcePath = $downloadPath;
-        if (true === $do->getOrDefault('unarchive', false)) {
+        if (true === $do->has('archive_format')) {
             $moveSourcePath = $this->basicUtil->getTmpPath();
 
             // unarchive
             $collection
-                ->add($this->commandFactory->createUnpackArchiveCommand($downloadPath, $moveSourcePath))
+                ->add($this->commandFactory->createUnarchiveCommand(
+                    $downloadPath,
+                    $moveSourcePath,
+                    $do->get('archive_format')
+                ))
                 ->add($this->commandFactory->createRmCommand($downloadPath));
         }
 
@@ -136,8 +140,10 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
     ) {
         $this->addHashCheck($collection, $source, $do);
 
-        if (true === $do->getOrDefault('unarchive', false)) {
-            $collection->add($this->commandFactory->createUnpackArchiveCommand($source, $target));
+        if (true === $do->has('archive_format')) {
+            $collection->add(
+                $this->commandFactory->createUnarchiveCommand($source, $target, $do->get('archive_format'))
+            );
         } else {
             $collection->add($this->commandFactory->createCopyFileCommand($source, $target));
         }
@@ -169,7 +175,7 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
             if (false === $this->isSourceLocal($source)) {
                 $this->addForRemoteSource($collection, $source, $target, $scopeConfigChildNode);
             } else {
-                $this->addForRemoteSource(
+                $this->addForLocalSource(
                     $collection,
                     $scopeInfo->getAbsPathByForTarget($source),
                     $target,

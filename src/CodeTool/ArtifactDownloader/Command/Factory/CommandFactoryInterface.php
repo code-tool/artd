@@ -5,15 +5,15 @@ namespace CodeTool\ArtifactDownloader\Command\Factory;
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandChgrp;
+use CodeTool\ArtifactDownloader\Command\CommandChmod;
 use CodeTool\ArtifactDownloader\Command\CommandChown;
 use CodeTool\ArtifactDownloader\Command\CommandCopyFile;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
 use CodeTool\ArtifactDownloader\Command\CommandRm;
-use CodeTool\ArtifactDownloader\Command\CommandChmod;
 use CodeTool\ArtifactDownloader\Command\CommandSymlink;
-use CodeTool\ArtifactDownloader\Command\CommandUnpackArchive;
+use CodeTool\ArtifactDownloader\Command\CommandUnarchive;
 
 interface CommandFactoryInterface
 {
@@ -71,12 +71,13 @@ interface CommandFactoryInterface
     public function createChgrpCommand($filePath, $group);
 
     /**
-     * @param string $path
+     * @param string $source
      * @param string $target
+     * @param string $archiveFormat
      *
-     * @return CommandUnpackArchive
+     * @return CommandUnarchive
      */
-    public function createUnpackArchiveCommand($path, $target);
+    public function createUnarchiveCommand($source, $target, $archiveFormat);
 
     /**
      * @return CommandCollectionInterface

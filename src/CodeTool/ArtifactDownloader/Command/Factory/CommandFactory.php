@@ -2,6 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader\Command\Factory;
 
+use CodeTool\ArtifactDownloader\Archive\UnsupportedUnarchiver;
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollection;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandChgrp;
@@ -13,7 +14,7 @@ use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
 use CodeTool\ArtifactDownloader\Command\CommandRm;
 use CodeTool\ArtifactDownloader\Command\CommandSymlink;
-use CodeTool\ArtifactDownloader\Command\CommandUnpackArchive;
+use CodeTool\ArtifactDownloader\Command\CommandUnarchive;
 use CodeTool\ArtifactDownloader\HttpClient\HttpClientInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 
@@ -117,14 +118,16 @@ class CommandFactory implements CommandFactoryInterface
     }
 
     /**
-     * @param string $path
+     * @param string $source
      * @param string $target
+     * @param string $archiveFormat
      *
-     * @return CommandUnpackArchive
+     * @return CommandUnarchive
+     * @todo Reimplement
      */
-    public function createUnpackArchiveCommand($path, $target)
+    public function createUnarchiveCommand($source, $target, $archiveFormat)
     {
-        // return new CommandUnpackArchive($this->resultFactory, $path, $target);
+        return new CommandUnarchive(new UnsupportedUnarchiver($this->resultFactory, $archiveFormat), $source, $target);
     }
 
     /**

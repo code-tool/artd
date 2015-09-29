@@ -53,11 +53,6 @@ namespace {
     };
 
     //
-    $container['command.factory'] = function (Container $container) {
-        return new Command\Factory\CommandFactory($container['result.factory'], $container['http_client']);
-    };
-
-    //
     $container['domain_object.factory'] = function () {
         return new DomainObject\Factory\DomainObjectFactory();
     };
@@ -81,6 +76,15 @@ namespace {
             $container['result.factory'],
             $container['util.cmd_runner'],
             $container['util.basic_util']
+        );
+    };
+
+    //
+    $container['command.factory'] = function (Container $container) {
+        return new Command\Factory\CommandFactory(
+            $container['result.factory'],
+            $container['http_client'],
+            $container['archive.unarchiver_factory']
         );
     };
 

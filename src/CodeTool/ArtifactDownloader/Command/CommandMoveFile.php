@@ -50,6 +50,6 @@ class CommandMoveFile implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('%s: mv %s -> %s', __CLASS__, $this->sourcePath, $this->targetPath);
+        return sprintf('mv %s -> %s', $this->sourcePath, $this->targetPath);
     }
 }

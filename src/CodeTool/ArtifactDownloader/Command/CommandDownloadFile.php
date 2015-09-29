@@ -57,6 +57,6 @@ class CommandDownloadFile implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('%s: download %s -> %s', __CLASS__, $this->url, $this->target);
+        return sprintf('download %s -> %s', $this->url, $this->target);
     }
 }

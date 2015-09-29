@@ -55,6 +55,6 @@ class CommandChmod implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('%s: chmod(%s, %s)', __CLASS__, $this->filePath, $this->mode);
+        return sprintf('chmod(%s, %s)', $this->filePath, $this->mode);
     }
 }

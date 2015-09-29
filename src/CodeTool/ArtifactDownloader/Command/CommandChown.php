@@ -51,6 +51,6 @@ class CommandChown implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('%s: chown(%s, %s)', __CLASS__, $this->target, $this->user);
+        return sprintf('chown(%s, %s)', $this->target, $this->user);
     }
 }

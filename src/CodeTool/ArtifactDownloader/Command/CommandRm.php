@@ -64,6 +64,6 @@ class CommandRm implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('%s: rm %s', __CLASS__, $this->path);
+        return sprintf('rm %s', $this->path);
     }
 }

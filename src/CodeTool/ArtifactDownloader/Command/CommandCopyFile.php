@@ -50,6 +50,6 @@ class CommandCopyFile implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('%s: cp %s -> %s', __CLASS__, $this->sourcePath, $this->targetPath);
+        return sprintf('cp %s -> %s', $this->sourcePath, $this->targetPath);
     }
 }

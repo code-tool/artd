@@ -51,6 +51,6 @@ class CommandSymlink implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('%s: ls %s -> %s', __CLASS__, $this->source, $this->target);
+        return sprintf('ln path=%s name=%s', $this->source, $this->target);
     }
 }

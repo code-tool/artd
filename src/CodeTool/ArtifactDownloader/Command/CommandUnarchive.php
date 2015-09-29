@@ -45,6 +45,6 @@ class CommandUnarchive implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('%s: unarchive %s -> %s', __CLASS__, $this->source, $this->target);
+        return sprintf('unarchive %s -> %s', $this->source, $this->target);
     }
 }

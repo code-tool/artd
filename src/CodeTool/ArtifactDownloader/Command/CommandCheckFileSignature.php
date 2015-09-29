@@ -69,6 +69,6 @@ class CommandCheckFileSignature implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('%s: %s(%s) === %s', __CLASS__, $this->algorithm, $this->filePath, $this->expectedHash);
+        return sprintf('%s(%s) === %s', $this->algorithm, $this->filePath, $this->expectedHash);
     }
 }

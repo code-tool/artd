@@ -12,6 +12,7 @@ namespace {
     use CodeTool\ArtifactDownloader\HttpClient;
     use CodeTool\ArtifactDownloader\ResourceCredentials;
     use CodeTool\ArtifactDownloader\Result;
+    use CodeTool\ArtifactDownloader\UnitConfig;
     use CodeTool\ArtifactDownloader\UnitStatusBuilder;
     use CodeTool\ArtifactDownloader\Util;
     use CodeTool\ArtifactDownloader\Scope;
@@ -168,6 +169,11 @@ namespace {
     //
     $container['unit_status_builder'] = function () {
         return new UnitStatusBuilder\UnitStatusBuilder();
+    };
+
+    //
+    $container['unit_config'] = function () {
+        return new UnitConfig\UnitConfig();
     };
 
     //

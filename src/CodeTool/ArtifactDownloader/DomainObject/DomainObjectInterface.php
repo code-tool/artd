@@ -2,7 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader\DomainObject;
 
-interface DomainObjectInterface extends \Countable
+interface DomainObjectInterface extends \Countable, \Iterator
 {
     /**
      * @param string $key

@@ -18,6 +18,9 @@ class CommandCollection implements CommandCollectionInterface
      */
     private $commands = [];
 
+    /**
+     * @param CommandResultFactoryInterface $commandResultFactory
+     */
     public function __construct(CommandResultFactoryInterface $commandResultFactory)
     {
         $this->commandResultFactory = $commandResultFactory;
@@ -56,5 +59,19 @@ class CommandCollection implements CommandCollectionInterface
     public function count()
     {
         return count($this->commands);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        $result  = [];
+
+        foreach ($this->commands as $command) {
+            $result[] = sprintf("\t%s", $command);
+        }
+
+        return implode(PHP_EOL, $result);
     }
 }

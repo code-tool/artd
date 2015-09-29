@@ -2,9 +2,11 @@
 
 namespace CodeTool\ArtifactDownloader\Archive;
 
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 use CodeTool\ArtifactDownloader\Util\CmdRunner\CmdRunnerInterface;
 
-class TarUnarchiver
+class TarUnarchiver implements UnarchiverInterface
 {
     const COMPRESS_TYPE_GZ = 'z';
 
@@ -13,6 +15,11 @@ class TarUnarchiver
     const COMPRESS_TYPE_BZIP2 = 'j';
 
     const COMPRESS_TYPE_XZ = 'J';
+
+    /**
+     * @var ResultFactoryInterface
+     */
+    private $resultFactory;
 
     /**
      * @var CmdRunnerInterface
@@ -30,34 +37,52 @@ class TarUnarchiver
     private $compressType = 'z';
 
     /**
-     * @param CmdRunnerInterface $cmdRunner
-     * @param string             $tarCmdPath
-     * @param string             $compressType
+     * @param ResultFactoryInterface $resultFactory
+     * @param CmdRunnerInterface     $cmdRunner
+     * @param string                 $tarCmdPath
+     * @param string                 $compressType
      */
-    public function __construct(CmdRunnerInterface $cmdRunner, $tarCmdPath, $compressType = self::COMPRESS_TYPE_GZ)
-    {
+    public function __construct(
+        ResultFactoryInterface $resultFactory,
+        CmdRunnerInterface $cmdRunner,
+        $tarCmdPath,
+        $compressType = self::COMPRESS_TYPE_GZ
+    ) {
+        $this->resultFactory = $resultFactory;
         $this->cmdRunner = $cmdRunner;
         $this->tarCmdPath = $tarCmdPath;
         $this->compressType = $compressType;
     }
 
-    public function getFilesInArchive($path)
+    /**
+     * @param string $source
+     * @param string $target
+     *
+     * @return string
+     */
+    private function buildCmd($source, $target)
     {
-        $crd = sprintf('%s -t%sf "%s"', $this->tarCmdPath, $this->compressType, $path);
+        return sprintf('%s -C "%s" -x%sf "%s"', $target, $this->tarCmdPath, $this->compressType, $source);
     }
 
-    public function unarchive()
+    /**
+     * @param string $source
+     * @param string $target
+     *
+     * @return ResultInterface
+     */
+    public function unarchive($source, $target)
     {
-        /*
-         * cmd = '%s -x%sf "%s"' % (self.cmd_path, self.zipflag, self.src)
-        rc, out, err = self.module.run_command(cmd, cwd=self.dest)
-        return dict(cmd=cmd, rc=rc, out=out, err=err)
-         */
-    }
+        if (null === $this->tarCmdPath) {
+            return $this->resultFactory->createError('Can\'t find tag or gtar', $this);
+        }
 
-    public function isAnarchived($mode, $owner, $group)
-    {
-        //
-        //
+        $runResult = $this->cmdRunner->run($this->buildCmd($source, $target));
+
+        if (0 !== $runResult->getExitCode()) {
+            return $this->resultFactory->createError($runResult->getStdErr());
+        }
+
+        return $this->resultFactory->createSuccessful();
     }
 }

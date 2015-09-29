@@ -2,6 +2,7 @@
 
 namespace {
 
+    use CodeTool\ArtifactDownloader\Archive;
     use CodeTool\ArtifactDownloader\ArtifactDownloader;
     use CodeTool\ArtifactDownloader\Command;
     use CodeTool\ArtifactDownloader\DomainObject;
@@ -72,6 +73,15 @@ namespace {
 
     $container['util.cmd_runner'] = function (Container $container) {
         return new Util\CmdRunner\CmdRunner($container['util.cmd_runner.result.factory']);
+    };
+
+    //
+    $container['archive.unarchiver_factory'] = function (Container $container) {
+        return new Archive\Factory\UnarchiverFactory(
+            $container['result.factory'],
+            $container['util.cmd_runner'],
+            $container['util.basic_util']
+        );
     };
 
     //

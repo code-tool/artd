@@ -12,24 +12,15 @@ use CodeTool\ArtifactDownloader\HttpClient\Result\HttpClientResultInterface;
 class HttpClientResultFactory implements HttpClientResultFactoryInterface
 {
     /**
-     * @var HttpClientResponseFactoryInterface
-     */
-    private $httpClientResponseFactory;
-
-    /**
      * @var ErrorFactoryInterface
      */
     private $errorFactory;
 
     /**
-     * @param HttpClientResponseFactoryInterface $httpClientResponseFactory
-     * @param ErrorFactoryInterface              $errorFactory
+     * @param ErrorFactoryInterface $errorFactory
      */
-    public function __construct(
-        HttpClientResponseFactoryInterface $httpClientResponseFactory,
-        ErrorFactoryInterface $errorFactory
-    ) {
-        $this->httpClientResponseFactory = $httpClientResponseFactory;
+    public function __construct(ErrorFactoryInterface $errorFactory)
+    {
         $this->errorFactory = $errorFactory;
     }
 
@@ -45,15 +36,13 @@ class HttpClientResultFactory implements HttpClientResultFactoryInterface
     }
 
     /**
-     * @param int      $code
-     * @param string[] $headers
-     * @param string   $body
+     * @param HttpClientResponseInterface $httpClientResponse
      *
      * @return HttpClientResultInterface
      */
-    public function createSuccessful($code, array $headers, $body)
+    public function createSuccessful(HttpClientResponseInterface $httpClientResponse)
     {
-        return $this->create($this->httpClientResponseFactory->make($code, $headers, $body), null);
+        return $this->create($httpClientResponse, null);
     }
 
     /**
@@ -66,5 +55,25 @@ class HttpClientResultFactory implements HttpClientResultFactoryInterface
     public function createError($message, $context = null, ErrorInterface $prevError = null)
     {
         return $this->create(null, $this->errorFactory->create($message, $context, $prevError));
+    }
+
+    /**
+     * @param HttpClientResponseInterface $httpClientResponse
+     * @param string                      $message
+     * @param null                        $context
+     * @param ErrorInterface|null         $prevError
+     *
+     * @return HttpClientResultInterface
+     */
+    public function createErrorWithResponse(
+        HttpClientResponseInterface $httpClientResponse,
+        $message,
+        $context = null,
+        ErrorInterface $prevError = null
+    ) {
+        return $this->create(
+            $httpClientResponse,
+            $this->errorFactory->create($message, $context, $prevError)
+        );
     }
 }

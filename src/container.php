@@ -50,10 +50,7 @@ namespace {
     };
 
     $container['http_client.result.factory'] = function (Container $container) {
-        return new HttpClient\Result\Factory\HttpClientResultFactory(
-            $container['http_client.response.factory'],
-            $container['error.factory']
-        );
+        return new HttpClient\Result\Factory\HttpClientResultFactory($container['error.factory']);
     };
 
     $container['http_client'] = function (Container $container) {

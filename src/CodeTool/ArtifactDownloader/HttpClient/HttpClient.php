@@ -88,21 +88,23 @@ class HttpClient implements HttpClientInterface
     private function createResultFromChAndResponse($ch)
     {
         if (false === ($response = curl_exec($ch))) {
-            return $this->httpClientResultFactory->createError(curl_error($ch));
+            return $this->httpClientResultFactory->createError(curl_error($ch), $this);
         }
 
         $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
+        $response = $this->httpClientResponseFactory->make($httpCode, $this->responseHeaders, $response);
+
         if ($httpCode < 200 || $httpCode > 399) {
-            return $this->httpClientResultFactory->createError(sprintf('HTTP error: code %d', $httpCode));
+            return $this->httpClientResultFactory->createErrorWithResponse(
+                $response,
+                sprintf('HTTP error: code %d', $httpCode),
+                $this
+            );
         }
 
-        return $this->httpClientResultFactory->createSuccessful(
-            $httpCode,
-            $this->responseHeaders,
-            $response
-        );
+        return $this->httpClientResultFactory->createSuccessful($response);
     }
 
     /**

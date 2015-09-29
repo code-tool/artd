@@ -17,13 +17,11 @@ interface HttpClientResultFactoryInterface
     public function create(HttpClientResponseInterface $httpClientResponse = null, ErrorInterface $error = null);
 
     /**
-     * @param int      $code
-     * @param string[] $headers
-     * @param string   $body
+     * @param HttpClientResponseInterface $httpClientResponse
      *
      * @return HttpClientResultInterface
      */
-    public function createSuccessful($code, array $headers, $body);
+    public function createSuccessful(HttpClientResponseInterface $httpClientResponse);
 
     /**
      * @param string              $message
@@ -33,4 +31,19 @@ interface HttpClientResultFactoryInterface
      * @return HttpClientResultInterface
      */
     public function createError($message, $context = null, ErrorInterface $prevError = null);
+
+    /**
+     * @param HttpClientResponseInterface $httpClientResponse
+     * @param string                      $message
+     * @param null                        $context
+     * @param ErrorInterface|null         $prevError
+     *
+     * @return HttpClientResultInterface
+     */
+    public function createErrorWithResponse(
+        HttpClientResponseInterface $httpClientResponse,
+        $message,
+        $context = null,
+        ErrorInterface $prevError = null
+    );
 }

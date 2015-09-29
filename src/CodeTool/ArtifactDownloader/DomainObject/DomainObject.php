@@ -2,7 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader\DomainObject;
 
-class DomainObject implements \Countable, DomainObjectInterface
+class DomainObject implements DomainObjectInterface
 {
     /**
      * @var array
@@ -75,5 +75,38 @@ class DomainObject implements \Countable, DomainObjectInterface
     public function count()
     {
         return count($this->data);
+    }
+
+    public function current()
+    {
+        return current($this->data);
+    }
+
+    public function next()
+    {
+        next($this->data);
+    }
+
+    public function key()
+    {
+        return key($this->data);
+    }
+
+    public function valid()
+    {
+        return null !== key($this->data);
+    }
+
+    public function rewind()
+    {
+        reset($this->data);
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->data;
     }
 }

@@ -33,4 +33,9 @@ interface DomainObjectInterface extends \Countable, \Iterator
      * @return DomainObjectInterface
      */
     public function set($key, $value);
+
+    /**
+     * @return array
+     */
+    public function toArray();
 }

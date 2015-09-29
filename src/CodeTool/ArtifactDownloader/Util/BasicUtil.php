@@ -34,6 +34,12 @@ class BasicUtil
      */
     public function getTmpPath()
     {
-        return tempnam(sys_get_temp_dir(), 'arifact-downloader-' . posix_getpid());
+        return
+            sys_get_temp_dir() .
+            DIRECTORY_SEPARATOR .
+            'artifact-downloader-' .
+            posix_getpid() .
+            '-' .
+            uniqid('', true);
     }
 }

@@ -84,7 +84,7 @@ class ArtifactDownloader
         $newUnitStatus = $this->unitStatusBuilder->build();
         $statusKey = $this->unitConfig->getStatusDirectoryPath() . '/' . $this->unitConfig->getName();
 
-        $this->logger->debug('Try to update unit status to %s', $newUnitStatus);
+        $this->logger->debug(sprintf('Try to update unit status to %s', $newUnitStatus));
 
         $result = $this->etcdClient->set($statusKey, $newUnitStatus);
 

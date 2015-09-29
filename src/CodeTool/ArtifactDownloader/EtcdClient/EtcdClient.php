@@ -67,7 +67,7 @@ class EtcdClient implements EtcdClientInterface
     {
         $httpResponse = $this->httpClient->makeRequest($uri, $method, $parameters);
 
-        return $this->etcdClientResultFactory->makeFromJson($httpResponse->getBody());
+        return $this->etcdClientResultFactory->createFromJson($httpResponse->getBody());
     }
 
     /**

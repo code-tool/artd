@@ -15,26 +15,26 @@ interface EtcdClientResultFactoryInterface
      *
      * @return EtcdClientResultInterface
      */
-    public function make(EtcdClientErrorInterface $error = null, EtcdClientResponseInterface $response = null);
+    public function create(EtcdClientErrorInterface $error = null, EtcdClientResponseInterface $response = null);
 
     /**
      * @param DomainObjectInterface $do
      *
      * @return EtcdClientResultInterface
      */
-    public function makeFromDo(DomainObjectInterface $do);
+    public function createFromDo(DomainObjectInterface $do);
 
     /**
      * @param array $data
      *
      * @return EtcdClientResultInterface
      */
-    public function makeFromArray(array $data);
+    public function createFromArray(array $data);
 
     /**
      * @param string $json
      *
      * @return EtcdClientResultInterface
      */
-    public function makeFromJson($json);
+    public function createFromJson($json);
 }

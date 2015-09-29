@@ -44,7 +44,7 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
      *
      * @return EtcdClientResultInterface
      */
-    public function make(EtcdClientErrorInterface $error = null, EtcdClientResponseInterface $response = null)
+    public function create(EtcdClientErrorInterface $error = null, EtcdClientResponseInterface $response = null)
     {
         return new EtcdClientResult($error, $response);
     }
@@ -54,13 +54,13 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
      *
      * @return EtcdClientResultInterface
      */
-    public function makeFromDo(DomainObjectInterface $do)
+    public function createFromDo(DomainObjectInterface $do)
     {
         if ($do->has(EtcdClientErrorFactoryInterface::ERROR_CODE_F_NAME)) {
-            return $this->make($this->etcdClientErrorFactory->makeFromDo($do), null);
+            return $this->create($this->etcdClientErrorFactory->makeFromDo($do), null);
         }
 
-        return $this->make(null, $this->etcdClientResponseFactory->makeFromDo($do));
+        return $this->create(null, $this->etcdClientResponseFactory->makeFromDo($do));
     }
 
     /**
@@ -68,9 +68,9 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
      *
      * @return EtcdClientResultInterface
      */
-    public function makeFromArray(array $data)
+    public function createFromArray(array $data)
     {
-        return $this->makeFromDo($this->domainObjectFactory->makeRecursiveFromArray($data));
+        return $this->createFromDo($this->domainObjectFactory->makeRecursiveFromArray($data));
     }
 
     /**
@@ -78,13 +78,13 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
      *
      * @return EtcdClientResultInterface
      */
-    public function makeFromJson($json)
+    public function createFromJson($json)
     {
         $data = json_decode($json, true);
         if (JSON_ERROR_NONE !== json_last_error()) {
             throw new \RuntimeException(json_last_error_msg());
         }
 
-        return $this->makeFromArray($data);
+        return $this->createFromArray($data);
     }
 }

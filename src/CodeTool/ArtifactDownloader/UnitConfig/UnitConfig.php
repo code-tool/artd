@@ -6,7 +6,7 @@ class UnitConfig implements UnitConfigInterface
 {
     private function getOptOrEnvOrDefault($optName, $env, $default)
     {
-        $opt = getopt([], $optName . '::');
+        $opt = getopt('', [$optName . '::']);
         if (false !== $opt && array_key_exists($optName, $opt)) {
             return $opt[$optName];
         }

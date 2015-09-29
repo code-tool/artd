@@ -149,7 +149,7 @@ class ArtifactDownloader
         $this->lastConfigModifiedIndex = $etcdClientResult->getResponse()->getNode()->getModifiedIndex();
 
         // $this-> UpdateVersion UnitScopeConfigVersiosn
-        $this->unitStatusBuilder->setConfigVersion($parsedConfig->getVersion());
+        $this->unitStatusBuilder->setStatus('sync')->setConfigVersion($parsedConfig->getVersion());
         $this->updateUnitStatus();
     }
 

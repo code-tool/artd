@@ -4,11 +4,9 @@ namespace CodeTool\ArtifactDownloader\Scope\State\TypeHandler;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
-use CodeTool\ArtifactDownloader\CommandCollectionBuilder\Section\SourceSectionCollectionBuilder;
 use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigChildNodeInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
-use CodeTool\ArtifactDownloader\Scope\State\SectionHandler\ScopeStateGMOSectionHandler;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
 class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface

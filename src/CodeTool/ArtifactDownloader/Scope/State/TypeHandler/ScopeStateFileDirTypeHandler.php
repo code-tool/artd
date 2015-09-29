@@ -71,7 +71,7 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
      */
     private function isSourceLocal($source)
     {
-        return false === strpos('://', $source);
+        return false === strpos($source, '://');
     }
 
     /**
@@ -156,15 +156,15 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
         if ($scopeConfigChildNode->has('source')) {
             $source = $scopeConfigChildNode->get('source');
 
-            if (false === $this->isSourceLocal($source)) {
-                $this->addForRemoteSource($collection, $source, $target, $scopeConfigChildNode);
-            } else {
+            if (true === $this->isSourceLocal($source)) {
                 $this->addForLocalSource(
                     $collection,
                     $scopeInfo->getAbsPathByForTarget($source),
                     $target,
                     $scopeConfigChildNode
                 );
+            } else {
+                $this->addForRemoteSource($collection, $source, $target, $scopeConfigChildNode);
             }
         } // Todo Handle other cases
 

@@ -62,7 +62,7 @@ class TarUnarchiver implements UnarchiverInterface
      */
     private function buildCmd($source, $target)
     {
-        return sprintf('%s -C "%s" -x%sf "%s"', $target, $this->tarCmdPath, $this->compressType, $source);
+        return sprintf('%s -C "%s" -x%sf "%s"', $this->tarCmdPath, $target, $this->compressType, $source);
     }
 
     /**

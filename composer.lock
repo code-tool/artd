@@ -4,8 +4,53 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "197a355ecef9176d18d58886e2115d90",
+    "hash": "36a7179357f65a90c38910099fb1c817",
     "packages": [
+        {
+            "name": "fool/echolog",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://bitbucket.org/fool/echolog.git",
+                "reference": "3bce04a2f4cd8f084f59944d5541d7bad1e9ea71"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://bitbucket.org/fool/echolog/get/3bce04a2f4cd8f084f59944d5541d7bad1e9ea71.zip",
+                "reference": "3bce04a2f4cd8f084f59944d5541d7bad1e9ea71",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0",
+                "psr/log": "1.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "fool\\echolog\\": "src\\fool\\echolog"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Jordan Sterling",
+                    "email": "jordan@jordansterling.com",
+                    "homepage": "https://bitbucket.org/fool"
+                }
+            ],
+            "description": "Echo logger",
+            "homepage": "https://bitbucket.org/fool/echolog",
+            "keywords": [
+                "PSR3",
+                "log",
+                "logger",
+                "logging"
+            ],
+            "time": "2014-05-12 09:37:53"
+        },
         {
             "name": "pimple/pimple",
             "version": "v3.0.2",

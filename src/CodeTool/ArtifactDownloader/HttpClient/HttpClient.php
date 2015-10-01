@@ -60,9 +60,11 @@ class HttpClient implements HttpClientInterface
      */
     private function setBasicCurlParameters($ch)
     {
-        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
         curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 0);
     }
 
     /**

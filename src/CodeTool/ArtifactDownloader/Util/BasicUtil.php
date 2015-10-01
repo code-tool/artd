@@ -80,4 +80,14 @@ class BasicUtil
             $reverseOrder === true ? \RecursiveIteratorIterator::CHILD_FIRST : \RecursiveIteratorIterator::SELF_FIRST
         );
     }
+
+    /**
+     * @param string $source
+     *
+     * @return bool
+     */
+    public function isSourceLocal($source)
+    {
+        return false === strpos($source, '://');
+    }
 }

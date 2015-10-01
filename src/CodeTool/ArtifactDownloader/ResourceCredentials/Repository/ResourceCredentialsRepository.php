@@ -19,6 +19,13 @@ class ResourceCredentialsRepository implements ResourceCredentialsRepositoryInte
         $this->resourceCredentials = $resourceCredentials;
     }
 
+    /**
+     * @param string    $pattern
+     * @param string    $value
+     * @param bool|true $ignoreCase
+     *
+     * @return bool
+     */
     private function isMatch($pattern, $value, $ignoreCase = true)
     {
         $expr = preg_replace_callback(
@@ -51,7 +58,7 @@ class ResourceCredentialsRepository implements ResourceCredentialsRepositoryInte
      */
     public function getCredentialsByResourcePath($url)
     {
-        if (false === $parsedUrl = parse_url($url, PHP_URL_SCHEME | PHP_URL_HOST)) {
+        if (false === $parsedUrl = parse_url($url, PHP_URL_SCHEME | PHP_URL_HOST | PHP_URL_PORT)) {
             return null;
         }
 

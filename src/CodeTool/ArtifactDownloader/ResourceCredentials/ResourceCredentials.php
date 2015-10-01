@@ -38,6 +38,10 @@ class ResourceCredentials implements ResourceCredentialsInterface
      */
     public function __construct($scheme, $host, $port, $clientCertPath, $clientCertPassword)
     {
+        $this->scheme = $scheme;
+        $this->host = $host;
+        $this->port = $port;
+
         $this->clientCertPath = $clientCertPath;
         $this->clientCertPassword = $clientCertPassword;
     }

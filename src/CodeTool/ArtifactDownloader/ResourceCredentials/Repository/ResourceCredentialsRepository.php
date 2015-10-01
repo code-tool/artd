@@ -58,14 +58,22 @@ class ResourceCredentialsRepository implements ResourceCredentialsRepositoryInte
      */
     public function getCredentialsByResourcePath($url)
     {
-        if (false === $parsedUrl = parse_url($url, PHP_URL_SCHEME | PHP_URL_HOST | PHP_URL_PORT)) {
+        if (false === $parsedUrl = parse_url($url)) {
             return null;
         }
 
+        $scheme = $parsedUrl['scheme'];
+
+        if (false === array_key_exists('port', $parsedUrl)) {
+            $port = getservbyname($scheme, 'tcp');
+        } else {
+            $port = $parsedUrl['port'];
+        }
+
         foreach ($this->resourceCredentials as $resourceCredentials) {
-            if ($this->isMatch($resourceCredentials->getScheme(), $parsedUrl['scheme']) &&
-                $this->isMatch($resourceCredentials->getHost(), $parsedUrl['host']) &&
-                $this->isMatch($resourceCredentials->getPort(), $parsedUrl['port'])
+            if ($this->isMatch($resourceCredentials->getPort(), $port) &&
+                $this->isMatch($resourceCredentials->getScheme(), $scheme) &&
+                $this->isMatch($resourceCredentials->getHost(), $parsedUrl['host'])
             ) {
                 return $resourceCredentials;
             }

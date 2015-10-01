@@ -53,8 +53,31 @@ class BasicUtil
         return sys_get_temp_dir() . DIRECTORY_SEPARATOR . $this->getTmpName();
     }
 
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
     public function getRelativeTmpPath($path)
     {
-        return realpath($path . DIRECTORY_SEPARATOR . '..') . DIRECTORY_SEPARATOR . $this->getTmpName();
+        return dirname($path) . DIRECTORY_SEPARATOR . $this->getTmpName();
+    }
+
+    /**
+     * @param string     $path
+     * @param bool|false $reverseOrder
+     *
+     * @return \SplFileInfo[]
+     */
+    public function getFileIterator($path, $reverseOrder = false)
+    {
+        if (is_file($path)) {
+            return new \ArrayIterator([new \SplFileInfo($path)]);
+        }
+
+        return new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS),
+            $reverseOrder === true ? \RecursiveIteratorIterator::CHILD_FIRST : \RecursiveIteratorIterator::SELF_FIRST
+        );
     }
 }

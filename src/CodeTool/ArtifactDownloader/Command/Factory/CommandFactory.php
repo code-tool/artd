@@ -12,6 +12,7 @@ use CodeTool\ArtifactDownloader\Command\CommandCopyFile;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
+use CodeTool\ArtifactDownloader\Command\CommandRename;
 use CodeTool\ArtifactDownloader\Command\CommandRm;
 use CodeTool\ArtifactDownloader\Command\CommandSymlink;
 use CodeTool\ArtifactDownloader\Command\CommandUnarchive;
@@ -187,5 +188,16 @@ class CommandFactory implements CommandFactoryInterface
     public function createSymlinkCommand($targetPath, $sourcePath)
     {
         return new CommandSymlink($this->resultFactory, $targetPath, $sourcePath);
+    }
+
+    /**
+     * @param string $sourcePath
+     * @param string $targetPath
+     *
+     * @return CommandSymlink
+     */
+    public function createRenameCommand($sourcePath, $targetPath)
+    {
+        return new CommandRename($this->resultFactory, $targetPath, $sourcePath);
     }
 }

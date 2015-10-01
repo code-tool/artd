@@ -7,21 +7,63 @@ class ResourceCredentials implements ResourceCredentialsInterface
     /**
      * @var string
      */
-    private $path;
+    private $scheme;
 
     /**
      * @var string
      */
-    private $password;
+    private $host;
 
     /**
-     * @param string  $path
-     * @param string  $password
+     * @var string
      */
-    public function __construct($path, $password)
+    private $port;
+
+    /**
+     * @var string
+     */
+    private $clientCertPath;
+
+    /**
+     * @var string
+     */
+    private $clientCertPassword;
+
+    /**
+     * @param string $scheme
+     * @param string $host
+     * @param string $port
+     * @param string $clientCertPath
+     * @param string $clientCertPassword
+     */
+    public function __construct($scheme, $host, $port, $clientCertPath, $clientCertPassword)
     {
-        $this->path = $path;
-        $this->password = $password;
+        $this->clientCertPath = $clientCertPath;
+        $this->clientCertPassword = $clientCertPassword;
+    }
+
+    /**
+     * @return string
+     */
+    public function getScheme()
+    {
+        return $this->scheme;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPort()
+    {
+        return $this->port;
     }
 
     /**
@@ -29,7 +71,7 @@ class ResourceCredentials implements ResourceCredentialsInterface
      */
     public function getClientCertPath()
     {
-        return $this->path;
+        return $this->clientCertPath;
     }
 
     /**
@@ -37,6 +79,6 @@ class ResourceCredentials implements ResourceCredentialsInterface
      */
     public function getClientCertPassword()
     {
-        return $this->password;
+        return $this->clientCertPassword;
     }
 }

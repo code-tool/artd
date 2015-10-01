@@ -6,11 +6,42 @@ use CodeTool\ArtifactDownloader\ResourceCredentials\ResourceCredentialsInterface
 
 class ResourceCredentialsRepository implements ResourceCredentialsRepositoryInterface
 {
-    private $domainClientCerts;
+    /**
+     * @var ResourceCredentialsInterface[]
+     */
+    private $resourceCredentials;
 
-    public function __construct(array $domainClientCerts = [])
+    /**
+     * @param ResourceCredentialsInterface[] $resourceCredentials
+     */
+    public function __construct(array $resourceCredentials = [])
     {
-        $this->domainClientCerts = $domainClientCerts;
+        $this->resourceCredentials = $resourceCredentials;
+    }
+
+    private function isMatch($pattern, $value, $ignoreCase = true)
+    {
+        $expr = preg_replace_callback(
+            '/[\\\\^$.[\\]|()?*+{}\\-\\/]/',
+            function ($matches) {
+                switch ($matches[0]) {
+                    case '*':
+                        return '.*';
+                    case '?':
+                        return '.';
+                    default:
+                        return '\\' . $matches[0];
+                }
+            },
+            $pattern
+        );
+
+        $expr = '/' . $expr . '/';
+        if (true === $ignoreCase) {
+            $expr .= 'i';
+        }
+
+        return (bool) preg_match($expr, $value);
     }
 
     /**
@@ -20,6 +51,19 @@ class ResourceCredentialsRepository implements ResourceCredentialsRepositoryInte
      */
     public function getCredentialsByResourcePath($url)
     {
+        if (false === $parsedUrl = parse_url($url, PHP_URL_SCHEME | PHP_URL_HOST)) {
+            return null;
+        }
+
+        foreach ($this->resourceCredentials as $resourceCredentials) {
+            if ($this->isMatch($resourceCredentials->getScheme(), $parsedUrl['scheme']) &&
+                $this->isMatch($resourceCredentials->getHost(), $parsedUrl['host']) &&
+                $this->isMatch($resourceCredentials->getPort(), $parsedUrl['port'])
+            ) {
+                return $resourceCredentials;
+            }
+        }
+
         return null;
     }
 }

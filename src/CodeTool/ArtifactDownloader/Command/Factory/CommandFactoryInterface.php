@@ -115,4 +115,12 @@ interface CommandFactoryInterface
      * @return CommandSymlink
      */
     public function createSymlinkCommand($targetPath, $sourcePath);
+
+    /**
+     * @param string $sourcePath
+     * @param string $targetPath
+     *
+     * @return CommandSymlink
+     */
+    public function createRenameCommand($sourcePath, $targetPath);
 }

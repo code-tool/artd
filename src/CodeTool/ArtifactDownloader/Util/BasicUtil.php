@@ -52,4 +52,9 @@ class BasicUtil
     {
         return sys_get_temp_dir() . DIRECTORY_SEPARATOR . $this->getTmpName();
     }
+
+    public function getRelativeTmpPath($path)
+    {
+        return realpath($path . DIRECTORY_SEPARATOR . '..') . DIRECTORY_SEPARATOR . $this->getTmpName();
+    }
 }

@@ -60,4 +60,12 @@ class CommandCompareDirs implements CommandInterface
 
         return $this->onEqualCommand->execute();
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return sprintf('Compare %s with %s', $this->source, $this->target);
+    }
 }

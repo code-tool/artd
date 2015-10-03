@@ -31,7 +31,7 @@ class CommandRm implements CommandInterface
      */
     private function doRm($path)
     {
-        if (is_file($path)) {
+        if (is_file($path) || is_link($path)) {
             return @unlink($path);
         }
 

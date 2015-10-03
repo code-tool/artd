@@ -9,7 +9,7 @@ use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigChildNodeInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
-class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
+class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
 {
     /**
      * @var BasicUtil
@@ -82,6 +82,8 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
      * @param string                     $source
      * @param string                     $target
      * @param DomainObjectInterface      $do
+     *
+     * @return string
      */
     private function addForRemoteSource(
         CommandCollectionInterface $collection,
@@ -96,22 +98,19 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
         // check hash if needed
         $this->addHashCheck($collection, $downloadPath, $do);
 
-        $moveSourcePath = $downloadPath;
-        if (true === $do->has('archive_format')) {
-            $moveSourcePath = $this->basicUtil->getTmpPath();
+        $unarchivePath = $this->basicUtil->getRelativeTmpPath($target);
 
-            // unarchive
-            $collection
-                ->add($this->commandFactory->createMkDirCommand($moveSourcePath))
-                ->add($this->commandFactory->createUnarchiveCommand(
-                    $downloadPath,
-                    $moveSourcePath,
-                    $do->get('archive_format')
-                ))
-                ->add($this->commandFactory->createRmCommand($downloadPath));
-        }
+        // unarchive
+        $collection
+            ->add($this->commandFactory->createMkDirCommand($unarchivePath))
+            ->add($this->commandFactory->createUnarchiveCommand(
+                $downloadPath,
+                $unarchivePath,
+                $do->get('archive_format')
+            ))
+            ->add($this->commandFactory->createRmCommand($downloadPath));
 
-        $collection->add($this->commandFactory->createMoveFileCommand($moveSourcePath, $target));
+        return $unarchivePath;
     }
 
     /**
@@ -137,59 +136,81 @@ class ScopeStateFileDirTypeHandler implements ScopeStateTypeHandlerInterface
         }
     }
 
+    private function buildSwapOperation($sourcePath, $targetPath)
+    {
+        // todo If source local, do not move, just copy
+        $newTargetPath = $this->basicUtil->getRelativeTmpPath($targetPath);
+        // double move. target to tmp path, after source to target and remove tmp
+        $result = $this->commandFactory->createCollection()
+            ->add($this->commandFactory->createMoveFileCommand($targetPath, $newTargetPath))
+            ->add($this->commandFactory->createMoveFileCommand($sourcePath, $targetPath))
+            ->add($this->commandFactory->createRmCommand($newTargetPath));
+
+        return $result;
+    }
+
     public function handle(
         CommandCollectionInterface $collection,
         ScopeInfoInterface $scopeInfo,
         ScopeConfigChildNodeInterface $scopeConfigChildNode
     ) {
-        $type = $scopeConfigChildNode->getType();
-        if ('file' !== $type && 'dir' !== $type) {
+        if ('dir' !== $scopeConfigChildNode->getType()) {
             return false;
         }
 
         $realTarget = $scopeConfigChildNode->get('target');
+        $realTargetPath = $scopeInfo->getAbsPathByForTarget($realTarget);
         $targetExists = $scopeInfo->isTargetExists($realTarget);
 
-        $target = $scopeInfo->getAbsPathByForTarget($realTarget);
-
-        if ($targetExists) {
-            $target = $this->basicUtil->getTmpPath();
-            // $collection->add();
-        }
-
-        if ('dir' === $type) {
-            if ($targetExists) {
-                //$collection->add($this->commandFactory->createMoveFileCommand($target, 0777, true));
-            } else {
-                $collection->add($this->commandFactory->createMkDirCommand($target, 0777, true));
+        // If no source defined
+        if (false === $scopeConfigChildNode->has('source')) {
+            if (false === $targetExists) {
+                // And directory dose not exists. Just create new
+                $collection->add($this->commandFactory->createMkDirCommand($realTargetPath, 0777, true));
             }
+
+            // Fix permissions, if need
+            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigChildNode);
+
+            return true;
         }
 
-        // $content => setContent
-        if ($scopeConfigChildNode->has('source')) {
-            $source = $scopeConfigChildNode->get('source');
+        // Source defined
+        $source = $scopeConfigChildNode->get('source');
+        $isSourceLocal = $this->basicUtil->isSourceLocal($source);
 
-            if (true === $this->isSourceLocal($source)) {
-                $this->addForLocalSource(
-                    $collection,
-                    $scopeInfo->getAbsPathByForTarget($source),
-                    $target,
-                    $scopeConfigChildNode
-                );
-            } else {
-                $this->addForRemoteSource($collection, $source, $target, $scopeConfigChildNode);
-            }
-        } // Todo Handle other cases
-
-        // todo Add file/dir check
-
-        $this->addGMOCommands($collection, $target, $scopeConfigChildNode);
-
-        if ($targetExists) {
-            $collection->add(
-                $this->commandFactory->createMoveFileCommand($target, $scopeInfo->getAbsPathByForTarget($realTarget))
-            );
+        if (false === $isSourceLocal) {
+            // If source remote, download it and get new source path
+            $source = $this->addForRemoteSource($collection, $source, $realTargetPath, $scopeConfigChildNode);
+        } else {
+            // todo Is source absolute path?
+            $source = $scopeInfo->getAbsPathByForTarget($source);
         }
+
+        if (false === $targetExists) {
+            // Now, if target dose not exists, just move
+            $collection->add($this->commandFactory->createMoveFileCommand($source, $realTargetPath));
+            // Fix permissions, if need
+            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigChildNode);
+
+            return true;
+        }
+
+        $successCompareCommand = $isSourceLocal
+            ? $this->commandFactory->createNopCommand()
+            : $this->commandFactory->createRmCommand($source);
+
+        // So, if target exists, we should compare directories
+        $collection->add(
+            $this->commandFactory->createCompareDirsCommand(
+                $source,
+                $realTargetPath,
+                // if its equals, remove source (only for remote)
+                $successCompareCommand,
+                // else, swap
+                $this->buildSwapOperation($source, $realTargetPath)
+            )
+        );
 
         return true;
     }

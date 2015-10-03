@@ -64,7 +64,6 @@ class HttpClient implements HttpClientInterface
         curl_setopt($ch, CURLOPT_TIMEOUT, 0);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 0);
     }
 
     /**

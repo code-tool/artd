@@ -7,6 +7,7 @@ namespace {
     use CodeTool\ArtifactDownloader\Command;
     use CodeTool\ArtifactDownloader\Config\Factory\ConfigFactory;
     use CodeTool\ArtifactDownloader\DomainObject;
+    use CodeTool\ArtifactDownloader\DirectoryComparator;
     use CodeTool\ArtifactDownloader\Error;
     use CodeTool\ArtifactDownloader\EtcdClient;
     use CodeTool\ArtifactDownloader\HttpClient;
@@ -89,11 +90,19 @@ namespace {
     };
 
     //
+    $container['directory_comparator.negative'] = function () {
+        new DirectoryComparator\DirectoryComparatorNegative();
+    };
+
+    $container['directory_comparator'] = $container['directory_comparator.negative'];
+
+    //
     $container['command.factory'] = function (Container $container) {
         return new Command\Factory\CommandFactory(
             $container['result.factory'],
             $container['http_client'],
-            $container['archive.unarchiver_factory']
+            $container['archive.unarchiver_factory'],
+            $container['directory_comparator']
         );
     };
 
@@ -141,8 +150,8 @@ namespace {
     };
 
     //
-    $container['scope.state.type_handler.file_dir'] = function (Container $container) {
-        return new Scope\State\TypeHandler\ScopeStateFileDirTypeHandler(
+    $container['scope.state.type_handler.dir'] = function (Container $container) {
+        return new Scope\State\TypeHandler\ScopeStateDirTypeHandler(
             $container['util.basic_util'],
             $container['command.factory']
         );
@@ -162,7 +171,7 @@ namespace {
             $container['scope.info.factory'],
             [
                 $container['scope.state.type_handler.symlink'],
-                $container['scope.state.type_handler.file_dir'],
+                $container['scope.state.type_handler.dir'],
             ]
         );
     };

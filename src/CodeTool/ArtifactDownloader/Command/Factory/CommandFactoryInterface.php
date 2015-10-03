@@ -7,10 +7,13 @@ use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandChgrp;
 use CodeTool\ArtifactDownloader\Command\CommandChmod;
 use CodeTool\ArtifactDownloader\Command\CommandChown;
+use CodeTool\ArtifactDownloader\Command\CommandCompareDirs;
 use CodeTool\ArtifactDownloader\Command\CommandCopyFile;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
+use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
+use CodeTool\ArtifactDownloader\Command\CommandNop;
 use CodeTool\ArtifactDownloader\Command\CommandRm;
 use CodeTool\ArtifactDownloader\Command\CommandSymlink;
 use CodeTool\ArtifactDownloader\Command\CommandUnarchive;
@@ -123,4 +126,24 @@ interface CommandFactoryInterface
      * @return CommandSymlink
      */
     public function createRenameCommand($sourcePath, $targetPath);
+
+    /**
+     * @return CommandNop
+     */
+    public function createNopCommand();
+
+    /**
+     * @param string           $sourcePath
+     * @param string           $targetPath
+     * @param CommandInterface $onEqualCommand
+     * @param CommandInterface $onNotEqualCommand
+     *
+     * @return CommandCompareDirs
+     */
+    public function createCompareDirsCommand(
+        $sourcePath,
+        $targetPath,
+        CommandInterface $onEqualCommand,
+        CommandInterface $onNotEqualCommand
+    );
 }

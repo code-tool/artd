@@ -8,14 +8,18 @@ use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandChgrp;
 use CodeTool\ArtifactDownloader\Command\CommandChmod;
 use CodeTool\ArtifactDownloader\Command\CommandChown;
+use CodeTool\ArtifactDownloader\Command\CommandCompareDirs;
 use CodeTool\ArtifactDownloader\Command\CommandCopyFile;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
+use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
+use CodeTool\ArtifactDownloader\Command\CommandNop;
 use CodeTool\ArtifactDownloader\Command\CommandRename;
 use CodeTool\ArtifactDownloader\Command\CommandRm;
 use CodeTool\ArtifactDownloader\Command\CommandSymlink;
 use CodeTool\ArtifactDownloader\Command\CommandUnarchive;
+use CodeTool\ArtifactDownloader\DirectoryComparator\DirectoryComparatorInterface;
 use CodeTool\ArtifactDownloader\HttpClient\HttpClientInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 
@@ -36,19 +40,24 @@ class CommandFactory implements CommandFactoryInterface
      */
     private $unarchiverFactory;
 
+    private $directoryComparator;
+
     /**
-     * @param ResultFactoryInterface     $resultFactory
-     * @param HttpClientInterface        $httpClient
-     * @param UnarchiverFactoryInterface $unarchiverFactory
+     * @param ResultFactoryInterface       $resultFactory
+     * @param HttpClientInterface          $httpClient
+     * @param UnarchiverFactoryInterface   $unarchiverFactory
+     * @param DirectoryComparatorInterface $directoryComparator
      */
     public function __construct(
         ResultFactoryInterface $resultFactory,
         HttpClientInterface $httpClient,
-        UnarchiverFactoryInterface $unarchiverFactory
+        UnarchiverFactoryInterface $unarchiverFactory,
+        DirectoryComparatorInterface $directoryComparator
     ) {
         $this->resultFactory = $resultFactory;
         $this->httpClient = $httpClient;
         $this->unarchiverFactory = $unarchiverFactory;
+        $this->directoryComparator = $directoryComparator;
     }
 
     /**
@@ -199,5 +208,36 @@ class CommandFactory implements CommandFactoryInterface
     public function createRenameCommand($sourcePath, $targetPath)
     {
         return new CommandRename($this->resultFactory, $targetPath, $sourcePath);
+    }
+
+    /**
+     * @return CommandNop
+     */
+    public function createNopCommand()
+    {
+        return new CommandNop($this->resultFactory);
+    }
+
+    /**
+     * @param string           $sourcePath
+     * @param string           $targetPath
+     * @param CommandInterface $onEqualCommand
+     * @param CommandInterface $onNotEqualCommand
+     *
+     * @return CommandCompareDirs
+     */
+    public function createCompareDirsCommand(
+        $sourcePath,
+        $targetPath,
+        CommandInterface $onEqualCommand,
+        CommandInterface $onNotEqualCommand
+    ) {
+        return new CommandCompareDirs(
+            $this->directoryComparator,
+            $sourcePath,
+            $targetPath,
+            $onEqualCommand,
+            $onNotEqualCommand
+        );
     }
 }

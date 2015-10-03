@@ -4,6 +4,11 @@ namespace CodeTool\ArtifactDownloader\DirectoryComparator;
 
 class DirectoryComparatorSimple implements DirectoryComparatorInterface
 {
+    /**
+     * @param string $path
+     *
+     * @return \RecursiveIteratorIterator
+     */
     private function getSourceIterator($path)
     {
         return new \RecursiveIteratorIterator(
@@ -15,6 +20,13 @@ class DirectoryComparatorSimple implements DirectoryComparatorInterface
         );
     }
 
+    /**
+     * @param string $source
+     * @param string $target
+     * @param string $filePath
+     *
+     * @return string
+     */
     private function getTargetPathBySourcePath($source, $target, $filePath)
     {
         return str_replace($source, $target, $filePath);
@@ -22,6 +34,10 @@ class DirectoryComparatorSimple implements DirectoryComparatorInterface
 
     private function isFilesEqual(\SplFileInfo $fileInfo1, \SplFileInfo $fileInfo2)
     {
+        if (false === $fileInfo1->isReadable() || false === $fileInfo2->isReadable()) {
+            return false;
+        }
+
         if ($fileInfo1->getSize() !== $fileInfo2->getSize()) {
             return false;
         }

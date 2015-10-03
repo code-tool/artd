@@ -32,6 +32,12 @@ class DirectoryComparatorSimple implements DirectoryComparatorInterface
         return str_replace($source, $target, $filePath);
     }
 
+    /**
+     * @param \SplFileInfo $fileInfo1
+     * @param \SplFileInfo $fileInfo2
+     *
+     * @return bool
+     */
     private function isFilesEqual(\SplFileInfo $fileInfo1, \SplFileInfo $fileInfo2)
     {
         if (false === $fileInfo1->isReadable() || false === $fileInfo2->isReadable()) {

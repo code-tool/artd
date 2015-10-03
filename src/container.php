@@ -91,10 +91,12 @@ namespace {
 
     //
     $container['directory_comparator.negative'] = function () {
-        new DirectoryComparator\DirectoryComparatorNegative();
+        return new DirectoryComparator\DirectoryComparatorNegative();
     };
 
-    $container['directory_comparator'] = $container['directory_comparator.negative'];
+    $container['directory_comparator'] = function (Container $container) {
+        return $container['directory_comparator.negative'];
+    };
 
     //
     $container['command.factory'] = function (Container $container) {

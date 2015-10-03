@@ -94,8 +94,12 @@ namespace {
         return new DirectoryComparator\DirectoryComparatorNegative();
     };
 
+    $container['directory_comparator.simple'] = function () {
+        return new DirectoryComparator\DirectoryComparatorSimple();
+    };
+
     $container['directory_comparator'] = function (Container $container) {
-        return $container['directory_comparator.negative'];
+        return $container['directory_comparator.simple'];
     };
 
     //

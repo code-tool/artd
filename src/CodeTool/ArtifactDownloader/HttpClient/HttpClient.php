@@ -52,7 +52,7 @@ class HttpClient implements HttpClientInterface
 
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_SSLCERT, $resourceCredentials->getClientCertPath());
-        curl_setopt($ch, CURLOPT_SSLCERT, $resourceCredentials->getClientCertPassword());
+        curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $resourceCredentials->getClientCertPassword());
     }
 
     /**
@@ -61,7 +61,7 @@ class HttpClient implements HttpClientInterface
     private function setBasicCurlParameters($ch)
     {
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 0);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 0);

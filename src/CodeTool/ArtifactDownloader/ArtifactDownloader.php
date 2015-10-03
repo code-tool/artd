@@ -47,6 +47,14 @@ class ArtifactDownloader
      */
     private $lastConfigModifiedIndex;
 
+    /**
+     * @param LoggerInterface            $logger
+     * @param UnitConfigInterface        $unitConfig
+     * @param EtcdClientInterface        $etcdClient
+     * @param ConfigFactoryInterface     $configFactory
+     * @param ScopeStateBuilder          $scopeStateBuilder
+     * @param UnitStatusBuilderInterface $unitStatusBuilder
+     */
     public function __construct(
         LoggerInterface $logger,
         UnitConfigInterface $unitConfig,
@@ -97,11 +105,14 @@ class ArtifactDownloader
             return false;
         }
 
-        $this->logger->info(sprintf('Successfully updated unit status to %s', $newUnitStatus));
+        $this->logger->info(sprintf('Successfully updated unit status => %s', $newUnitStatus));
 
         return true;
     }
 
+    /**
+     * @param EtcdClientResultInterface $etcdClientResult
+     */
     private function handleEtcdClientResult(EtcdClientResultInterface $etcdClientResult)
     {
         if (null !== $etcdClientResult->getError()) {
@@ -121,9 +132,6 @@ class ArtifactDownloader
             return;
         }
 
-        // Get config revision
-        $this->logger->debug(sprintf('New configModifiedIndex: %d', $this->lastConfigModifiedIndex));
-
         // Parse config and build collection
         $configString = $etcdClientResult->getResponse()->getNode()->getValue();
         $this->logger->debug(sprintf('Got new config: %s', $configString));
@@ -135,9 +143,15 @@ class ArtifactDownloader
         $commandCollection = $this->scopeStateBuilder->buildForScopes($parsedConfig->getScopesConfig());
         $this->logger->debug(sprintf('Built command collection: %s%s', PHP_EOL, $commandCollection));
 
+        $applyStart = microtime(true);
         // Apply command collection
         $configApplyResult = $commandCollection->execute();
         if (null !== $configApplyResult->getError()) {
+            $this->logger->error(sprintf(
+                'Error while executing commands: %s',
+                $configApplyResult->getError()->getMessage()
+            ));
+
             $this
                 ->logErrorAndPushToUnitStatus($configApplyResult->getError()->getMessage())
                 ->updateUnitStatus();
@@ -145,10 +159,17 @@ class ArtifactDownloader
             return;
         }
 
+        $this->logger->info(sprintf(
+            'Scope synchronised to version %s in %f sec',
+            $parsedConfig->getVersion(),
+            microtime(true) - $applyStart
+        ));
+
         // Update applied config index
         $this->lastConfigModifiedIndex = $etcdClientResult->getResponse()->getNode()->getModifiedIndex();
+        $this->logger->debug(sprintf('Last configModifiedIndex: %d', $this->lastConfigModifiedIndex));
 
-        // $this-> UpdateVersion UnitScopeConfigVersiosn
+        // $this-> UpdateVersion UnitScopeConfigVersion
         $this->unitStatusBuilder->setStatus('sync')->setConfigVersion($parsedConfig->getVersion());
         $this->updateUnitStatus();
     }
@@ -160,13 +181,13 @@ class ArtifactDownloader
 
         while (true) {
             if (null === $this->lastConfigModifiedIndex) {
-                $this->logger->debug(sprintf(
+                $this->logger->info(sprintf(
                     'Try to get last config revision (%s).',
                     $this->unitConfig->getConfigPath()
                 ));
                 $result = $this->etcdClient->get($this->unitConfig->getConfigPath());
             } else {
-                $this->logger->debug('Waiting for new config revision.');
+                $this->logger->info('Waiting for new config revision.');
                 $result = $this->etcdClient->watch(
                     $this->unitConfig->getConfigPath(),
                     $this->lastConfigModifiedIndex + 1

@@ -61,11 +61,30 @@ class CommandCompareDirs implements CommandInterface
         return $this->onEqualCommand->execute();
     }
 
+    private function preFormat($str)
+    {
+        $str = str_replace("\t", '', $str);
+        return  "\t\t" . str_replace(PHP_EOL, PHP_EOL . "\t\t", $str);
+    }
+
     /**
      * @return string
      */
     public function __toString()
     {
-        return sprintf('Compare %s with %s', $this->source, $this->target);
+        $result = sprintf('compare %s with %s', $this->source, $this->target);
+
+        $result .= PHP_EOL . sprintf(
+            "\t - on equal -> %s%s\t",
+            PHP_EOL,
+            $this->preformat($this->onEqualCommand)
+        );
+        $result .= PHP_EOL . sprintf(
+            "\t - on NOT equal -> %s%s\t",
+            PHP_EOL,
+            $this->preformat($this->onNotEqualCommand)
+        );
+
+        return $result;
     }
 }

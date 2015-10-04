@@ -64,6 +64,6 @@ class CommandMkDir implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('mkdir(%s, %s, %s)', $this->path, $this->mode, $this->recursive ? 't': 'f');
+        return sprintf('mkdir(%s, mode=%o, recursive=%s)', $this->path, $this->mode, $this->recursive ? 't': 'f');
     }
 }

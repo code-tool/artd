@@ -22,6 +22,7 @@ use CodeTool\ArtifactDownloader\Command\CommandUnarchive;
 use CodeTool\ArtifactDownloader\DirectoryComparator\DirectoryComparatorInterface;
 use CodeTool\ArtifactDownloader\HttpClient\HttpClientInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use Psr\Log\LoggerInterface;
 
 class CommandFactory implements CommandFactoryInterface
 {
@@ -40,24 +41,35 @@ class CommandFactory implements CommandFactoryInterface
      */
     private $unarchiverFactory;
 
+    /**
+     * @var DirectoryComparatorInterface
+     */
     private $directoryComparator;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @param ResultFactoryInterface       $resultFactory
      * @param HttpClientInterface          $httpClient
      * @param UnarchiverFactoryInterface   $unarchiverFactory
      * @param DirectoryComparatorInterface $directoryComparator
+     * @param LoggerInterface              $logger
      */
     public function __construct(
         ResultFactoryInterface $resultFactory,
         HttpClientInterface $httpClient,
         UnarchiverFactoryInterface $unarchiverFactory,
-        DirectoryComparatorInterface $directoryComparator
+        DirectoryComparatorInterface $directoryComparator,
+        LoggerInterface $logger
     ) {
         $this->resultFactory = $resultFactory;
         $this->httpClient = $httpClient;
         $this->unarchiverFactory = $unarchiverFactory;
         $this->directoryComparator = $directoryComparator;
+        $this->logger = $logger;
     }
 
     /**
@@ -152,7 +164,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createCollection()
     {
-        return new CommandCollection($this->resultFactory);
+        return new CommandCollection($this->resultFactory, $this->logger);
     }
 
     /**

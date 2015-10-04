@@ -41,8 +41,23 @@ namespace {
     };
 
     //
-    $container['resource_credentials.repository'] = function () {
-        return new ResourceCredentials\Repository\ResourceCredentialsRepository();
+    $container['resource_credentials.factory'] = function () {
+        return new ResourceCredentials\Factory\ResourceCredentialsFactory();
+    };
+
+    $container['resource_credentials.repository.factory'] = function (Container $container) {
+        return new ResourceCredentials\Repository\Factory\ResourceCredentialsRepositoryFactory(
+            $container['domain_object.factory'],
+            $container['resource_credentials.factory']
+        );
+    };
+
+    $container['resource_credentials.repository'] = function (Container $container) {
+        /** @var ResourceCredentials\Repository\Factory\ResourceCredentialsRepositoryFactory $factory */
+        $factory = $container['resource_credentials.repository.factory'];
+        return $factory->createFromFile(__DIR__ . '/../resource/credentials/config.json');
+
+        // return new ResourceCredentials\Repository\ResourceCredentialsRepository();
     };
 
     //
@@ -108,7 +123,8 @@ namespace {
             $container['result.factory'],
             $container['http_client'],
             $container['archive.unarchiver_factory'],
-            $container['directory_comparator']
+            $container['directory_comparator'],
+            $container['logger']
         );
     };
 

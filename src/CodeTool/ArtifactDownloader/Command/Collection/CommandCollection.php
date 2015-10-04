@@ -5,6 +5,7 @@ namespace CodeTool\ArtifactDownloader\Command\Collection;
 use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
+use Psr\Log\LoggerInterface;
 
 class CommandCollection implements CommandCollectionInterface
 {
@@ -13,6 +14,8 @@ class CommandCollection implements CommandCollectionInterface
      */
     private $resultFactory;
 
+    private $logger;
+
     /**
      * @var CommandInterface[]
      */
@@ -20,10 +23,12 @@ class CommandCollection implements CommandCollectionInterface
 
     /**
      * @param ResultFactoryInterface $resultFactory
+     * @param LoggerInterface        $logger
      */
-    public function __construct(ResultFactoryInterface $resultFactory)
+    public function __construct(ResultFactoryInterface $resultFactory, LoggerInterface $logger)
     {
         $this->resultFactory = $resultFactory;
+        $this->logger = $logger;
     }
 
     /**
@@ -44,6 +49,7 @@ class CommandCollection implements CommandCollectionInterface
     public function execute()
     {
         foreach ($this->commands as $command) {
+            $this->logger->debug(sprintf('Executing %s', $command));
             $result = $command->execute();
             if (false === $result->isSuccessful()) {
                 return $result;

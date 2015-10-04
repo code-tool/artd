@@ -28,7 +28,7 @@ class CommandNop implements CommandInterface
         return $this->resultFactory->createSuccessful();
     }
 
-    function __toString()
+    public function __toString()
     {
         return 'nop';
     }

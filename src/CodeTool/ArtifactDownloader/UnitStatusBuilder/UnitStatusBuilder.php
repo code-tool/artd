@@ -37,13 +37,19 @@ class UnitStatusBuilder implements UnitStatusBuilderInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function build()
     {
-        return json_encode([
-            'ts' => time(),
-            'status' => $this->status,
-            'last_errors' => array_reverse($this->errors),
-            'config_version' => $this->configVersion
-        ]);
+        return json_encode(
+            [
+                'ts' => time(),
+                'status' => $this->status,
+                'last_errors' => array_reverse($this->errors),
+                'config_version' => $this->configVersion
+            ],
+            JSON_PRETTY_PRINT
+        );
     }
 }

@@ -53,11 +53,16 @@ namespace {
     };
 
     $container['resource_credentials.repository'] = function (Container $container) {
+        /** @var UnitConfig\UnitConfigInterface $unitConfig */
+        $unitConfig = $container['unit_config'];
         /** @var ResourceCredentials\Repository\Factory\ResourceCredentialsRepositoryFactory $factory */
         $factory = $container['resource_credentials.repository.factory'];
-        return $factory->createFromFile(__DIR__ . '/../resource/credentials/config.json');
 
-        // return new ResourceCredentials\Repository\ResourceCredentialsRepository();
+        if (null !== ($path = $unitConfig->getResourceCredentialsConfigPath())) {
+            return $factory->createFromFile($path);
+        }
+
+        return new ResourceCredentials\Repository\ResourceCredentialsRepository();
     };
 
     //

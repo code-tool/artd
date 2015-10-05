@@ -71,6 +71,10 @@ class ResourceCredentialsRepositoryFactory
      */
     public function createFromFile($filePath)
     {
+        if (false === is_readable($filePath)) {
+            throw new \RuntimeException(sprintf('Can\'t open %s file', $filePath));
+        }
+
         $content = file_get_contents($filePath);
 
         return $this->createFromJson($content);

@@ -41,4 +41,12 @@ class UnitConfig implements UnitConfigInterface
     {
         return $this->getOptOrEnvOrDefault('status-directory', 'STATUS_DIRECTORY', 'artifact-downloader/status');
     }
+
+    /**
+     * @return string
+     */
+    public function getResourceCredentialsConfigPath()
+    {
+        return $this->getOptOrEnvOrDefault('--resource-credentials', 'RESOURCE_CREDENTIALS', null);
+    }
 }

@@ -18,4 +18,9 @@ interface UnitConfigInterface
      * @return string
      */
     public function getConfigPath();
+
+    /**
+     * @return string
+     */
+    public function getResourceCredentialsConfigPath();
 }

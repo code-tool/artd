@@ -8,7 +8,7 @@ use CodeTool\ArtifactDownloader\Archive\UnarchiverInterface;
 use CodeTool\ArtifactDownloader\Archive\UnsupportedUnarchiver;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
-use CodeTool\ArtifactDownloader\Util\CmdRunner\CmdRunnerInterface;
+use CodeTool\ArtifactDownloader\CmdRunner\CmdRunnerInterface;
 
 class UnarchiverFactory implements UnarchiverFactoryInterface
 {

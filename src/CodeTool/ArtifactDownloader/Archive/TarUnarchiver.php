@@ -4,7 +4,7 @@ namespace CodeTool\ArtifactDownloader\Archive;
 
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
-use CodeTool\ArtifactDownloader\Util\CmdRunner\CmdRunnerInterface;
+use CodeTool\ArtifactDownloader\CmdRunner\CmdRunnerInterface;
 
 class TarUnarchiver implements UnarchiverInterface
 {

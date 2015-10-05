@@ -2,7 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader;
 
-use CodeTool\ArtifactDownloader\Util\CmdRunner\CmdRunnerInterface;
+use CodeTool\ArtifactDownloader\CmdRunner\CmdRunnerInterface;
 use Seld\PharUtils\Timestamps;
 use Symfony\Component\Finder\Finder;
 

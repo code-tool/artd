@@ -88,11 +88,11 @@ namespace {
     };
 
     $container['util.cmd_runner.result.factory'] = function () {
-        return new Util\CmdRunner\Result\Factory\CmdRunnerResultFactory();
+        return new \CodeTool\ArtifactDownloader\CmdRunner\Result\Factory\CmdRunnerResultFactory();
     };
 
     $container['util.cmd_runner'] = function (Container $container) {
-        return new Util\CmdRunner\CmdRunner($container['util.cmd_runner.result.factory']);
+        return new \CodeTool\ArtifactDownloader\CmdRunner\CmdRunner($container['util.cmd_runner.result.factory']);
     };
 
     //

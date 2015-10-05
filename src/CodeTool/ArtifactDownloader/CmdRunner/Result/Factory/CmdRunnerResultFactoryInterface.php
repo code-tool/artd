@@ -1,8 +1,8 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Util\CmdRunner\Result\Factory;
+namespace CodeTool\ArtifactDownloader\CmdRunner\Result\Factory;
 
-use CodeTool\ArtifactDownloader\Util\CmdRunner\Result\CmdRunnerResultInterface;
+use CodeTool\ArtifactDownloader\CmdRunner\Result\CmdRunnerResultInterface;
 
 interface CmdRunnerResultFactoryInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Util\CmdRunner\Result;
+namespace CodeTool\ArtifactDownloader\CmdRunner\Result;
 
 interface CmdRunnerResultInterface
 {

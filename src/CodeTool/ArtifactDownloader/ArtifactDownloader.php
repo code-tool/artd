@@ -12,6 +12,10 @@ use Psr\Log\LoggerInterface;
 
 class ArtifactDownloader
 {
+    const VERSION = '@package_version@';
+
+    const RELEASE_DATE = '@release_date@';
+
     /**
      * @var LoggerInterface
      */
@@ -176,6 +180,8 @@ class ArtifactDownloader
 
     public function work()
     {
+        $this->logger->notice(sprintf('ArtifactDownloader v: %s (%s)', self::VERSION, self::RELEASE_DATE));
+
         // update unit status
         $this->updateUnitStatus();
 

@@ -8,8 +8,10 @@
   ],
   "require": {
     "psr/log": "~1",
+    "fool/echolog": "~1",
     "pimple/pimple": "~3.0",
-    "fool/echolog": "~1"
+    "symfony/finder": "~2.4",
+    "seld/phar-utils": "~1.0"
   },
   "license": "MIT",
   "autoload": {
@@ -18,5 +20,7 @@
         "src/"
       ]
     }
+  },
+  "config": {
   }
 }

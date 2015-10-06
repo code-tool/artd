@@ -102,7 +102,7 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
 
         // unarchive
         $collection
-            ->add($this->commandFactory->createMkDirCommand($unarchivePath))
+            ->add($this->commandFactory->createMkDirCommand($unarchivePath, 0755, true))
             ->add($this->commandFactory->createUnarchiveCommand(
                 $downloadPath,
                 $unarchivePath,
@@ -166,7 +166,7 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
         if (false === $scopeConfigChildNode->has('source')) {
             if (false === $targetExists) {
                 // And directory dose not exists. Just create new
-                $collection->add($this->commandFactory->createMkDirCommand($realTargetPath, 0777, true));
+                $collection->add($this->commandFactory->createMkDirCommand($realTargetPath, 0755, true));
             }
 
             // Fix permissions, if need

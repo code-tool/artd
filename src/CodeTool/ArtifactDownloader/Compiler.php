@@ -179,10 +179,10 @@ class Compiler
             $content = "\n".$content."\n";
         }
 
-        if ($path === 'sssrc/CodeTool/ArtifactDownloader/ArtifactDownloader.php') {
+        if ($path === 'src/CodeTool/ArtifactDownloader/ArtifactDownloader.php') {
             $content = strtr($content, [
                 '@package_version@' => $this->getVersion(),
-                '@release_date@', $this->getVersionDate()->format('Y-m-d H:i:s')
+                '@release_date@' => $this->getVersionDate()->format('Y-m-d H:i:s')
             ]);
         }
 

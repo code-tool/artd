@@ -90,7 +90,9 @@ class ArtifactDownloader
     private function logErrorAndPushToUnitStatus($message)
     {
         $this->logger->error($message);
-        $this->unitStatusBuilder->addError($message);
+        $this->unitStatusBuilder
+            ->setStatus('error')
+            ->addError($message);
 
         return $this;
     }

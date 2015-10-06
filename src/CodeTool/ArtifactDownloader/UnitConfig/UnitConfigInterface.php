@@ -23,4 +23,9 @@ interface UnitConfigInterface
      * @return string
      */
     public function getResourceCredentialsConfigPath();
+
+    /**
+     * @return string
+     */
+    public function getEtcdServerUrl();
 }

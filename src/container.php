@@ -29,6 +29,11 @@ namespace {
     };
 
     //
+    $container['unit_config'] = function () {
+        return new UnitConfig\UnitConfig();
+    };
+
+    //
     $container['error.factory'] = function () {
         return new Error\Factory\ErrorFactory();
     };
@@ -160,9 +165,14 @@ namespace {
     };
 
     $container['etcd_client'] = function (Container $container) {
+        /** @var UnitConfig\UnitConfigInterface $unitConfig */
+        $unitConfig = $container['unit_config'];
+
         return new EtcdClient\EtcdClient(
             $container['http_client'],
-            $container['etcd_client.result.factory']
+            $container['etcd_client.result.factory'],
+            '/',
+            $unitConfig->getEtcdServerUrl()
         );
     };
 
@@ -211,11 +221,6 @@ namespace {
     //
     $container['unit_status_builder'] = function () {
         return new UnitStatusBuilder\UnitStatusBuilder();
-    };
-
-    //
-    $container['unit_config'] = function () {
-        return new UnitConfig\UnitConfig();
     };
 
     //

@@ -39,6 +39,10 @@ class CommandSymlink implements CommandInterface
      */
     public function execute()
     {
+        if (is_link($this->target) && $this->source === readlink($this->target)) {
+            return $this->resultFactory->createSuccessful();
+        }
+
         if (false === @symlink($this->source, $this->target)) {
             return $this->resultFactory->createErrorFromGetLast(
                 sprintf('Can\' create symlink with name "%s" to "%s"', $this->source, $this->target)

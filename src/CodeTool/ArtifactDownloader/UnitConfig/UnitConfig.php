@@ -13,7 +13,7 @@ class UnitConfig implements UnitConfigInterface
             return $opt[$optName];
         }
 
-        if (false !== ($envVal = getenv(sprintf('ENV_%s', $env)))) {
+        if (false !== ($envVal = getenv($env))) {
             return $envVal;
         }
 

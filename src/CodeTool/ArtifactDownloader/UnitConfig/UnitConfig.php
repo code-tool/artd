@@ -49,7 +49,7 @@ class UnitConfig implements UnitConfigInterface
      */
     public function getResourceCredentialsConfigPath()
     {
-        return $this->getOptOrEnvOrDefault('--resource-credentials', 'RESOURCE_CREDENTIALS', null);
+        return $this->getOptOrEnvOrDefault('resource-credentials', 'RESOURCE_CREDENTIALS', null);
     }
 
     /**
@@ -57,6 +57,6 @@ class UnitConfig implements UnitConfigInterface
      */
     public function getEtcdServerUrl()
     {
-        return $this->getOptOrEnvOrDefault('--etcd-server-url', 'ETCD_SERVER_URL', EtcdClient::DEFAULT_SERVER);
+        return $this->getOptOrEnvOrDefault('etcd-server-url', 'ETCD_SERVER_URL', EtcdClient::DEFAULT_SERVER);
     }
 }

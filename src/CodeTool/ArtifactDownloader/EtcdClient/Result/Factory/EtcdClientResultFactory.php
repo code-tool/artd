@@ -4,12 +4,13 @@ namespace CodeTool\ArtifactDownloader\EtcdClient\Result\Factory;
 
 use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
 use CodeTool\ArtifactDownloader\DomainObject\Factory\DomainObjectFactoryInterface;
-use CodeTool\ArtifactDownloader\EtcdClient\Error\EtcdClientErrorInterface;
-use CodeTool\ArtifactDownloader\EtcdClient\Error\Factory\EtcdClientErrorFactoryInterface;
+use CodeTool\ArtifactDownloader\Error\ErrorInterface;
+use CodeTool\ArtifactDownloader\Error\Factory\ErrorFactoryInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Response\EtcdClientResponseInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Response\Factory\EtcdClientResponseFactoryInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Result\EtcdClientResult;
 use CodeTool\ArtifactDownloader\EtcdClient\Result\EtcdClientResultInterface;
+use CodeTool\ArtifactDownloader\HttpClient\Result\HttpClientResultInterface;
 
 class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
 {
@@ -19,9 +20,9 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
     private $domainObjectFactory;
 
     /**
-     * @var EtcdClientErrorFactoryInterface
+     * @var ErrorFactoryInterface
      */
-    private $etcdClientErrorFactory;
+    private $errorFactory;
 
     /**
      * @var EtcdClientResponseFactoryInterface
@@ -29,22 +30,22 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
     private $etcdClientResponseFactory;
 
     public function __construct(
+        ErrorFactoryInterface $errorFactory,
         DomainObjectFactoryInterface $domainObjectFactory,
-        EtcdClientErrorFactoryInterface $etcdClientErrorFactory,
         EtcdClientResponseFactoryInterface $etcdClientResponseFactory
     ) {
+        $this->errorFactory = $errorFactory;
         $this->domainObjectFactory = $domainObjectFactory;
-        $this->etcdClientErrorFactory = $etcdClientErrorFactory;
         $this->etcdClientResponseFactory = $etcdClientResponseFactory;
     }
 
     /**
-     * @param EtcdClientErrorInterface|null    $error
+     * @param ErrorInterface|null              $error
      * @param EtcdClientResponseInterface|null $response
      *
      * @return EtcdClientResultInterface
      */
-    public function create(EtcdClientErrorInterface $error = null, EtcdClientResponseInterface $response = null)
+    public function create(ErrorInterface $error = null, EtcdClientResponseInterface $response = null)
     {
         return new EtcdClientResult($error, $response);
     }
@@ -56,8 +57,16 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
      */
     public function createFromDo(DomainObjectInterface $do)
     {
-        if ($do->has(EtcdClientErrorFactoryInterface::ERROR_CODE_F_NAME)) {
-            return $this->create($this->etcdClientErrorFactory->makeFromDo($do), null);
+        if ($do->has('errorCode')) {
+            $errorMessage = sprintf(
+                '%s (cause: %s, errorCode: %d, index: %s)',
+                $do->get('cause'),
+                $do->get('errorCode'),
+                $do->get('index'),
+                $do->get('message')
+            );
+
+            return $this->create($this->errorFactory->create($errorMessage), null);
         }
 
         return $this->create(null, $this->etcdClientResponseFactory->makeFromDo($do));
@@ -82,9 +91,23 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
     {
         $data = json_decode($json, true);
         if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new \RuntimeException(json_last_error_msg());
+            return $this->create($this->errorFactory->create(json_last_error_msg()));
         }
 
         return $this->createFromArray($data);
+    }
+
+    /**
+     * @param HttpClientResultInterface $result
+     *
+     * @return EtcdClientResultInterface
+     */
+    public function createFromHttpClientResult(HttpClientResultInterface $result)
+    {
+        if (false === $result->isSuccessful()) {
+            return $this->create($result->getError());
+        }
+
+        return $this->createFromJson($result->getResponse()->getBody());
     }
 }

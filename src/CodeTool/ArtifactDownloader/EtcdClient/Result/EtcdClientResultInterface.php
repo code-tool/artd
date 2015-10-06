@@ -2,17 +2,12 @@
 
 namespace CodeTool\ArtifactDownloader\EtcdClient\Result;
 
-use CodeTool\ArtifactDownloader\EtcdClient\Error\EtcdClientErrorInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Response\EtcdClientResponseInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Response\EtcdClientSingleNodeResponseInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
-interface EtcdClientResultInterface
+interface EtcdClientResultInterface extends ResultInterface
 {
-    /**
-     * @return EtcdClientErrorInterface|null
-     */
-    public function getError();
-
     /**
      * @return EtcdClientResponseInterface|EtcdClientSingleNodeResponseInterface|null
      */

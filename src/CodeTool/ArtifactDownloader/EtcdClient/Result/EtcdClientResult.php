@@ -2,38 +2,25 @@
 
 namespace CodeTool\ArtifactDownloader\EtcdClient\Result;
 
-
-use CodeTool\ArtifactDownloader\EtcdClient\Error\EtcdClientErrorInterface;
+use CodeTool\ArtifactDownloader\Error\ErrorInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Response\EtcdClientResponseInterface;
+use CodeTool\ArtifactDownloader\Result\Result;
 
-class EtcdClientResult implements EtcdClientResultInterface
+class EtcdClientResult extends Result implements EtcdClientResultInterface
 {
-    /**
-     * @var EtcdClientErrorInterface
-     */
-    private $error;
-
     /**
      * @var EtcdClientResponseInterface
      */
     private $response;
 
     /**
-     * @param EtcdClientErrorInterface|null    $error
+     * @param ErrorInterface|null              $error
      * @param EtcdClientResponseInterface|null $response
      */
-    public function __construct(EtcdClientErrorInterface $error = null, EtcdClientResponseInterface $response = null)
+    public function __construct(ErrorInterface $error = null, EtcdClientResponseInterface $response = null)
     {
-        $this->error = $error;
         $this->response = $response;
-    }
-
-    /**
-     * @return EtcdClientErrorInterface|null
-     */
-    public function getError()
-    {
-        return $this->error;
+        parent::__construct($error);
     }
 
     /**

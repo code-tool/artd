@@ -16,6 +16,8 @@ class ArtifactDownloader
 
     const RELEASE_DATE = '@release_date@';
 
+    const MAX_SLEEP_TIMEOUT = 60;
+
     /**
      * @var LoggerInterface
      */
@@ -50,6 +52,11 @@ class ArtifactDownloader
      * @var int|null
      */
     private $lastConfigModifiedIndex;
+
+    /**
+     * @var int
+     */
+    private $lastSleepTimeout = 0;
 
     /**
      * @param LoggerInterface            $logger
@@ -116,6 +123,8 @@ class ArtifactDownloader
 
     /**
      * @param EtcdClientResultInterface $etcdClientResult
+     *
+     * @return bool
      */
     private function handleEtcdClientResult(EtcdClientResultInterface $etcdClientResult)
     {
@@ -127,13 +136,13 @@ class ArtifactDownloader
                 ))
                 ->updateUnitStatus();
 
-            return;
+            return false;
         }
 
         // Set new status
         $this->unitStatusBuilder->setStatus('applying');
         if (false === $this->updateUnitStatus()) {
-            return;
+            return false;
         }
 
         // Parse config and build collection
@@ -160,7 +169,7 @@ class ArtifactDownloader
                 ->logErrorAndPushToUnitStatus($configApplyResult->getError()->getMessage())
                 ->updateUnitStatus();
 
-            return;
+            return false;
         }
 
         $this->logger->info(sprintf(
@@ -176,6 +185,26 @@ class ArtifactDownloader
         // $this-> UpdateVersion UnitScopeConfigVersion
         $this->unitStatusBuilder->setStatus('sync')->setConfigVersion($parsedConfig->getVersion());
         $this->updateUnitStatus();
+
+        return true;
+    }
+
+    private function sleepOnError($isSuccess)
+    {
+        if (true === $isSuccess) {
+            $this->lastSleepTimeout = 0;
+
+            return;
+        }
+
+        $this->lastSleepTimeout += 5;
+        if ($this->lastSleepTimeout >= self::MAX_SLEEP_TIMEOUT) {
+            $this->lastSleepTimeout = self::MAX_SLEEP_TIMEOUT;
+        }
+
+        $this->logger->warning(sprintf('Sleeping after error %s sec', $this->lastSleepTimeout));
+
+        sleep($this->lastSleepTimeout);
     }
 
     public function work()
@@ -200,7 +229,7 @@ class ArtifactDownloader
                 );
             }
 
-            $this->handleEtcdClientResult($result);
+            $this->sleepOnError($this->handleEtcdClientResult($result));
         }
     }
 }

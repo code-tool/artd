@@ -10,4 +10,9 @@ interface CommandInterface
      * @return ResultInterface
      */
     public function execute();
+
+    /**
+     * @return string
+     */
+    public function __toString();
 }

@@ -29,11 +29,13 @@ class HttpClientResponseHeaderRepositoryFactory
     {
         $normalizedHeaders = [];
 
-        foreach ($headers as $name => $value) {
-            $normalizedHeaders[$this->headerNormalizer->normalizeName($name)] =
-                $this->headerNormalizer->normalizeValue($value);
+        foreach ($headers as $header) {
+            list($headerName, $headerValue) = explode(':', $header);
+
+            $normalizedHeaders[$this->headerNormalizer->normalizeName($headerName)] =
+                $this->headerNormalizer->normalizeValue($headerValue);
         }
 
-        return new HttpClientResponseHeaderNormalizer($this->headerNormalizer, $normalizedHeaders);
+        return new HttpClientResponseHeaderRepository($this->headerNormalizer, $normalizedHeaders);
     }
 }

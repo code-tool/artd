@@ -30,7 +30,12 @@ class HttpClientResponseHeaderRepositoryFactory
         $normalizedHeaders = [];
 
         foreach ($headers as $header) {
-            list($headerName, $headerValue) = explode(':', $header);
+            $array = explode(': ', $header, 2);
+            if (2 !== count($array)) {
+                continue;
+            }
+
+            list($headerName, $headerValue) = $array;
 
             $normalizedHeaders[$this->headerNormalizer->normalizeName($headerName)] =
                 $this->headerNormalizer->normalizeValue($headerValue);

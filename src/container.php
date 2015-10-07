@@ -71,8 +71,20 @@ namespace {
     };
 
     //
-    $container['http_client.response.factory'] = function () {
-        return new HttpClient\Response\Factory\HttpClientResponseFactory();
+    $container['http_client.response.header.normalizer'] = function () {
+        return new HttpClient\Response\Header\HttpClientResponseHeaderNormalizer();
+    };
+
+    $container['http_client.response.header.repository.factory'] = function (Container $container) {
+        return new HttpClient\Response\Header\Factory\HttpClientResponseHeaderRepositoryFactory(
+            $container['http_client.response.header.normalizer']
+        );
+    };
+
+    $container['http_client.response.factory'] = function (Container $container) {
+        return new HttpClient\Response\Factory\HttpClientResponseFactory(
+            $container['http_client.response.header.repository.factory']
+        );
     };
 
     $container['http_client.result.factory'] = function (Container $container) {

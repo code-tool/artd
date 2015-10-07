@@ -2,33 +2,35 @@
 
 namespace CodeTool\ArtifactDownloader\HttpClient\Response;
 
+use CodeTool\ArtifactDownloader\HttpClient\Response\Header\HttpClientResponseHeaderRepositoryInterface;
+
 class HttpClientResponse implements HttpClientResponseInterface
 {
     /**
      * @var int
      */
-    private $responseCode;
+    private $code;
 
     /**
-     * @var string[]
+     * @var HttpClientResponseHeaderRepositoryInterface
      */
-    private $responseHeaders;
+    private $headers;
 
     /**
      * @var string
      */
-    private $responseBody;
+    private $body;
 
     /**
-     * @param int      $responseCode
-     * @param string[] $responseHeaders
-     * @param string   $responseBody
+     * @param int                                         $code
+     * @param HttpClientResponseHeaderRepositoryInterface $headersRepository
+     * @param string                                      $body
      */
-    public function __construct($responseCode, array $responseHeaders, $responseBody)
+    public function __construct($code, HttpClientResponseHeaderRepositoryInterface $headersRepository, $body)
     {
-        $this->responseCode = $responseCode;
-        $this->responseHeaders = $responseHeaders;
-        $this->responseBody = $responseBody;
+        $this->code = $code;
+        $this->headers = $headersRepository;
+        $this->body = $body;
     }
 
     /**
@@ -36,15 +38,15 @@ class HttpClientResponse implements HttpClientResponseInterface
      */
     public function getCode()
     {
-        return $this->responseCode;
+        return $this->code;
     }
 
     /**
-     * @return \string[]
+     * @return HttpClientResponseHeaderRepositoryInterface
      */
     public function getHeaders()
     {
-        return $this->responseHeaders;
+        return $this->headers;
     }
 
     /**
@@ -52,6 +54,6 @@ class HttpClientResponse implements HttpClientResponseInterface
      */
     public function getBody()
     {
-        return $this->responseBody;
+        return $this->body;
     }
 }

@@ -2,6 +2,8 @@
 
 namespace CodeTool\ArtifactDownloader\HttpClient\Response;
 
+use CodeTool\ArtifactDownloader\HttpClient\Response\Header\HttpClientResponseHeaderRepositoryInterface;
+
 interface HttpClientResponseInterface
 {
     /**
@@ -10,7 +12,7 @@ interface HttpClientResponseInterface
     public function getCode();
 
     /**
-     * @return \string[]
+     * @return HttpClientResponseHeaderRepositoryInterface
      */
     public function getHeaders();
 

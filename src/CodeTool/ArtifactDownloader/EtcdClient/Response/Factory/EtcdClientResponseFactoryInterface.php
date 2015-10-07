@@ -9,9 +9,10 @@ use CodeTool\ArtifactDownloader\EtcdClient\Response\EtcdClientSingleNodeResponse
 interface EtcdClientResponseFactoryInterface
 {
     /**
+     * @param int                   $xEtcdIndex
      * @param DomainObjectInterface $do
      *
      * @return EtcdClientResponseInterface|EtcdClientSingleNodeResponseInterface
      */
-    public function makeFromDo(DomainObjectInterface $do);
+    public function makeFromDo($xEtcdIndex, DomainObjectInterface $do);
 }

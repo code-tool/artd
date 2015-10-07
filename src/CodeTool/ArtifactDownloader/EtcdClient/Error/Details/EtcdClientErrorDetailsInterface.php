@@ -23,4 +23,9 @@ interface EtcdClientErrorDetailsInterface
      * @return string
      */
     public function getMessage();
+
+    /**
+     * @return string
+     */
+    public function __toString();
 }

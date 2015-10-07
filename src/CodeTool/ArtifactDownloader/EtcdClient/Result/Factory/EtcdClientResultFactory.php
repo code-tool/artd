@@ -4,8 +4,9 @@ namespace CodeTool\ArtifactDownloader\EtcdClient\Result\Factory;
 
 use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
 use CodeTool\ArtifactDownloader\DomainObject\Factory\DomainObjectFactoryInterface;
-use CodeTool\ArtifactDownloader\Error\ErrorInterface;
-use CodeTool\ArtifactDownloader\Error\Factory\ErrorFactoryInterface;
+use CodeTool\ArtifactDownloader\EtcdClient\Error\Details\Factory\EtcdClientErrorDetailsFactoryInterface;
+use CodeTool\ArtifactDownloader\EtcdClient\Error\EtcdClientErrorInterface;
+use CodeTool\ArtifactDownloader\EtcdClient\Error\Factory\EtcdClientErrorFactory;
 use CodeTool\ArtifactDownloader\EtcdClient\Response\EtcdClientResponseInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Response\Factory\EtcdClientResponseFactoryInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Result\EtcdClientResult;
@@ -20,81 +21,60 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
     private $domainObjectFactory;
 
     /**
-     * @var ErrorFactoryInterface
-     */
-    private $errorFactory;
-
-    /**
      * @var EtcdClientResponseFactoryInterface
      */
     private $etcdClientResponseFactory;
 
+    /**
+     * @var EtcdClientErrorFactory
+     */
+    private $etcdClientErrorFactory;
+
+    /**
+     * @var EtcdClientErrorDetailsFactoryInterface
+     */
+    private $etcdClientErrorDetailsFactory;
+
     public function __construct(
-        ErrorFactoryInterface $errorFactory,
         DomainObjectFactoryInterface $domainObjectFactory,
-        EtcdClientResponseFactoryInterface $etcdClientResponseFactory
+        EtcdClientResponseFactoryInterface $etcdClientResponseFactory,
+        EtcdClientErrorFactory $etcdClientErrorFactory,
+        EtcdClientErrorDetailsFactoryInterface $etcdClientErrorDetailsFactory
     ) {
-        $this->errorFactory = $errorFactory;
         $this->domainObjectFactory = $domainObjectFactory;
+        //
         $this->etcdClientResponseFactory = $etcdClientResponseFactory;
+        //
+        $this->etcdClientErrorFactory = $etcdClientErrorFactory;
+        $this->etcdClientErrorDetailsFactory = $etcdClientErrorDetailsFactory;
     }
 
     /**
-     * @param ErrorInterface|null              $error
+     * @param EtcdClientErrorInterface|null    $error
      * @param EtcdClientResponseInterface|null $response
      *
      * @return EtcdClientResultInterface
      */
-    public function create(ErrorInterface $error = null, EtcdClientResponseInterface $response = null)
+    public function create(EtcdClientErrorInterface $error = null, EtcdClientResponseInterface $response = null)
     {
         return new EtcdClientResult($error, $response);
     }
 
     /**
+     * @param int                   $xEtcdIndex
      * @param DomainObjectInterface $do
      *
      * @return EtcdClientResultInterface
      */
-    public function createFromDo(DomainObjectInterface $do)
+    public function createFromDo($xEtcdIndex, DomainObjectInterface $do)
     {
         if ($do->has('errorCode')) {
-            $errorMessage = sprintf(
-                '%s (cause: %s, errorCode: %d, index: %s)',
-                $do->get('cause'),
-                $do->get('errorCode'),
-                $do->get('index'),
-                $do->get('message')
-            );
+            $errorDetails = $this->etcdClientErrorDetailsFactory->makeFromDo($do);
 
-            return $this->create($this->errorFactory->create($errorMessage), null);
+            return $this->create($this->etcdClientErrorFactory->create((string) $errorDetails, $errorDetails), null);
         }
 
-        return $this->create(null, $this->etcdClientResponseFactory->makeFromDo($do));
-    }
-
-    /**
-     * @param array $data
-     *
-     * @return EtcdClientResultInterface
-     */
-    public function createFromArray(array $data)
-    {
-        return $this->createFromDo($this->domainObjectFactory->makeRecursiveFromArray($data));
-    }
-
-    /**
-     * @param string $json
-     *
-     * @return EtcdClientResultInterface
-     */
-    public function createFromJson($json)
-    {
-        $data = json_decode($json, true);
-        if (JSON_ERROR_NONE !== json_last_error()) {
-            return $this->create($this->errorFactory->create(json_last_error_msg()));
-        }
-
-        return $this->createFromArray($data);
+        return $this->create(null, $this->etcdClientResponseFactory->makeFromDo($xEtcdIndex, $do));
     }
 
     /**
@@ -104,10 +84,18 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
      */
     public function createFromHttpClientResult(HttpClientResultInterface $result)
     {
-        if (false === $result->isSuccessful()) {
+        // Http request level error
+        if (false === $result->isSuccessful() && null === $result->getResponse()) {
             return $this->create($result->getError());
         }
 
-        return $this->createFromJson($result->getResponse()->getBody());
+        $responseBody = json_decode($result->getResponse()->getBody(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            return $this->create($this->etcdClientErrorFactory->create(json_last_error_msg()));
+        }
+
+        $responseDo = $this->domainObjectFactory->makeRecursiveFromArray($responseBody);
+
+        return $this->createFromDo((int)$result->getResponse()->getHeaders()->get('x-etcd-index'), $responseDo);
     }
 }

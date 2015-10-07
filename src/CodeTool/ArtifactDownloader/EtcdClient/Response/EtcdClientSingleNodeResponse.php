@@ -17,16 +17,18 @@ class EtcdClientSingleNodeResponse extends EtcdClientResponse implements EtcdCli
     private $prevNode;
 
     /**
+     * @param int                                  $xEtcdIndex
      * @param string                               $action
      * @param EtcdClientResponseNodeInterface      $node
      * @param EtcdClientResponseNodeInterface|null $prevNode
      */
     public function __construct(
+        $xEtcdIndex,
         $action,
         EtcdClientResponseNodeInterface $node,
         EtcdClientResponseNodeInterface $prevNode = null
     ) {
-        parent::__construct($action);
+        parent::__construct($xEtcdIndex, $action);
 
         $this->node = $node;
         $this->prevNode = $prevNode;

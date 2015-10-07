@@ -164,11 +164,20 @@ namespace {
         );
     };
 
+    $container['etcd_client.error.details.factory'] = function () {
+        return new EtcdClient\Error\Details\Factory\EtcdClientErrorDetailsFactory();
+    };
+
+    $container['etcd_client.error.factory'] = function () {
+        return new EtcdClient\Error\Factory\EtcdClientErrorFactory();
+    };
+
     $container['etcd_client.result.factory'] = function (Container $container) {
         return new EtcdClient\Result\Factory\EtcdClientResultFactory(
-            $container['error.factory'],
             $container['domain_object.factory'],
-            $container['etcd_client.response.factory']
+            $container['etcd_client.response.factory'],
+            $container['etcd_client.error.factory'],
+            $container['etcd_client.error.details.factory']
         );
     };
 

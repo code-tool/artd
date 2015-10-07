@@ -9,6 +9,8 @@ class EtcdClient implements EtcdClientInterface
 {
     const DEFAULT_SERVER = 'http://127.0.0.1:4001';
 
+    const ERROR_CODE_EVENT_INDEX_CLEARED = 401;
+
     /**
      * @var HttpClientInterface
      */
@@ -230,7 +232,7 @@ class EtcdClient implements EtcdClientInterface
      *
      * @return Result\EtcdClientResultInterface
      */
-    public function watch($key, $waitIndex)
+    private function doWatch($key, $waitIndex)
     {
         $query = [
             'wait' => 'true',
@@ -238,5 +240,25 @@ class EtcdClient implements EtcdClientInterface
         ];
 
         return $this->doRequest($this->buildKeyUri($key, $query), HttpClientInterface::METHOD_GET);
+    }
+
+    /**
+     * @param string $key
+     * @param int    $waitIndex
+     *
+     * @return Result\EtcdClientResultInterface
+     */
+    public function watch($key, $waitIndex)
+    {
+        $result = $this->doWatch($key, $waitIndex);
+
+        if (false === $result->isSuccessful() &&
+            null !== $result->getError()->getDetails() &&
+            self::ERROR_CODE_EVENT_INDEX_CLEARED === $result->getError()->getDetails()->getErrorCode()
+        ) {
+            return $this->doWatch($key, $result->getError()->getDetails()->getIndex() + 1);
+        }
+
+        return $result;
     }
 }

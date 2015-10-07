@@ -33,12 +33,13 @@ class EtcdClientResponseFactory implements EtcdClientResponseFactoryInterface
     }
 
     /**
+     * @param int                   $xEtcdIndex
      * @param string                $action
      * @param DomainObjectInterface $do
      *
      * @return EtcdClientSingleNodeResponse
      */
-    private function makeSingleNodeResponse($action, DomainObjectInterface $do)
+    private function makeSingleNodeResponse($xEtcdIndex, $action, DomainObjectInterface $do)
     {
         $node = $this->etcdClientResponseNodeFactory->makeFromDomainObject($do->get('node'));
 
@@ -47,23 +48,17 @@ class EtcdClientResponseFactory implements EtcdClientResponseFactoryInterface
             $prevNode = $this->etcdClientResponseNodeFactory->makeFromDomainObject($do->get('prevNode'));
         }
 
-        return new EtcdClientSingleNodeResponse($action, $node, $prevNode);
+        return new EtcdClientSingleNodeResponse($xEtcdIndex, $action, $node, $prevNode);
     }
 
     /**
+     * @param int                   $xEtcdIndex
      * @param DomainObjectInterface $do
      *
      * @return EtcdClientResponseInterface
      */
-    public function makeFromDo(DomainObjectInterface $do)
+    public function makeFromDo($xEtcdIndex, DomainObjectInterface $do)
     {
-        $action = $do->get('action');
-        //
-
-        switch ($action) {
-            //
-        }
-
-        return $this->makeSingleNodeResponse($action, $do);
+        return $this->makeSingleNodeResponse($xEtcdIndex, $do->get('action'), $do);
     }
 }

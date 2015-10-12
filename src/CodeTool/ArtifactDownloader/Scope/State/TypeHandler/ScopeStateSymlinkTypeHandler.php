@@ -27,6 +27,7 @@ class ScopeStateSymlinkTypeHandler implements ScopeStateTypeHandlerInterface
             return false;
         }
 
+        // Symlink name
         $realTargetPath = $scopeInfo->getAbsPathByForTarget($scopeConfigChildNode->get('target'));
         $realSourcePath = $scopeInfo->getAbsPathByForTarget($scopeConfigChildNode->get('source'));
 
@@ -44,7 +45,7 @@ class ScopeStateSymlinkTypeHandler implements ScopeStateTypeHandlerInterface
             $collection
                 ->add($this->commandFactory->createRenameCommand($realTargetPath, $relativeTmpPath))
                 ->add($this->commandFactory->createSymlinkCommand($realTargetPath, $realSourcePath))
-                ->add($this->commandFactory->createMkDirCommand($relativeTmpPath));
+                ->add($this->commandFactory->createRmCommand($relativeTmpPath));
 
             return true;
         }
@@ -52,8 +53,8 @@ class ScopeStateSymlinkTypeHandler implements ScopeStateTypeHandlerInterface
         if ($realSourcePath !== readlink($realTargetPath)) {
             // Link with same name already exists, but reference to other path
             $collection
-                ->add($this->commandFactory->createSymlinkCommand($relativeTmpPath, $realSourcePath))
-                ->add($this->commandFactory->createRenameCommand($relativeTmpPath, $realTargetPath));
+                ->add($this->commandFactory->createRmCommand($realTargetPath))
+                ->add($this->commandFactory->createSymlinkCommand($relativeTmpPath, $realSourcePath));
 
             return true;
         }

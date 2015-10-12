@@ -219,7 +219,7 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function createRenameCommand($sourcePath, $targetPath)
     {
-        return new CommandRename($this->resultFactory, $targetPath, $sourcePath);
+        return new CommandRename($this->resultFactory, $sourcePath, $targetPath);
     }
 
     /**

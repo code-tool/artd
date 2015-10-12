@@ -112,12 +112,12 @@ interface CommandFactoryInterface
     public function createCopyFileCommand($sourcePath, $targetPath);
 
     /**
-     * @param string $targetPath
+     * @param string $name
      * @param string $sourcePath
      *
      * @return CommandSymlink
      */
-    public function createSymlinkCommand($targetPath, $sourcePath);
+    public function createSymlinkCommand($name, $sourcePath);
 
     /**
      * @param string $sourcePath

@@ -15,7 +15,7 @@ class CommandSymlink implements CommandInterface
     /**
      * @var string
      */
-    private $target;
+    private $name;
 
     /**
      * @var int|string
@@ -24,13 +24,13 @@ class CommandSymlink implements CommandInterface
 
     /**
      * @param ResultFactoryInterface $resultFactory
-     * @param string                 $target
+     * @param string                 $name
      * @param string                 $source
      */
-    public function __construct(ResultFactoryInterface $resultFactory, $target, $source)
+    public function __construct(ResultFactoryInterface $resultFactory, $name, $source)
     {
         $this->resultFactory = $resultFactory;
-        $this->target = $target;
+        $this->name = $name;
         $this->source = $source;
     }
 
@@ -39,13 +39,13 @@ class CommandSymlink implements CommandInterface
      */
     public function execute()
     {
-        if (is_link($this->target) && $this->source === readlink($this->target)) {
+        if (is_link($this->name) && $this->source === readlink($this->name)) {
             return $this->resultFactory->createSuccessful();
         }
 
-        if (false === @symlink($this->source, $this->target)) {
+        if (false === @symlink($this->source, $this->name)) {
             return $this->resultFactory->createErrorFromGetLast(
-                sprintf('Can\' create symlink with name "%s" to "%s"', $this->source, $this->target)
+                sprintf('Can\' create symlink with name "%s" to "%s"', $this->name, $this->source)
             );
         }
 
@@ -54,6 +54,6 @@ class CommandSymlink implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('ln path=%s name=%s', $this->source, $this->target);
+        return sprintf('ln path=%s name=%s', $this->source, $this->name);
     }
 }

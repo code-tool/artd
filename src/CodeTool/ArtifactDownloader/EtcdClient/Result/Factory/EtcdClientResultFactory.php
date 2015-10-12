@@ -86,7 +86,14 @@ class EtcdClientResultFactory implements EtcdClientResultFactoryInterface
     {
         // Http request level error
         if (false === $result->isSuccessful() && null === $result->getResponse()) {
-            return $this->create($result->getError());
+            return $this->create(
+                $this->etcdClientErrorFactory->create(
+                    $result->getError()->getMessage(),
+                    null,
+                    null,
+                    $result->getError()
+                )
+            );
         }
 
         $responseBody = json_decode($result->getResponse()->getBody(), true);

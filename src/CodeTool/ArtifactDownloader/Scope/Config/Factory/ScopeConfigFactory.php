@@ -32,6 +32,6 @@ class ScopeConfigFactory implements ScopeConfigFactoryInterface
             $scopeRules[] = $this->createChildNode($rule);
         }
 
-        return new ScopeConfig($scopeName, $do->get('exact_match'), $scopeRules);
+        return new ScopeConfig($scopeName, $do->getOrDefault('exact_match', false), $scopeRules);
     }
 }

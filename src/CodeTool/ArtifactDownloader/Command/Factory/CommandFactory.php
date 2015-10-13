@@ -202,13 +202,13 @@ class CommandFactory implements CommandFactoryInterface
 
     /**
      * @param string $name
-     * @param string $sourcePath
+     * @param string $targetPath
      *
      * @return CommandSymlink
      */
-    public function createSymlinkCommand($name, $sourcePath)
+    public function createSymlinkCommand($name, $targetPath)
     {
-        return new CommandSymlink($this->resultFactory, $name, $sourcePath);
+        return new CommandSymlink($this->resultFactory, $name, $targetPath);
     }
 
     /**

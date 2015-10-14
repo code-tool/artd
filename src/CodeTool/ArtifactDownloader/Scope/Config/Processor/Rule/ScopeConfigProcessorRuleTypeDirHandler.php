@@ -1,15 +1,16 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Scope\State\TypeHandler;
+namespace CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
 use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
-class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
+class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRuleTypeHandlerInterface
 {
     /**
      * @var BasicUtil
@@ -17,14 +18,36 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
     private $basicUtil;
 
     /**
+     * @var ResultFactoryInterface
+     */
+    private $resultFactory;
+
+    /**
      * @var CommandFactoryInterface
      */
     private $commandFactory;
 
-    public function __construct(BasicUtil $basicUtil, CommandFactoryInterface $commandFactory)
-    {
+    /**
+     * @param BasicUtil               $basicUtil
+     * @param ResultFactoryInterface  $resultFactory
+     * @param CommandFactoryInterface $commandFactory
+     */
+    public function __construct(
+        BasicUtil $basicUtil,
+        ResultFactoryInterface $resultFactory,
+        CommandFactoryInterface $commandFactory
+    ) {
         $this->basicUtil = $basicUtil;
+        $this->resultFactory = $resultFactory;
         $this->commandFactory = $commandFactory;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSupportedTypes()
+    {
+        return ['dir'];
     }
 
     /**
@@ -65,16 +88,6 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
         $collection->add($this->commandFactory->createCheckFileSignatureCommand($target, $do->get('hash')));
 
         return true;
-    }
-
-    /**
-     * @param string $source
-     *
-     * @return bool
-     */
-    private function isSourceLocal($source)
-    {
-        return false === strpos($source, '://');
     }
 
     /**
@@ -136,6 +149,12 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
         }
     }
 
+    /**
+     * @param string $sourcePath
+     * @param string $targetPath
+     *
+     * @return CommandCollectionInterface
+     */
     private function buildSwapOperation($sourcePath, $targetPath)
     {
         // todo If source local, do not move, just copy
@@ -149,15 +168,18 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
         return $result;
     }
 
-    public function handle(
+    /**
+     * @param CommandCollectionInterface $collection
+     * @param ScopeInfoInterface         $scopeInfo
+     * @param ScopeConfigRuleInterface   $scopeConfigRule
+     *
+     * @return \CodeTool\ArtifactDownloader\Result\ResultInterface
+     */
+    public function buildCollection(
         CommandCollectionInterface $collection,
         ScopeInfoInterface $scopeInfo,
         ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        if ('dir' !== $scopeConfigRule->getType()) {
-            return false;
-        }
-
         $realTarget = $scopeConfigRule->get('target');
         $realTargetPath = $scopeInfo->getAbsPathByForTarget($realTarget);
         $targetExists = $scopeInfo->isTargetExists($realTarget);
@@ -172,7 +194,7 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
             // Fix permissions, if need
             $this->addGMOCommands($collection, $realTargetPath, $scopeConfigRule);
 
-            return true;
+            return $this->resultFactory->createSuccessful();
         }
 
         // Source defined
@@ -193,7 +215,7 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
             // Fix permissions, if need
             $this->addGMOCommands($collection, $realTargetPath, $scopeConfigRule);
 
-            return true;
+            return $this->resultFactory->createSuccessful();
         }
 
         $successCompareCommand = $isSourceLocal
@@ -212,6 +234,6 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
             )
         );
 
-        return true;
+        return $this->resultFactory->createSuccessful();
     }
 }

@@ -6,6 +6,7 @@ namespace {
     use CodeTool\ArtifactDownloader\ArtifactDownloader;
     use CodeTool\ArtifactDownloader\Command;
     use CodeTool\ArtifactDownloader\Config\Factory\ConfigFactory;
+    use CodeTool\ArtifactDownloader\CmdRunner;
     use CodeTool\ArtifactDownloader\DomainObject;
     use CodeTool\ArtifactDownloader\DirectoryComparator;
     use CodeTool\ArtifactDownloader\Error;
@@ -110,11 +111,11 @@ namespace {
     };
 
     $container['util.cmd_runner.result.factory'] = function () {
-        return new \CodeTool\ArtifactDownloader\CmdRunner\Result\Factory\CmdRunnerResultFactory();
+        return new CmdRunner\Result\Factory\CmdRunnerResultFactory();
     };
 
     $container['util.cmd_runner'] = function (Container $container) {
-        return new \CodeTool\ArtifactDownloader\CmdRunner\CmdRunner($container['util.cmd_runner.result.factory']);
+        return new CmdRunner\CmdRunner($container['util.cmd_runner.result.factory']);
     };
 
     //
@@ -198,36 +199,38 @@ namespace {
         return new Scope\Config\Factory\ScopeConfigFactory();
     };
 
-    //
-    $container['scope.info.factory'] = function () {
-        return new Scope\Info\Factory\ScopeInfoFactory();
-    };
-
-    //
-    $container['scope.state.type_handler.dir'] = function (Container $container) {
-        return new Scope\State\TypeHandler\ScopeStateDirTypeHandler(
+    $container['scope.config.processor.rule.symlink'] = function (Container $container) {
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeSymlinkHandler(
             $container['util.basic_util'],
+            $container['result.factory'],
             $container['command.factory']
         );
     };
 
-    $container['scope.state.type_handler.symlink'] = function (Container $container) {
-        return new Scope\State\TypeHandler\ScopeStateSymlinkTypeHandler(
+    $container['scope.config.processor.rule.dir'] = function (Container $container) {
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeDirHandler(
             $container['util.basic_util'],
+            $container['result.factory'],
             $container['command.factory']
         );
     };
 
-    //
-    $container['scope.state_builder'] = function (Container $container) {
-        return new Scope\State\ScopeStateBuilder(
+    $container['scope.config.processor'] = function (Container $container) {
+        return new Scope\Config\Processor\ScopeConfigProcessor(
+            $container['logger'],
+            $container['result.factory'],
             $container['command.factory'],
             $container['scope.info.factory'],
             [
-                $container['scope.state.type_handler.symlink'],
-                $container['scope.state.type_handler.dir'],
+                $container['scope.config.processor.rule.symlink'],
+                $container['scope.config.processor.rule.dir'],
             ]
         );
+    };
+
+    //
+    $container['scope.info.factory'] = function () {
+        return new Scope\Info\Factory\ScopeInfoFactory();
     };
 
     //
@@ -247,7 +250,7 @@ namespace {
             $container['unit_config'],
             $container['etcd_client'],
             $container['config.factory'],
-            $container['scope.state_builder'],
+            $container['scope.config.processor'],
             $container['unit_status_builder']
         );
     };

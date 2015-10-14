@@ -3,6 +3,7 @@
 namespace CodeTool\ArtifactDownloader\EtcdClient;
 
 use CodeTool\ArtifactDownloader\EtcdClient\Result\Factory\EtcdClientResultFactoryInterface;
+use CodeTool\ArtifactDownloader\EtcdClient\ServerList\EtcdClientServerListInterface;
 use CodeTool\ArtifactDownloader\HttpClient\HttpClientInterface;
 
 class EtcdClient implements EtcdClientInterface
@@ -24,7 +25,7 @@ class EtcdClient implements EtcdClientInterface
     /**
      * @var string
      */
-    private $server;
+    private $etcdClientServerList;
 
     /**
      * @var string
@@ -39,22 +40,22 @@ class EtcdClient implements EtcdClientInterface
     /**
      * @param HttpClientInterface              $httpClient
      * @param EtcdClientResultFactoryInterface $etcdClientResultFactory
+     * @param EtcdClientServerListInterface    $etcdClientServerList
      * @param string                           $root
-     * @param string                           $server
      * @param string                           $apiVersion
      */
     public function __construct(
         HttpClientInterface $httpClient,
         EtcdClientResultFactoryInterface $etcdClientResultFactory,
+        EtcdClientServerListInterface $etcdClientServerList,
         $root = '/',
-        $server = self::DEFAULT_SERVER,
         $apiVersion = 'v2'
     ) {
         $this->httpClient = $httpClient;
         $this->etcdClientResultFactory = $etcdClientResultFactory;
+        $this->etcdClientServerList = $etcdClientServerList;
 
         $this->root = $root;
-        $this->server = rtrim($server, '/');
         $this->apiVersion = $apiVersion;
     }
 
@@ -69,6 +70,10 @@ class EtcdClient implements EtcdClientInterface
     {
         $httpResponse = $this->httpClient->makeRequest($uri, $method, $parameters);
 
+        if (false === $httpResponse->isSuccessful() && null === $httpResponse->getResponse()) {
+            $this->etcdClientServerList->switchToNext();
+        }
+
         return $this->etcdClientResultFactory->createFromHttpClientResult($httpResponse);
     }
 
@@ -82,7 +87,13 @@ class EtcdClient implements EtcdClientInterface
      */
     private function buildKeyUri($key, array $params = [])
     {
-        $result = sprintf('%s/%s/keys%s%s', $this->server, $this->apiVersion, $this->root, $key);
+        $result = sprintf(
+            '%s/%s/keys%s%s',
+            $this->etcdClientServerList->current(),
+            $this->apiVersion,
+            $this->root,
+            $key
+        );
 
         if ([] !== $params) {
             $result .= '?' . http_build_query($params);

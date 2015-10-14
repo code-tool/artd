@@ -182,15 +182,25 @@ namespace {
         );
     };
 
-    $container['etcd_client'] = function (Container $container) {
+    $container['etcd_client.server_list.factory'] = function () {
+        return new EtcdClient\ServerList\Factory\EtcdClientServerListFactory();
+    };
+
+    $container['etcd_client.server_list'] = function (Container $container) {
+        /** @var EtcdClient\ServerList\Factory\EtcdClientServerListFactory $factory */
+        $factory = $container['etcd_client.server_list.factory'];
+
         /** @var UnitConfig\UnitConfigInterface $unitConfig */
         $unitConfig = $container['unit_config'];
 
+        return $factory->makeFromString($unitConfig->getEtcdServerUrl());
+    };
+
+    $container['etcd_client'] = function (Container $container) {
         return new EtcdClient\EtcdClient(
             $container['http_client'],
             $container['etcd_client.result.factory'],
-            '/',
-            $unitConfig->getEtcdServerUrl()
+            $container['etcd_client.server_list']
         );
     };
 

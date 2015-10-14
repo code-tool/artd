@@ -5,7 +5,7 @@ namespace CodeTool\ArtifactDownloader;
 use CodeTool\ArtifactDownloader\Config\Factory\ConfigFactoryInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\EtcdClientInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Result\EtcdClientResultInterface;
-use CodeTool\ArtifactDownloader\Scope\State\ScopeStateBuilder;
+use CodeTool\ArtifactDownloader\Scope\Config\Processor\ScopeConfigProcessor;
 use CodeTool\ArtifactDownloader\UnitConfig\UnitConfigInterface;
 use CodeTool\ArtifactDownloader\UnitStatusBuilder\UnitStatusBuilderInterface;
 use Psr\Log\LoggerInterface;
@@ -44,9 +44,9 @@ class ArtifactDownloader
     private $unitStatusBuilder;
 
     /**
-     * @var ScopeStateBuilder
+     * @var ScopeConfigProcessor
      */
-    private $scopeStateBuilder;
+    private $scopeConfigProcessor;
 
     /**
      * @var int|null
@@ -63,7 +63,7 @@ class ArtifactDownloader
      * @param UnitConfigInterface        $unitConfig
      * @param EtcdClientInterface        $etcdClient
      * @param ConfigFactoryInterface     $configFactory
-     * @param ScopeStateBuilder          $scopeStateBuilder
+     * @param ScopeConfigProcessor       $scopeConfigProcessor
      * @param UnitStatusBuilderInterface $unitStatusBuilder
      */
     public function __construct(
@@ -71,14 +71,14 @@ class ArtifactDownloader
         UnitConfigInterface $unitConfig,
         EtcdClientInterface $etcdClient,
         ConfigFactoryInterface $configFactory,
-        ScopeStateBuilder $scopeStateBuilder,
+        ScopeConfigProcessor $scopeConfigProcessor,
         UnitStatusBuilderInterface $unitStatusBuilder
     ) {
         $this->logger = $logger;
         $this->unitConfig = $unitConfig;
         $this->etcdClient = $etcdClient;
         $this->configFactory = $configFactory;
-        $this->scopeStateBuilder = $scopeStateBuilder;
+        $this->scopeConfigProcessor = $scopeConfigProcessor;
         $this->unitStatusBuilder = $unitStatusBuilder;
     }
 
@@ -154,18 +154,13 @@ class ArtifactDownloader
         // Parse Config ->
         $parsedConfig = $this->configFactory->createFromJson($configString);
 
-        // BuildCollection
-        $commandCollection = $this->scopeStateBuilder->buildForScopes($parsedConfig->getScopesConfig());
-        $this->logger->debug(sprintf('Built command collection: %s%s', PHP_EOL, $commandCollection));
-
+        // Apply config
         $applyStart = microtime(true);
-        // Apply command collection
-        $configApplyResult = $commandCollection->execute();
+
+        // $this->logger->debug(sprintf('Built command collection: %s%s', PHP_EOL, $commandCollection));
+        $configApplyResult = $this->scopeConfigProcessor->process($parsedConfig->getScopesConfig());
         if (null !== $configApplyResult->getError()) {
-            $this->logger->error(sprintf(
-                'Error while executing commands: %s',
-                $configApplyResult->getError()->getMessage()
-            ));
+            $this->logger->error(sprintf('Error while config apply: %s', $configApplyResult->getError()->getMessage()));
 
             $this
                 ->logErrorAndPushToUnitStatus($configApplyResult->getError()->getMessage())
@@ -191,6 +186,9 @@ class ArtifactDownloader
         return true;
     }
 
+    /**
+     * @param bool $isSuccess
+     */
     private function sleepOnError($isSuccess)
     {
         if (true === $isSuccess) {

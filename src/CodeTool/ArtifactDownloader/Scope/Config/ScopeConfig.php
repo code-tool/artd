@@ -10,20 +10,20 @@ class ScopeConfig implements ScopeConfigInterface
     private $scopePath;
 
     /**
-     * @var ScopeConfigChildNodeInterface[]
+     * @var ScopeConfigRuleInterface[]
      */
-    private $childNodes;
+    private $scopeRules;
 
     /**
-     * @param string                          $scopePath
-     * @param bool                            $exactMatchRequired
-     * @param ScopeConfigChildNodeInterface[] $childNodes
+     * @param string                     $scopePath
+     * @param bool                       $exactMatchRequired
+     * @param ScopeConfigRuleInterface[] $scopeRules
      */
-    public function __construct($scopePath, $exactMatchRequired, array $childNodes)
+    public function __construct($scopePath, $exactMatchRequired, array $scopeRules)
     {
         $this->scopePath = $scopePath;
         $this->exactMatchRequired = $exactMatchRequired;
-        $this->childNodes = $childNodes;
+        $this->scopeRules = $scopeRules;
     }
 
     /**
@@ -43,10 +43,10 @@ class ScopeConfig implements ScopeConfigInterface
     }
 
     /**
-     * @return ScopeConfigChildNodeInterface[]
+     * @return ScopeConfigRuleInterface[]
      */
-    public function getChildNodes()
+    public function getScopeRules()
     {
-        return $this->childNodes;
+        return $this->scopeRules;
     }
 }

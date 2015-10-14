@@ -15,7 +15,7 @@ interface ScopeConfigInterface
     public function isExactMatchRequired();
 
     /**
-     * @return ScopeConfigChildNodeInterface[]
+     * @return ScopeConfigRuleInterface[]
      */
-    public function getChildNodes();
+    public function getScopeRules();
 }

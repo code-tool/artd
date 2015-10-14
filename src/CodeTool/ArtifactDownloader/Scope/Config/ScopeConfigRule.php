@@ -4,7 +4,7 @@ namespace CodeTool\ArtifactDownloader\Scope\Config;
 
 use CodeTool\ArtifactDownloader\DomainObject\DomainObject;
 
-class ScopeConfigChildNode extends DomainObject implements ScopeConfigChildNodeInterface
+class ScopeConfigRule extends DomainObject implements ScopeConfigRuleInterface
 {
     /**
      * @return string

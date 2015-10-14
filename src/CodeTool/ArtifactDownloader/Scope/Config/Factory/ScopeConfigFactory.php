@@ -4,7 +4,7 @@ namespace CodeTool\ArtifactDownloader\Scope\Config\Factory;
 
 use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfig;
-use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigChildNode;
+use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRule;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigInterface;
 
 class ScopeConfigFactory implements ScopeConfigFactoryInterface
@@ -12,11 +12,11 @@ class ScopeConfigFactory implements ScopeConfigFactoryInterface
     /**
      * @param DomainObjectInterface $do
      *
-     * @return ScopeConfigChildNode
+     * @return ScopeConfigRule
      */
     private function createChildNode(DomainObjectInterface $do)
     {
-        return new ScopeConfigChildNode($do->toArray());
+        return new ScopeConfigRule($do->toArray());
     }
 
     /**

@@ -1,15 +1,16 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Scope\State\TypeHandler;
+namespace CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
 use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
-use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigChildNodeInterface;
+use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
-class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
+class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRuleTypeHandlerInterface
 {
     /**
      * @var BasicUtil
@@ -17,14 +18,36 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
     private $basicUtil;
 
     /**
+     * @var ResultFactoryInterface
+     */
+    private $resultFactory;
+
+    /**
      * @var CommandFactoryInterface
      */
     private $commandFactory;
 
-    public function __construct(BasicUtil $basicUtil, CommandFactoryInterface $commandFactory)
-    {
+    /**
+     * @param BasicUtil               $basicUtil
+     * @param ResultFactoryInterface  $resultFactory
+     * @param CommandFactoryInterface $commandFactory
+     */
+    public function __construct(
+        BasicUtil $basicUtil,
+        ResultFactoryInterface $resultFactory,
+        CommandFactoryInterface $commandFactory
+    ) {
         $this->basicUtil = $basicUtil;
+        $this->resultFactory = $resultFactory;
         $this->commandFactory = $commandFactory;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSupportedTypes()
+    {
+        return ['dir'];
     }
 
     /**
@@ -65,16 +88,6 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
         $collection->add($this->commandFactory->createCheckFileSignatureCommand($target, $do->get('hash')));
 
         return true;
-    }
-
-    /**
-     * @param string $source
-     *
-     * @return bool
-     */
-    private function isSourceLocal($source)
-    {
-        return false === strpos($source, '://');
     }
 
     /**
@@ -136,6 +149,12 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
         }
     }
 
+    /**
+     * @param string $sourcePath
+     * @param string $targetPath
+     *
+     * @return CommandCollectionInterface
+     */
     private function buildSwapOperation($sourcePath, $targetPath)
     {
         // todo If source local, do not move, just copy
@@ -149,39 +168,42 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
         return $result;
     }
 
-    public function handle(
+    /**
+     * @param CommandCollectionInterface $collection
+     * @param ScopeInfoInterface         $scopeInfo
+     * @param ScopeConfigRuleInterface   $scopeConfigRule
+     *
+     * @return \CodeTool\ArtifactDownloader\Result\ResultInterface
+     */
+    public function buildCollection(
         CommandCollectionInterface $collection,
         ScopeInfoInterface $scopeInfo,
-        ScopeConfigChildNodeInterface $scopeConfigChildNode
+        ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        if ('dir' !== $scopeConfigChildNode->getType()) {
-            return false;
-        }
-
-        $realTarget = $scopeConfigChildNode->get('target');
+        $realTarget = $scopeConfigRule->get('target');
         $realTargetPath = $scopeInfo->getAbsPathByForTarget($realTarget);
         $targetExists = $scopeInfo->isTargetExists($realTarget);
 
         // If no source defined
-        if (false === $scopeConfigChildNode->has('source')) {
+        if (false === $scopeConfigRule->has('source')) {
             if (false === $targetExists) {
                 // And directory dose not exists. Just create new
                 $collection->add($this->commandFactory->createMkDirCommand($realTargetPath, 0755, true));
             }
 
             // Fix permissions, if need
-            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigChildNode);
+            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigRule);
 
-            return true;
+            return $this->resultFactory->createSuccessful();
         }
 
         // Source defined
-        $source = $scopeConfigChildNode->get('source');
+        $source = $scopeConfigRule->get('source');
         $isSourceLocal = $this->basicUtil->isSourceLocal($source);
 
         if (false === $isSourceLocal) {
             // If source remote, download it and get new source path
-            $source = $this->addForRemoteSource($collection, $source, $realTargetPath, $scopeConfigChildNode);
+            $source = $this->addForRemoteSource($collection, $source, $realTargetPath, $scopeConfigRule);
         } else {
             // todo Is source absolute path?
             $source = $scopeInfo->getAbsPathByForTarget($source);
@@ -191,9 +213,9 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
             // Now, if target dose not exists, just move
             $collection->add($this->commandFactory->createMoveFileCommand($source, $realTargetPath));
             // Fix permissions, if need
-            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigChildNode);
+            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigRule);
 
-            return true;
+            return $this->resultFactory->createSuccessful();
         }
 
         $successCompareCommand = $isSourceLocal
@@ -212,6 +234,6 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
             )
         );
 
-        return true;
+        return $this->resultFactory->createSuccessful();
     }
 }

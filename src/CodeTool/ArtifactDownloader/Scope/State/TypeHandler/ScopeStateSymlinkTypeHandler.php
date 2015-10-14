@@ -4,7 +4,7 @@ namespace CodeTool\ArtifactDownloader\Scope\State\TypeHandler;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
-use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigChildNodeInterface;
+use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
@@ -21,15 +21,15 @@ class ScopeStateSymlinkTypeHandler implements ScopeStateTypeHandlerInterface
     public function handle(
         CommandCollectionInterface $collection,
         ScopeInfoInterface $scopeInfo,
-        ScopeConfigChildNodeInterface $scopeConfigChildNode
+        ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        if ('symlink' !== $scopeConfigChildNode->getType()) {
+        if ('symlink' !== $scopeConfigRule->getType()) {
             return false;
         }
 
         // Symlink name
-        $realTargetPath = $scopeInfo->getAbsPathByForTarget($scopeConfigChildNode->get('target'));
-        $realSourcePath = $scopeInfo->getAbsPathByForTarget($scopeConfigChildNode->get('source'));
+        $realTargetPath = $scopeInfo->getAbsPathByForTarget($scopeConfigRule->get('target'));
+        $realSourcePath = $scopeInfo->getAbsPathByForTarget($scopeConfigRule->get('source'));
 
         if (false === file_exists($realTargetPath) && false === is_link($realTargetPath)) {
             // Target dose not exists, just create symlink

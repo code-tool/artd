@@ -4,7 +4,7 @@ namespace CodeTool\ArtifactDownloader\Scope\State;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
-use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigChildNodeInterface;
+use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\Factory\ScopeInfoFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
@@ -43,16 +43,16 @@ class ScopeStateBuilder
     }
 
     /**
-     * @param CommandCollectionInterface    $collection
-     * @param ScopeInfoInterface            $scopeInfo
-     * @param ScopeConfigChildNodeInterface $childNode
+     * @param CommandCollectionInterface $collection
+     * @param ScopeInfoInterface         $scopeInfo
+     * @param ScopeConfigRuleInterface   $childNode
      *
      * @return bool
      */
     private function addForChildNode(
         CommandCollectionInterface $collection,
         ScopeInfoInterface $scopeInfo,
-        ScopeConfigChildNodeInterface $childNode
+        ScopeConfigRuleInterface $childNode
     ) {
         foreach ($this->typeHandlers as $typeHandler) {
             if (true === $typeHandler->handle($collection, $scopeInfo, $childNode)) {
@@ -67,7 +67,7 @@ class ScopeStateBuilder
     {
         $scopeInfo = $this->scopeInfoFactory->makeForConfig($scopeConfig);
 
-        foreach ($scopeConfig->getChildNodes() as $childNode) {
+        foreach ($scopeConfig->getScopeRules() as $childNode) {
             if (false === $this->addForChildNode($collection, $scopeInfo, $childNode)) {
                 // todo implement error message and processing break
             }

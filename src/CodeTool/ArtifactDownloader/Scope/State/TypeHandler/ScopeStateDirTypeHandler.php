@@ -5,7 +5,7 @@ namespace CodeTool\ArtifactDownloader\Scope\State\TypeHandler;
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
 use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
-use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigChildNodeInterface;
+use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
@@ -152,36 +152,36 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
     public function handle(
         CommandCollectionInterface $collection,
         ScopeInfoInterface $scopeInfo,
-        ScopeConfigChildNodeInterface $scopeConfigChildNode
+        ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        if ('dir' !== $scopeConfigChildNode->getType()) {
+        if ('dir' !== $scopeConfigRule->getType()) {
             return false;
         }
 
-        $realTarget = $scopeConfigChildNode->get('target');
+        $realTarget = $scopeConfigRule->get('target');
         $realTargetPath = $scopeInfo->getAbsPathByForTarget($realTarget);
         $targetExists = $scopeInfo->isTargetExists($realTarget);
 
         // If no source defined
-        if (false === $scopeConfigChildNode->has('source')) {
+        if (false === $scopeConfigRule->has('source')) {
             if (false === $targetExists) {
                 // And directory dose not exists. Just create new
                 $collection->add($this->commandFactory->createMkDirCommand($realTargetPath, 0755, true));
             }
 
             // Fix permissions, if need
-            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigChildNode);
+            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigRule);
 
             return true;
         }
 
         // Source defined
-        $source = $scopeConfigChildNode->get('source');
+        $source = $scopeConfigRule->get('source');
         $isSourceLocal = $this->basicUtil->isSourceLocal($source);
 
         if (false === $isSourceLocal) {
             // If source remote, download it and get new source path
-            $source = $this->addForRemoteSource($collection, $source, $realTargetPath, $scopeConfigChildNode);
+            $source = $this->addForRemoteSource($collection, $source, $realTargetPath, $scopeConfigRule);
         } else {
             // todo Is source absolute path?
             $source = $scopeInfo->getAbsPathByForTarget($source);
@@ -191,7 +191,7 @@ class ScopeStateDirTypeHandler implements ScopeStateTypeHandlerInterface
             // Now, if target dose not exists, just move
             $collection->add($this->commandFactory->createMoveFileCommand($source, $realTargetPath));
             // Fix permissions, if need
-            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigChildNode);
+            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigRule);
 
             return true;
         }

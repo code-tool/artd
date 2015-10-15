@@ -16,7 +16,7 @@ class EtcdClientServerListFactory
     {
         $servers = [];
         foreach (explode(',', $serversStr) as $server) {
-            $server[] = rtrim($server, '/');
+            $servers[] = rtrim($server, '/');
         }
 
         return new EtcdClientServerList($servers);

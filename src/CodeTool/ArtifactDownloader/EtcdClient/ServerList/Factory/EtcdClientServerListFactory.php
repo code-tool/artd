@@ -14,7 +14,10 @@ class EtcdClientServerListFactory
      */
     public function makeFromString($serversStr)
     {
-        $servers = explode(',', $serversStr);
+        $servers = [];
+        foreach (explode(',', $serversStr) as $server) {
+            $server[] = rtrim($server, '/');
+        }
 
         return new EtcdClientServerList($servers);
     }

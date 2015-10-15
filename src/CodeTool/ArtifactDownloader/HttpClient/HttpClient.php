@@ -50,9 +50,20 @@ class HttpClient implements HttpClientInterface
             return;
         }
 
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSLCERT, $resourceCredentials->getClientCertPath());
-        curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $resourceCredentials->getClientCertPassword());
+        if (null !== $resourceCredentials->getClientCertPath()) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSLCERT, $resourceCredentials->getClientCertPath());
+
+            if (null !== $resourceCredentials->getClientCertPassword()) {
+                curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $resourceCredentials->getClientCertPassword());
+            }
+        }
+
+        if (null !== $resourceCredentials->getHttpProxy()) {
+            curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, true);
+            curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+            curl_setopt($ch, CURLOPT_PROXY, $resourceCredentials->getHttpProxy());
+        }
     }
 
     /**

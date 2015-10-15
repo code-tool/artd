@@ -28,4 +28,9 @@ interface ResourceCredentialsInterface
      * @return string|null
      */
     public function getClientCertPassword();
+
+    /**
+     * @return string|null
+     */
+    public function getHttpProxy();
 }

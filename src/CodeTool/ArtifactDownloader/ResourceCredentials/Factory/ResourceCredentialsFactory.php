@@ -15,12 +15,18 @@ class ResourceCredentialsFactory implements ResourceCredentialsFactoryInterface
      */
     public function createFromDo(DomainObjectInterface $do)
     {
+        $clientCertPassword = null;
+        if (null !== $clientCertPath = $do->getOrDefault('client_cert_path')) {
+            $clientCertPassword = $do->getOrDefault('client_cert_password', '');
+        }
+
         return new ResourceCredentials(
             $do->getOrDefault('scheme', 'https'),
             $do->get('host'),
             $do->getOrDefault('port', '443'),
-            $do->get('client_cert_path'),
-            $do->getOrDefault('client_cert_password', '')
+            $clientCertPath,
+            $clientCertPassword,
+            $do->getOrDefault('http_proxy', '')
         );
     }
 }

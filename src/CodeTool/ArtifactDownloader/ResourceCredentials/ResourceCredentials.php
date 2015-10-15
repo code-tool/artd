@@ -20,23 +20,29 @@ class ResourceCredentials implements ResourceCredentialsInterface
     private $port;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $clientCertPath;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $clientCertPassword;
 
     /**
-     * @param string $scheme
-     * @param string $host
-     * @param string $port
-     * @param string $clientCertPath
-     * @param string $clientCertPassword
+     * @var string|null
      */
-    public function __construct($scheme, $host, $port, $clientCertPath, $clientCertPassword)
+    private $httpProxy;
+
+    /**
+     * @param string      $scheme
+     * @param string      $host
+     * @param string      $port
+     * @param string|null $clientCertPath
+     * @param string|null $clientCertPassword
+     * @param string|null $httpProxy
+     */
+    public function __construct($scheme, $host, $port, $clientCertPath, $clientCertPassword, $httpProxy)
     {
         $this->scheme = $scheme;
         $this->host = $host;
@@ -44,6 +50,8 @@ class ResourceCredentials implements ResourceCredentialsInterface
 
         $this->clientCertPath = $clientCertPath;
         $this->clientCertPassword = $clientCertPassword;
+
+        $this->httpProxy = $httpProxy;
     }
 
     /**
@@ -84,5 +92,13 @@ class ResourceCredentials implements ResourceCredentialsInterface
     public function getClientCertPassword()
     {
         return $this->clientCertPassword;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getHttpProxy()
+    {
+        return $this->httpProxy;
     }
 }

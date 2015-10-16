@@ -156,10 +156,8 @@ class ArtifactDownloader
 
         // Apply config
         $applyStart = microtime(true);
-
-        // $this->logger->debug(sprintf('Built command collection: %s%s', PHP_EOL, $commandCollection));
         $configApplyResult = $this->scopeConfigProcessor->process($parsedConfig->getScopesConfig());
-        if (null !== $configApplyResult->getError()) {
+        if (false === $configApplyResult->isSuccessful()) {
             $this->logger->error(sprintf('Error while config apply: %s', $configApplyResult->getError()->getMessage()));
 
             $this

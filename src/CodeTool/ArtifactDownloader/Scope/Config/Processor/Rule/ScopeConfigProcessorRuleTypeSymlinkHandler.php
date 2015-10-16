@@ -88,7 +88,7 @@ class ScopeConfigProcessorRuleTypeSymlinkHandler implements ScopeConfigProcessor
             // Link with same name already exists, but reference to other path
             $collection
                 ->add($this->commandFactory->createRmCommand($realTargetPath))
-                ->add($this->commandFactory->createSymlinkCommand($relativeTmpPath, $realSourcePath));
+                ->add($this->commandFactory->createSymlinkCommand($realTargetPath, $realSourcePath));
 
             return $this->resultFactory->createSuccessful();
         }

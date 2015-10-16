@@ -61,34 +61,32 @@ class ScopeConfigProcessorRuleTypeSymlinkHandler implements ScopeConfigProcessor
         ScopeInfoInterface $scopeInfo,
         ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        // Symlink name
+        $realNamePath = $scopeInfo->getAbsPathByForTarget($scopeConfigRule->get('name'));
         $realTargetPath = $scopeInfo->getAbsPathByForTarget($scopeConfigRule->get('target'));
-        $realSourcePath = $scopeInfo->getAbsPathByForTarget($scopeConfigRule->get('source'));
 
-        if (false === file_exists($realTargetPath) && false === is_link($realTargetPath)) {
-            // Target dose not exists, just create symlink
-            $collection->add($this->commandFactory->createSymlinkCommand($realTargetPath, $realSourcePath));
+        if (false === file_exists($realNamePath) && false === is_link($realNamePath)) {
+            // link or other file object dose not exists on same path
+            $collection->add($this->commandFactory->createSymlinkCommand($realNamePath, $realTargetPath));
 
             return $this->resultFactory->createSuccessful();
         }
 
-        $relativeTmpPath = $this->basicUtil->getRelativeTmpPath($realTargetPath);
-
-        if (false === is_link($realTargetPath)) {
+        if (false === is_link($realNamePath)) {
+            $relativeTmpPath = $this->basicUtil->getRelativeTmpPath($realNamePath);
             // Target is not symlink
             $collection
-                ->add($this->commandFactory->createRenameCommand($realTargetPath, $relativeTmpPath))
-                ->add($this->commandFactory->createSymlinkCommand($realTargetPath, $realSourcePath))
+                ->add($this->commandFactory->createRenameCommand($realNamePath, $relativeTmpPath))
+                ->add($this->commandFactory->createSymlinkCommand($realNamePath, $realTargetPath))
                 ->add($this->commandFactory->createRmCommand($relativeTmpPath));
 
             return $this->resultFactory->createSuccessful();
         }
 
-        if ($realSourcePath !== readlink($realTargetPath)) {
+        if ($realTargetPath !== readlink($realNamePath)) {
             // Link with same name already exists, but reference to other path
             $collection
-                ->add($this->commandFactory->createRmCommand($realTargetPath))
-                ->add($this->commandFactory->createSymlinkCommand($realTargetPath, $realSourcePath));
+                ->add($this->commandFactory->createRmCommand($realNamePath))
+                ->add($this->commandFactory->createSymlinkCommand($realNamePath, $realTargetPath));
 
             return $this->resultFactory->createSuccessful();
         }

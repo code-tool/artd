@@ -3,6 +3,7 @@
 namespace CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
+use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
 use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
@@ -81,11 +82,17 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
      */
     private function addHashCheck(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
     {
-        if (false === $do->has('hash')) {
+        if (null === ($hash = $do->getOrDefault('hash', null))) {
             return false;
         }
 
-        $collection->add($this->commandFactory->createCheckFileSignatureCommand($target, $do->get('hash')));
+        $algorithm = CommandCheckFileSignature::DEFAULT_ALGORITHM;
+        if (false !== ($delimiterPos = strpos($hash, ':'))) {
+            $algorithm = substr($hash, 0, $delimiterPos);
+            $hash = substr($hash, $delimiterPos + 1);
+        }
+
+        $collection->add($this->commandFactory->createCheckFileSignatureCommand($target, $hash, $algorithm));
 
         return true;
     }

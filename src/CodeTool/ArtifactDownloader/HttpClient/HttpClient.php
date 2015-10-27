@@ -9,6 +9,8 @@ use CodeTool\ArtifactDownloader\ResourceCredentials\Repository\ResourceCredentia
 
 class HttpClient implements HttpClientInterface
 {
+    private $ch;
+
     /**
      * @var HttpClientResultFactoryInterface
      */
@@ -37,6 +39,16 @@ class HttpClient implements HttpClientInterface
         $this->httpClientResultFactory = $httpClientResultFactory;
         $this->httpClientResponseFactory = $httpClientResponseFactory;
         $this->resourceCredentialsRepository = $resourceCredentialsRepository;
+    }
+
+    private function getCurlHandle()
+    {
+        if (null === $this->ch) {
+            return $this->ch = curl_init();
+        }
+
+        curl_reset($this->ch);
+        return $this->ch;
     }
 
     /**
@@ -75,26 +87,11 @@ class HttpClient implements HttpClientInterface
         curl_setopt($ch, CURLOPT_TIMEOUT, 0);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    }
 
-    /**
-     * @param string $url
-     *
-     * @return resource
-     */
-    private function getNewCurlHandle($url)
-    {
-        $ch = curl_init($url);
-        $this->setBasicCurlParameters($ch);
-
-        $this->responseHeaders = [];
-        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$responseHeaders) {
-            $this->responseHeaders[] = $header;
-
-            return strlen($header);
-        });
-
-        return $ch;
+        // enable keep-alive
+        curl_setopt($ch, CURLOPT_TCP_KEEPIDLE, 5);
+        curl_setopt($ch, CURLOPT_TCP_KEEPINTVL, 5);
+        curl_setopt($ch, CURLOPT_TCP_KEEPALIVE, 1);
     }
 
     private function createResultFromChAndResponse($ch)
@@ -104,7 +101,6 @@ class HttpClient implements HttpClientInterface
         }
 
         $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
 
         $response = $this->httpClientResponseFactory->make($httpCode, $this->responseHeaders, $response);
 
@@ -117,6 +113,28 @@ class HttpClient implements HttpClientInterface
         }
 
         return $this->httpClientResultFactory->createSuccessful($response);
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return resource
+     */
+    private function getNewCurlHandle($url)
+    {
+        $ch = $this->getCurlHandle();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $this->setBasicCurlParameters($ch);
+
+        $this->responseHeaders = [];
+        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$responseHeaders) {
+            $this->responseHeaders[] = $header;
+
+            return strlen($header);
+        });
+
+        return $ch;
     }
 
     /**
@@ -154,8 +172,6 @@ class HttpClient implements HttpClientInterface
         $ch = $this->getNewCurlHandle($url);
 
         if (false === ($targetFileHandle = @fopen($target, 'w+'))) {
-            curl_close($ch);
-
             return $this->httpClientResultFactory->createError(sprintf('Can\'t open file "%s" for writing.', $target));
         }
 
@@ -166,5 +182,13 @@ class HttpClient implements HttpClientInterface
         fclose($targetFileHandle);
 
         return $result;
+    }
+
+    public function __destruct()
+    {
+        if (null !== $this->ch) {
+            curl_close($this->ch);
+            $this->ch = null;
+        }
     }
 }

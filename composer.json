@@ -11,7 +11,8 @@
     "fool/echolog": "~1",
     "pimple/pimple": "~3.0",
     "symfony/finder": "~2.4",
-    "seld/phar-utils": "~1.0"
+    "seld/phar-utils": "~1.0",
+    "adoy/fastcgi-client": "~1"
   },
   "license": "MIT",
   "autoload": {

@@ -14,6 +14,9 @@ class CommandCollection implements CommandCollectionInterface
      */
     private $resultFactory;
 
+    /**
+     * @var LoggerInterface
+     */
     private $logger;
 
     /**

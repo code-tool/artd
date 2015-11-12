@@ -12,6 +12,7 @@ namespace {
     use CodeTool\ArtifactDownloader\Error;
     use CodeTool\ArtifactDownloader\EtcdClient;
     use CodeTool\ArtifactDownloader\HttpClient;
+    use CodeTool\ArtifactDownloader\FcgiClient;
     use CodeTool\ArtifactDownloader\ResourceCredentials;
     use CodeTool\ArtifactDownloader\Result;
     use CodeTool\ArtifactDownloader\UnitConfig;
@@ -70,6 +71,17 @@ namespace {
 
         return new ResourceCredentials\Repository\ResourceCredentialsRepository();
     };
+
+    //
+    $container['fcgi_client.result.factory'] = function (Container $container) {
+        return new FcgiClient\Result\Factory\FcgiClientResultFactory($container['error.factory']);
+    };
+
+    $container['fcgi_client.adapter.adoy'] = function (Container $container) {
+        return new FcgiClient\Adapter\AdoyFcgiClientAdapter($container['fcgi_client.result.factory']);
+    };
+
+    $container['fcgi_client'] = $container['fcgi_client.adapter.adoy'];
 
     //
     $container['http_client.response.header.normalizer'] = function () {
@@ -144,6 +156,7 @@ namespace {
     $container['command.factory'] = function (Container $container) {
         return new Command\Factory\CommandFactory(
             $container['result.factory'],
+            $container['fcgi_client'],
             $container['http_client'],
             $container['archive.unarchiver_factory'],
             $container['directory_comparator'],
@@ -225,6 +238,13 @@ namespace {
         );
     };
 
+    $container['scope.config.processor.rule.fcgi_request'] = function (Container $container) {
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeFcgiRequestHandler(
+            $container['result.factory'],
+            $container['command.factory']
+        );
+    };
+
     $container['scope.config.processor'] = function (Container $container) {
         return new Scope\Config\Processor\ScopeConfigProcessor(
             $container['logger'],
@@ -234,6 +254,7 @@ namespace {
             [
                 $container['scope.config.processor.rule.symlink'],
                 $container['scope.config.processor.rule.dir'],
+                $container['scope.config.processor.rule.fcgi_request'],
             ]
         );
     };

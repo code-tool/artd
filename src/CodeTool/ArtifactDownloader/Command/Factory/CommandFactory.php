@@ -11,6 +11,7 @@ use CodeTool\ArtifactDownloader\Command\CommandChown;
 use CodeTool\ArtifactDownloader\Command\CommandCompareDirs;
 use CodeTool\ArtifactDownloader\Command\CommandCopyFile;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
+use CodeTool\ArtifactDownloader\Command\CommandFcgiRequest;
 use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
@@ -20,16 +21,28 @@ use CodeTool\ArtifactDownloader\Command\CommandRm;
 use CodeTool\ArtifactDownloader\Command\CommandSymlink;
 use CodeTool\ArtifactDownloader\Command\CommandUnarchive;
 use CodeTool\ArtifactDownloader\DirectoryComparator\DirectoryComparatorInterface;
+use CodeTool\ArtifactDownloader\FcgiClient\FcgiClientInterface;
 use CodeTool\ArtifactDownloader\HttpClient\HttpClientInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Class CommandFactory
+ *
+ * @todo Split to smaller classes by functionality
+ * @package CodeTool\ArtifactDownloader\Command\Factory
+ */
 class CommandFactory implements CommandFactoryInterface
 {
     /**
      * @var ResultFactoryInterface
      */
     private $resultFactory;
+
+    /**
+     * @var FcgiClientInterface
+     */
+    private $fcgiClient;
 
     /**
      * @var HttpClientInterface
@@ -53,6 +66,7 @@ class CommandFactory implements CommandFactoryInterface
 
     /**
      * @param ResultFactoryInterface       $resultFactory
+     * @param FcgiClientInterface          $fcgiClient
      * @param HttpClientInterface          $httpClient
      * @param UnarchiverFactoryInterface   $unarchiverFactory
      * @param DirectoryComparatorInterface $directoryComparator
@@ -60,12 +74,14 @@ class CommandFactory implements CommandFactoryInterface
      */
     public function __construct(
         ResultFactoryInterface $resultFactory,
+        FcgiClientInterface $fcgiClient,
         HttpClientInterface $httpClient,
         UnarchiverFactoryInterface $unarchiverFactory,
         DirectoryComparatorInterface $directoryComparator,
         LoggerInterface $logger
     ) {
         $this->resultFactory = $resultFactory;
+        $this->fcgiClient = $fcgiClient;
         $this->httpClient = $httpClient;
         $this->unarchiverFactory = $unarchiverFactory;
         $this->directoryComparator = $directoryComparator;
@@ -251,5 +267,17 @@ class CommandFactory implements CommandFactoryInterface
             $onEqualCommand,
             $onNotEqualCommand
         );
+    }
+
+    /**
+     * @param string   $socketPath
+     * @param string[] $headers
+     * @param string   $stdin
+     *
+     * @return CommandFcgiRequest
+     */
+    public function createFcgiRequestCommand($socketPath, array $headers, $stdin)
+    {
+        return new CommandFcgiRequest($this->fcgiClient, $socketPath, $headers, $stdin);
     }
 }

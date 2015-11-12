@@ -10,6 +10,7 @@ use CodeTool\ArtifactDownloader\Command\CommandChown;
 use CodeTool\ArtifactDownloader\Command\CommandCompareDirs;
 use CodeTool\ArtifactDownloader\Command\CommandCopyFile;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
+use CodeTool\ArtifactDownloader\Command\CommandFcgiRequest;
 use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Command\CommandMkDir;
 use CodeTool\ArtifactDownloader\Command\CommandMoveFile;
@@ -146,4 +147,13 @@ interface CommandFactoryInterface
         CommandInterface $onEqualCommand,
         CommandInterface $onNotEqualCommand
     );
+
+    /**
+     * @param string   $socketPath
+     * @param string[] $headers
+     * @param string   $stdin
+     *
+     * @return CommandFcgiRequest
+     */
+    public function createFcgiRequestCommand($socketPath, array $headers, $stdin);
 }

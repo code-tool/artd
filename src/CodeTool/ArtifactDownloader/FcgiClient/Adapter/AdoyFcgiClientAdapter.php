@@ -3,7 +3,6 @@
 namespace CodeTool\ArtifactDownloader\FcgiClient\Adapter;
 
 use Adoy\FastCGI\Client;
-use CodeTool\ArtifactDownloader\Error\Factory\ErrorFactoryInterface;
 use CodeTool\ArtifactDownloader\FcgiClient\FcgiClientInterface;
 use CodeTool\ArtifactDownloader\FcgiClient\Result\Factory\FcgiClientResultFactoryInterface;
 
@@ -12,19 +11,14 @@ class AdoyFcgiClientAdapter implements FcgiClientInterface
     /**
      * @var FcgiClientResultFactoryInterface
      */
-    private $fcgiClientResultFactory;
+    private $resultFactory;
 
     /**
-     * @var ErrorFactoryInterface
+     * @param FcgiClientResultFactoryInterface $resultFactory
      */
-    private $errorFactory;
-
-    public function __construct(
-        FcgiClientResultFactoryInterface $fcgiClientResultFactory,
-        ErrorFactoryInterface $errorFactory
-    ) {
-        $this->fcgiClientResultFactory = $fcgiClientResultFactory;
-        $this->errorFactory = $errorFactory;
+    public function __construct(FcgiClientResultFactoryInterface $resultFactory)
+    {
+        $this->resultFactory = $resultFactory;
     }
 
     /**
@@ -38,15 +32,12 @@ class AdoyFcgiClientAdapter implements FcgiClientInterface
     {
         $adoyClient = new Client($socketPath, null);
 
-        $error = null;
-        $response = null;
-
         try {
-            $response = $adoyClient->request($headers, $stdin);
+            $result = $this->resultFactory->createSuccess($adoyClient->request($headers, $stdin));
         } catch (\Exception $e) {
-            $error = $this->errorFactory->createFromException($e);
+            $result = $this->resultFactory->createErrorFromException($e);
         }
 
-        return $this->fcgiClientResultFactory->make($response, $error);
+        return $result;
     }
 }

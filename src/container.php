@@ -12,6 +12,7 @@ namespace {
     use CodeTool\ArtifactDownloader\Error;
     use CodeTool\ArtifactDownloader\EtcdClient;
     use CodeTool\ArtifactDownloader\HttpClient;
+    use CodeTool\ArtifactDownloader\FcgiClient;
     use CodeTool\ArtifactDownloader\ResourceCredentials;
     use CodeTool\ArtifactDownloader\Result;
     use CodeTool\ArtifactDownloader\UnitConfig;
@@ -70,6 +71,17 @@ namespace {
 
         return new ResourceCredentials\Repository\ResourceCredentialsRepository();
     };
+
+    //
+    $container['fcgi_client.result.factory'] = function (Container $container) {
+        return new FcgiClient\Result\Factory\FcgiClientResultFactory($container['error.factory']);
+    };
+
+    $container['fcgi_client.adapter.adoy'] = function (Container $container) {
+        return new FcgiClient\Adapter\AdoyFcgiClientAdapter($container['fcgi_client.result.factory']);
+    };
+
+    $container['fcgi_client'] = $container['fcgi_client.adapter.adoy'];
 
     //
     $container['http_client.response.header.normalizer'] = function () {

@@ -13,5 +13,19 @@ interface FcgiClientResultFactoryInterface
      *
      * @return FcgiClientResultInterface
      */
-    public function make($response = null, ErrorInterface $error = null);
+    public function create($response = null, ErrorInterface $error = null);
+
+    /**
+     * @param string $response
+     *
+     * @return FcgiClientResultInterface
+     */
+    public function createSuccess($response);
+
+    /**
+     * @param \Exception $exception
+     *
+     * @return FcgiClientResultInterface
+     */
+    public function createErrorFromException(\Exception $exception);
 }

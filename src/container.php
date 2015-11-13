@@ -123,19 +123,19 @@ namespace {
         return new Util\BasicUtil();
     };
 
-    $container['util.cmd_runner.result.factory'] = function () {
+    $container['cmd_runner.result.factory'] = function () {
         return new CmdRunner\Result\Factory\CmdRunnerResultFactory();
     };
 
-    $container['util.cmd_runner'] = function (Container $container) {
-        return new CmdRunner\CmdRunner($container['util.cmd_runner.result.factory']);
+    $container['cmd_runner'] = function (Container $container) {
+        return new CmdRunner\CmdRunner($container['cmd_runner.result.factory']);
     };
 
     //
     $container['archive.unarchiver_factory'] = function (Container $container) {
         return new Archive\Factory\UnarchiverFactory(
             $container['result.factory'],
-            $container['util.cmd_runner'],
+            $container['cmd_runner'],
             $container['util.basic_util']
         );
     };
@@ -222,7 +222,7 @@ namespace {
     $container['runit'] = function (Container $container) {
         return new Runit\Runit(
             $container['util.basic_util'],
-            $container['util.cmd_runner'],
+            $container['cmd_runner'],
             $container['result.factory']
         );
     };

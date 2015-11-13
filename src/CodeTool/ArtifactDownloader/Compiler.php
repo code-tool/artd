@@ -121,7 +121,10 @@ class Compiler
         $finder->files()
             ->ignoreVCS(true)
             ->sort(function (\SplFileInfo $a, \SplFileInfo $b) {
-                return strcmp(strtr($a->getRealPath(), '\\', '/'), strtr($b->getRealPath(), '\\', '/'));
+                return strcmp(
+                    str_replace('\\', '/', $a->getRealPath()),
+                    str_replace('\\', '/', $b->getRealPath())
+                );
             });
 
         return $finder;

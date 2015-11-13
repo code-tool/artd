@@ -2,7 +2,6 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-
 use CodeTool\ArtifactDownloader\HttpClient\HttpClientInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;

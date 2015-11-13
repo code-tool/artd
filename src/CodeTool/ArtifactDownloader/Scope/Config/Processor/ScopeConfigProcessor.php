@@ -119,9 +119,9 @@ class ScopeConfigProcessor
 
         }
 
-        if (true === $scopeConfig->isExactMatchRequired()) {
+        /*if (true === $scopeConfig->isExactMatchRequired()) {
             // todo Implement
-        }
+        }*/
 
         return $this->resultFactory->createSuccessful();
     }

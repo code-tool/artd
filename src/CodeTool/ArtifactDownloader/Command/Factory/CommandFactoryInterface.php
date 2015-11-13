@@ -6,7 +6,6 @@ use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandCompareDirs;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
-use CodeTool\ArtifactDownloader\Command\CommandFcgiRequest;
 use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Command\CommandNop;
 use CodeTool\ArtifactDownloader\Command\CommandUnarchive;
@@ -67,13 +66,4 @@ interface CommandFactoryInterface
         CommandInterface $onEqualCommand,
         CommandInterface $onNotEqualCommand
     );
-
-    /**
-     * @param string   $socketPath
-     * @param string[] $headers
-     * @param string   $stdin
-     *
-     * @return CommandFcgiRequest
-     */
-    public function createFcgiRequestCommand($socketPath, array $headers, $stdin);
 }

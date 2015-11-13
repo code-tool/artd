@@ -1,10 +1,11 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Command;
+namespace CodeTool\ArtifactDownloader\FcgiClient\Command;
 
+use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\FcgiClient\FcgiClientInterface;
 
-class CommandFcgiRequest implements CommandInterface
+class FcgiCommandRequest implements CommandInterface
 {
     /**
      * @var FcgiClientInterface

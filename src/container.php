@@ -85,6 +85,10 @@ namespace {
 
     $container['fcgi_client'] = $container['fcgi_client.adapter.adoy'];
 
+    $container['fcgi_client.command.factory'] = function (Container $container) {
+        return new FcgiClient\Command\Factory\FcgiCommandFactory($container['fcgi_client']);
+    };
+
     //
     $container['http_client.response.header.normalizer'] = function () {
         return new HttpClient\Response\Header\HttpClientResponseHeaderNormalizer();
@@ -158,7 +162,6 @@ namespace {
     $container['command.factory'] = function (Container $container) {
         return new Command\Factory\CommandFactory(
             $container['result.factory'],
-            $container['fcgi_client'],
             $container['http_client'],
             $container['archive.unarchiver_factory'],
             $container['directory_comparator'],
@@ -262,7 +265,7 @@ namespace {
     $container['scope.config.processor.rule.fcgi_request'] = function (Container $container) {
         return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeFcgiRequestHandler(
             $container['result.factory'],
-            $container['command.factory']
+            $container['fcgi_client.command.factory']
         );
     };
 

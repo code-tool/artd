@@ -1,11 +1,12 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Command;
+namespace CodeTool\ArtifactDownloader\Fs\Command;
 
+use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
-class CommandMkDir implements CommandInterface
+class FsCommandMkDir implements CommandInterface
 {
     /**
      * @var ResultFactoryInterface

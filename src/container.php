@@ -13,6 +13,7 @@ namespace {
     use CodeTool\ArtifactDownloader\EtcdClient;
     use CodeTool\ArtifactDownloader\HttpClient;
     use CodeTool\ArtifactDownloader\FcgiClient;
+    use CodeTool\ArtifactDownloader\Fs;
     use CodeTool\ArtifactDownloader\ResourceCredentials;
     use CodeTool\ArtifactDownloader\Result;
     use CodeTool\ArtifactDownloader\Runit;
@@ -83,6 +84,10 @@ namespace {
     };
 
     $container['fcgi_client'] = $container['fcgi_client.adapter.adoy'];
+
+    $container['fcgi_client.command.factory'] = function (Container $container) {
+        return new FcgiClient\Command\Factory\FcgiCommandFactory($container['fcgi_client']);
+    };
 
     //
     $container['http_client.response.header.normalizer'] = function () {
@@ -157,7 +162,6 @@ namespace {
     $container['command.factory'] = function (Container $container) {
         return new Command\Factory\CommandFactory(
             $container['result.factory'],
-            $container['fcgi_client'],
             $container['http_client'],
             $container['archive.unarchiver_factory'],
             $container['directory_comparator'],
@@ -218,6 +222,11 @@ namespace {
         );
     };
 
+    // fs
+    $container['fs.command.factory'] = function (Container $container) {
+        return new Fs\Command\Factory\FsCommandFactory($container['result.factory']);
+    };
+
     //
     $container['runit'] = function (Container $container) {
         return new Runit\Runit(
@@ -240,7 +249,7 @@ namespace {
         return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeSymlinkHandler(
             $container['util.basic_util'],
             $container['result.factory'],
-            $container['command.factory']
+            $container['fs.command.factory']
         );
     };
 
@@ -248,14 +257,15 @@ namespace {
         return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeDirHandler(
             $container['util.basic_util'],
             $container['result.factory'],
-            $container['command.factory']
+            $container['command.factory'],
+            $container['fs.command.factory']
         );
     };
 
     $container['scope.config.processor.rule.fcgi_request'] = function (Container $container) {
         return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeFcgiRequestHandler(
             $container['result.factory'],
-            $container['command.factory']
+            $container['fcgi_client.command.factory']
         );
     };
 

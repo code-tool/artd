@@ -1,16 +1,17 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Command;
+namespace CodeTool\ArtifactDownloader\Fs\Command;
 
+use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 /**
  * Class CommandSetFilePermissions
  *
- * @package CodeTool\ArtifactDownloader\Command
+ * @package CodeTool\ArtifactDownloader\Fs\Command
  */
-class CommandChmod implements CommandInterface
+class FsCommandChmod implements CommandInterface
 {
     /**
      * @var ResultFactoryInterface

@@ -6,6 +6,7 @@ use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
 use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
+use CodeTool\ArtifactDownloader\Fs\Command\Factory\FsCommandFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
@@ -29,18 +30,26 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
     private $commandFactory;
 
     /**
-     * @param BasicUtil               $basicUtil
-     * @param ResultFactoryInterface  $resultFactory
-     * @param CommandFactoryInterface $commandFactory
+     * @var FsCommandFactoryInterface
+     */
+    private $fsCommandFactory;
+
+    /**
+     * @param BasicUtil                 $basicUtil
+     * @param ResultFactoryInterface    $resultFactory
+     * @param CommandFactoryInterface   $commandFactory
+     * @param FsCommandFactoryInterface $fsCommandFactory
      */
     public function __construct(
         BasicUtil $basicUtil,
         ResultFactoryInterface $resultFactory,
-        CommandFactoryInterface $commandFactory
+        CommandFactoryInterface $commandFactory,
+        FsCommandFactoryInterface $fsCommandFactory
     ) {
         $this->basicUtil = $basicUtil;
         $this->resultFactory = $resultFactory;
         $this->commandFactory = $commandFactory;
+        $this->fsCommandFactory = $fsCommandFactory;
     }
 
     /**
@@ -59,15 +68,15 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
     private function addGMOCommands(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
     {
         if ($do->has('group')) {
-            $collection->add($this->commandFactory->createChgrpCommand($target, $do->get('group')));
+            $collection->add($this->fsCommandFactory->createChgrpCommand($target, $do->get('group')));
         }
 
         if ($do->has('owner')) {
-            $collection->add($this->commandFactory->createChownCommand($target, $do->get('owner')));
+            $collection->add($this->fsCommandFactory->createChownCommand($target, $do->get('owner')));
         }
 
         if ($do->has('mode')) {
-            $collection->add($this->commandFactory->createChmodCommand($target, $do->get('mode')));
+            $collection->add($this->fsCommandFactory->createChmodCommand($target, $do->get('mode')));
         }
     }
 
@@ -122,13 +131,13 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
 
         // unarchive
         $collection
-            ->add($this->commandFactory->createMkDirCommand($unarchivePath, 0755, true))
+            ->add($this->fsCommandFactory->createMkDirCommand($unarchivePath, 0755, true))
             ->add($this->commandFactory->createUnarchiveCommand(
                 $downloadPath,
                 $unarchivePath,
                 $do->get('archive_format')
             ))
-            ->add($this->commandFactory->createRmCommand($downloadPath));
+            ->add($this->fsCommandFactory->createRmCommand($downloadPath));
 
         return $unarchivePath;
     }
@@ -152,7 +161,7 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
                 $this->commandFactory->createUnarchiveCommand($source, $target, $do->get('archive_format'))
             );
         } else {
-            $collection->add($this->commandFactory->createCopyFileCommand($source, $target));
+            $collection->add($this->fsCommandFactory->createCpCommand($source, $target));
         }
     }
 
@@ -168,9 +177,9 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
         $newTargetPath = $this->basicUtil->getRelativeTmpPath($targetPath);
         // double move. target to tmp path, after source to target and remove tmp
         $result = $this->commandFactory->createCollection()
-            ->add($this->commandFactory->createMoveFileCommand($targetPath, $newTargetPath))
-            ->add($this->commandFactory->createMoveFileCommand($sourcePath, $targetPath))
-            ->add($this->commandFactory->createRmCommand($newTargetPath));
+            ->add($this->fsCommandFactory->createMvCommand($targetPath, $newTargetPath))
+            ->add($this->fsCommandFactory->createMvCommand($sourcePath, $targetPath))
+            ->add($this->fsCommandFactory->createRmCommand($newTargetPath));
 
         return $result;
     }
@@ -195,7 +204,7 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
         if (false === $scopeConfigRule->has('source')) {
             if (false === $targetExists) {
                 // And directory dose not exists. Just create new
-                $collection->add($this->commandFactory->createMkDirCommand($realTargetPath, 0755, true));
+                $collection->add($this->fsCommandFactory->createMkDirCommand($realTargetPath, 0755, true));
             }
 
             // Fix permissions, if need
@@ -218,7 +227,7 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
 
         if (false === $targetExists) {
             // Now, if target dose not exists, just move
-            $collection->add($this->commandFactory->createMoveFileCommand($source, $realTargetPath));
+            $collection->add($this->fsCommandFactory->createMvCommand($source, $realTargetPath));
             // Fix permissions, if need
             $this->addGMOCommands($collection, $realTargetPath, $scopeConfigRule);
 
@@ -227,7 +236,7 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
 
         $successCompareCommand = $isSourceLocal
             ? $this->commandFactory->createNopCommand()
-            : $this->commandFactory->createRmCommand($source);
+            : $this->fsCommandFactory->createRmCommand($source);
 
         // So, if target exists, we should compare directories
         $collection->add(

@@ -4,7 +4,6 @@ namespace CodeTool\ArtifactDownloader\HttpClient\Result\Factory;
 
 use CodeTool\ArtifactDownloader\Error\ErrorInterface;
 use CodeTool\ArtifactDownloader\Error\Factory\ErrorFactoryInterface;
-use CodeTool\ArtifactDownloader\HttpClient\Response\Factory\HttpClientResponseFactoryInterface;
 use CodeTool\ArtifactDownloader\HttpClient\Response\HttpClientResponseInterface;
 use CodeTool\ArtifactDownloader\HttpClient\Result\HttpClientResult;
 use CodeTool\ArtifactDownloader\HttpClient\Result\HttpClientResultInterface;

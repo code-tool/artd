@@ -3,7 +3,7 @@
 namespace CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
-use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
+use CodeTool\ArtifactDownloader\FcgiClient\Command\Factory\FcgiCommandFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
@@ -17,20 +17,20 @@ class ScopeConfigProcessorRuleTypeFcgiRequestHandler implements ScopeConfigProce
     private $resultFactory;
 
     /**
-     * @var CommandFactoryInterface
+     * @var FcgiCommandFactoryInterface
      */
-    private $commandFactory;
+    private $fcgiCommandFactory;
 
     /**
-     * @param ResultFactoryInterface  $resultFactory
-     * @param CommandFactoryInterface $commandFactory
+     * @param ResultFactoryInterface      $resultFactory
+     * @param FcgiCommandFactoryInterface $fcgiCommandFactory
      */
     public function __construct(
         ResultFactoryInterface $resultFactory,
-        CommandFactoryInterface $commandFactory
+        FcgiCommandFactoryInterface $fcgiCommandFactory
     ) {
         $this->resultFactory = $resultFactory;
-        $this->commandFactory = $commandFactory;
+        $this->fcgiCommandFactory = $fcgiCommandFactory;
     }
 
     /**
@@ -54,9 +54,9 @@ class ScopeConfigProcessorRuleTypeFcgiRequestHandler implements ScopeConfigProce
         ScopeConfigRuleInterface $scopeConfigRule
     ) {
         $collection->add(
-            $this->commandFactory->createFcgiRequestCommand(
+            $this->fcgiCommandFactory->createFcgiRequestCommand(
                 $scopeConfigRule->get('socket'),
-                (array) $scopeConfigRule->getOrDefault('headers', []),
+                (array)$scopeConfigRule->getOrDefault('headers', []),
                 $scopeConfigRule->get('stdin')
             )
         );

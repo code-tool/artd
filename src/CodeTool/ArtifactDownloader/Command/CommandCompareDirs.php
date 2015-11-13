@@ -3,7 +3,6 @@
 namespace CodeTool\ArtifactDownloader\Command;
 
 use CodeTool\ArtifactDownloader\DirectoryComparator\DirectoryComparatorInterface;
-use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
 class CommandCompareDirs implements CommandInterface
@@ -77,12 +76,12 @@ class CommandCompareDirs implements CommandInterface
         $result .= PHP_EOL . sprintf(
             "\t - on equal -> %s%s\t",
             PHP_EOL,
-            $this->preformat($this->onEqualCommand)
+            $this->preFormat($this->onEqualCommand)
         );
         $result .= PHP_EOL . sprintf(
             "\t - on NOT equal -> %s%s\t",
             PHP_EOL,
-            $this->preformat($this->onNotEqualCommand)
+            $this->preFormat($this->onNotEqualCommand)
         );
 
         return $result;

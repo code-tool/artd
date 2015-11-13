@@ -35,6 +35,6 @@ class UnsupportedUnarchiver implements UnarchiverInterface
      */
     public function unarchive($source, $target)
     {
-        return $this->resultFactory->createError(sprintf('Unmnown archive format "%s"', $this->archiveFormat));
+        return $this->resultFactory->createError(sprintf('Unknown archive format "%s"', $this->archiveFormat));
     }
 }

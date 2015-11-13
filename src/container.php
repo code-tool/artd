@@ -15,6 +15,7 @@ namespace {
     use CodeTool\ArtifactDownloader\FcgiClient;
     use CodeTool\ArtifactDownloader\ResourceCredentials;
     use CodeTool\ArtifactDownloader\Result;
+    use CodeTool\ArtifactDownloader\Runit;
     use CodeTool\ArtifactDownloader\UnitConfig;
     use CodeTool\ArtifactDownloader\UnitStatusBuilder;
     use CodeTool\ArtifactDownloader\Util;
@@ -218,6 +219,19 @@ namespace {
     };
 
     //
+    $container['runit'] = function (Container $container) {
+        return new Runit\Runit(
+            $container['util.basic_util'],
+            $container['util.cmd_runner'],
+            $container['result.factory']
+        );
+    };
+
+    $container['runit.command.factory'] = function (Container $container) {
+        return new Runit\Command\Factory\RunitCommandFactory($container['result.factory'], $container['runit']);
+    };
+
+    //
     $container['scope.config.factory'] = function () {
         return new Scope\Config\Factory\ScopeConfigFactory();
     };
@@ -245,6 +259,14 @@ namespace {
         );
     };
 
+    $container['scope.config.processor.rule.runit'] = function (Container $container) {
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeRunitHandler(
+            $container['result.factory'],
+            $container['runit.command.factory']
+        );
+    };
+
+    //
     $container['scope.config.processor'] = function (Container $container) {
         return new Scope\Config\Processor\ScopeConfigProcessor(
             $container['logger'],
@@ -255,6 +277,7 @@ namespace {
                 $container['scope.config.processor.rule.symlink'],
                 $container['scope.config.processor.rule.dir'],
                 $container['scope.config.processor.rule.fcgi_request'],
+                $container['scope.config.processor.rule.runit']
             ]
         );
     };

@@ -4,13 +4,14 @@ namespace CodeTool\ArtifactDownloader\Runit;
 
 use CodeTool\ArtifactDownloader\CmdRunner\CmdRunnerInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
 class Runit implements RunitInterface
 {
     /**
-     * @var string
+     * @var BasicUtil
      */
-    private $svPath;
+    private $basicUtil;
 
     /**
      * @var CmdRunnerInterface
@@ -23,15 +24,39 @@ class Runit implements RunitInterface
     private $resultFactory;
 
     /**
-     * @param string                 $svPath
+     * @var string
+     */
+    private $svPath;
+
+    /**
+     * @param BasicUtil              $basicUtil
      * @param CmdRunnerInterface     $cmdRunner
      * @param ResultFactoryInterface $resultFactory
      */
-    public function __construct($svPath, CmdRunnerInterface $cmdRunner, ResultFactoryInterface $resultFactory)
-    {
-        $this->svPath = $svPath;
+    public function __construct(
+        BasicUtil $basicUtil,
+        CmdRunnerInterface $cmdRunner,
+        ResultFactoryInterface $resultFactory
+    ) {
+        $this->basicUtil = $basicUtil;
         $this->cmdRunner = $cmdRunner;
         $this->resultFactory = $resultFactory;
+    }
+
+    /**
+     * @return null|string
+     */
+    private function getSvPath()
+    {
+        if (null === $this->svPath) {
+            $this->svPath = $this->basicUtil->getBinPath('sv');
+
+            if (null === $this->svPath) {
+                throw new \RuntimeException(sprintf('Can\'t find sv binary. Does runit installed?'));
+            }
+        }
+
+        return $this->svPath;
     }
 
     /**
@@ -42,7 +67,7 @@ class Runit implements RunitInterface
      */
     private function execSvCommand($serviceName, $command)
     {
-        return $this->cmdRunner->run(sprintf('%s %s %s', $this->svPath, $command, $serviceName));
+        return $this->cmdRunner->run(sprintf('%s %s %s', $this->getSvPath(), $command, $serviceName));
     }
 
     /**

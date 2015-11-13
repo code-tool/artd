@@ -1,11 +1,12 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Command;
+namespace CodeTool\ArtifactDownloader\Fs\Command;
 
+use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
-class CommandChown implements CommandInterface
+class FsCommandRename implements CommandInterface
 {
     /**
      * @var ResultFactoryInterface
@@ -18,21 +19,20 @@ class CommandChown implements CommandInterface
     private $target;
 
     /**
-     * @var string
+     * @var int|string
      */
-    private $user;
+    private $source;
 
     /**
      * @param ResultFactoryInterface $resultFactory
-     * @param string                        $target
-     * @param string                        $user
+     * @param string                 $source
+     * @param string                 $target
      */
-    public function __construct(ResultFactoryInterface $resultFactory, $target, $user)
+    public function __construct(ResultFactoryInterface $resultFactory, $source, $target)
     {
         $this->resultFactory = $resultFactory;
-
+        $this->source = $source;
         $this->target = $target;
-        $this->user = $user;
     }
 
     /**
@@ -40,9 +40,9 @@ class CommandChown implements CommandInterface
      */
     public function execute()
     {
-        if (false === @chown($this->target, $this->user)) {
+        if (false === @rename($this->source, $this->target)) {
             return $this->resultFactory->createErrorFromGetLast(
-                sprintf('Can\'t chown "%s" to "%s"', $this->target, $this->user)
+                sprintf('Can\' rename "%s" to "%s"', $this->source, $this->target)
             );
         }
 
@@ -51,6 +51,6 @@ class CommandChown implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('chown(%s, %s)', $this->target, $this->user);
+        return sprintf('rename %s -> %s', $this->source, $this->target);
     }
 }

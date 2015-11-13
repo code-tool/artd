@@ -1,11 +1,12 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Command;
+namespace CodeTool\ArtifactDownloader\Fs\Command;
 
+use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
-class CommandRename implements CommandInterface
+class FsCommandSymlink implements CommandInterface
 {
     /**
      * @var ResultFactoryInterface
@@ -15,22 +16,22 @@ class CommandRename implements CommandInterface
     /**
      * @var string
      */
-    private $target;
+    private $name;
 
     /**
      * @var int|string
      */
-    private $source;
+    private $target;
 
     /**
      * @param ResultFactoryInterface $resultFactory
-     * @param string                 $source
+     * @param string                 $name
      * @param string                 $target
      */
-    public function __construct(ResultFactoryInterface $resultFactory, $source, $target)
+    public function __construct(ResultFactoryInterface $resultFactory, $name, $target)
     {
         $this->resultFactory = $resultFactory;
-        $this->source = $source;
+        $this->name = $name;
         $this->target = $target;
     }
 
@@ -39,17 +40,24 @@ class CommandRename implements CommandInterface
      */
     public function execute()
     {
-        if (false === @rename($this->source, $this->target)) {
+        if (is_link($this->name) && $this->target === readlink($this->name)) {
+            return $this->resultFactory->createSuccessful();
+        }
+
+        if (false === @symlink($this->target, $this->name)) {
             return $this->resultFactory->createErrorFromGetLast(
-                sprintf('Can\' rename "%s" to "%s"', $this->source, $this->target)
+                sprintf('Can\' create symlink with name "%s" to "%s"', $this->name, $this->target)
             );
         }
 
         return $this->resultFactory->createSuccessful();
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        return sprintf('rename %s -> %s', $this->source, $this->target);
+        return sprintf('ln target=%s name=%s', $this->target, $this->name);
     }
 }

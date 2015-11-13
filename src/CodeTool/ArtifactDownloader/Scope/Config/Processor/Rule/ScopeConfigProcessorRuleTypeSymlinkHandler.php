@@ -3,7 +3,7 @@
 namespace CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
-use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
+use CodeTool\ArtifactDownloader\Fs\Command\Factory\FsCommandFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
@@ -22,23 +22,23 @@ class ScopeConfigProcessorRuleTypeSymlinkHandler implements ScopeConfigProcessor
     private $resultFactory;
 
     /**
-     * @var CommandFactoryInterface
+     * @var FsCommandFactoryInterface
      */
-    private $commandFactory;
+    private $fsCommandFactory;
 
     /**
-     * @param BasicUtil               $basicUtil
-     * @param ResultFactoryInterface  $resultFactory
-     * @param CommandFactoryInterface $commandFactory
+     * @param BasicUtil                 $basicUtil
+     * @param ResultFactoryInterface    $resultFactory
+     * @param FsCommandFactoryInterface $fsCommandFactory
      */
     public function __construct(
         BasicUtil $basicUtil,
         ResultFactoryInterface $resultFactory,
-        CommandFactoryInterface $commandFactory
+        FsCommandFactoryInterface $fsCommandFactory
     ) {
         $this->basicUtil = $basicUtil;
         $this->resultFactory = $resultFactory;
-        $this->commandFactory = $commandFactory;
+        $this->fsCommandFactory = $fsCommandFactory;
     }
 
     /**
@@ -66,7 +66,7 @@ class ScopeConfigProcessorRuleTypeSymlinkHandler implements ScopeConfigProcessor
 
         if (false === file_exists($realNamePath) && false === is_link($realNamePath)) {
             // link or other file object dose not exists on same path
-            $collection->add($this->commandFactory->createSymlinkCommand($realNamePath, $realTargetPath));
+            $collection->add($this->fsCommandFactory->createSymlinkCommand($realNamePath, $realTargetPath));
 
             return $this->resultFactory->createSuccessful();
         }
@@ -75,9 +75,9 @@ class ScopeConfigProcessorRuleTypeSymlinkHandler implements ScopeConfigProcessor
             $relativeTmpPath = $this->basicUtil->getRelativeTmpPath($realNamePath);
             // Target is not symlink
             $collection
-                ->add($this->commandFactory->createRenameCommand($realNamePath, $relativeTmpPath))
-                ->add($this->commandFactory->createSymlinkCommand($realNamePath, $realTargetPath))
-                ->add($this->commandFactory->createRmCommand($relativeTmpPath));
+                ->add($this->fsCommandFactory->createRenameCommand($realNamePath, $relativeTmpPath))
+                ->add($this->fsCommandFactory->createSymlinkCommand($realNamePath, $realTargetPath))
+                ->add($this->fsCommandFactory->createRmCommand($relativeTmpPath));
 
             return $this->resultFactory->createSuccessful();
         }
@@ -85,8 +85,8 @@ class ScopeConfigProcessorRuleTypeSymlinkHandler implements ScopeConfigProcessor
         if ($realTargetPath !== readlink($realNamePath)) {
             // Link with same name already exists, but reference to other path
             $collection
-                ->add($this->commandFactory->createRmCommand($realNamePath))
-                ->add($this->commandFactory->createSymlinkCommand($realNamePath, $realTargetPath));
+                ->add($this->fsCommandFactory->createRmCommand($realNamePath))
+                ->add($this->fsCommandFactory->createSymlinkCommand($realNamePath, $realTargetPath));
 
             return $this->resultFactory->createSuccessful();
         }

@@ -13,6 +13,7 @@ namespace {
     use CodeTool\ArtifactDownloader\EtcdClient;
     use CodeTool\ArtifactDownloader\HttpClient;
     use CodeTool\ArtifactDownloader\FcgiClient;
+    use CodeTool\ArtifactDownloader\Fs;
     use CodeTool\ArtifactDownloader\ResourceCredentials;
     use CodeTool\ArtifactDownloader\Result;
     use CodeTool\ArtifactDownloader\Runit;
@@ -218,6 +219,11 @@ namespace {
         );
     };
 
+    // fs
+    $container['fs.command.factory'] = function (Container $container) {
+        return new Fs\Command\Factory\FsCommandFactory($container['result.factory']);
+    };
+
     //
     $container['runit'] = function (Container $container) {
         return new Runit\Runit(
@@ -240,7 +246,7 @@ namespace {
         return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeSymlinkHandler(
             $container['util.basic_util'],
             $container['result.factory'],
-            $container['command.factory']
+            $container['fs.command.factory']
         );
     };
 
@@ -248,7 +254,8 @@ namespace {
         return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeDirHandler(
             $container['util.basic_util'],
             $container['result.factory'],
-            $container['command.factory']
+            $container['command.factory'],
+            $container['fs.command.factory']
         );
     };
 

@@ -1,11 +1,12 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Command;
+namespace CodeTool\ArtifactDownloader\Fs\Command;
 
+use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
-class CommandMoveFile implements CommandInterface
+class FsCommandCp implements CommandInterface
 {
     /**
      * @var ResultFactoryInterface
@@ -39,9 +40,9 @@ class CommandMoveFile implements CommandInterface
      */
     public function execute()
     {
-        if (false === @rename($this->sourcePath, $this->targetPath)) {
+        if (false === @copy($this->sourcePath, $this->targetPath)) {
             return $this->resultFactory->createErrorFromGetLast(
-                sprintf('Can\'t move "%s" to "%s"', $this->sourcePath, $this->targetPath)
+                sprintf('Can\'t copy "%s" to "%s"', $this->sourcePath, $this->targetPath)
             );
         }
 
@@ -50,6 +51,6 @@ class CommandMoveFile implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('mv %s -> %s', $this->sourcePath, $this->targetPath);
+        return sprintf('cp %s -> %s', $this->sourcePath, $this->targetPath);
     }
 }

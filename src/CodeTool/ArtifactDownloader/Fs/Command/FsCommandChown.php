@@ -1,11 +1,12 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\Command;
+namespace CodeTool\ArtifactDownloader\Fs\Command;
 
+use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
-class CommandCopyFile implements CommandInterface
+class FsCommandChown implements CommandInterface
 {
     /**
      * @var ResultFactoryInterface
@@ -15,23 +16,24 @@ class CommandCopyFile implements CommandInterface
     /**
      * @var string
      */
-    private $sourcePath;
+    private $target;
 
     /**
      * @var string
      */
-    private $targetPath;
+    private $user;
 
     /**
      * @param ResultFactoryInterface $resultFactory
-     * @param string                 $sourcePath
-     * @param string                 $targetPath
+     * @param string                        $target
+     * @param string                        $user
      */
-    public function __construct(ResultFactoryInterface $resultFactory, $sourcePath, $targetPath)
+    public function __construct(ResultFactoryInterface $resultFactory, $target, $user)
     {
         $this->resultFactory = $resultFactory;
-        $this->sourcePath = $sourcePath;
-        $this->targetPath = $targetPath;
+
+        $this->target = $target;
+        $this->user = $user;
     }
 
     /**
@@ -39,9 +41,9 @@ class CommandCopyFile implements CommandInterface
      */
     public function execute()
     {
-        if (false === @copy($this->sourcePath, $this->targetPath)) {
+        if (false === @chown($this->target, $this->user)) {
             return $this->resultFactory->createErrorFromGetLast(
-                sprintf('Can\'t copy "%s" to "%s"', $this->sourcePath, $this->targetPath)
+                sprintf('Can\'t chown "%s" to "%s"', $this->target, $this->user)
             );
         }
 
@@ -50,6 +52,6 @@ class CommandCopyFile implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('cp %s -> %s', $this->sourcePath, $this->targetPath);
+        return sprintf('chown(%s, %s)', $this->target, $this->user);
     }
 }

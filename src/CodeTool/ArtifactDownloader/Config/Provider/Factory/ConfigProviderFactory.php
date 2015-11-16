@@ -54,7 +54,7 @@ class ConfigProviderFactory implements ConfigProviderFactoryInterface
     /**
      * @param string $path
      *
-     * @return ConfigProviderEtcd
+     * @return ConfigProviderInterface
      */
     public function makeEtcdProvider($path)
     {
@@ -70,7 +70,7 @@ class ConfigProviderFactory implements ConfigProviderFactoryInterface
     /**
      * @param string $path
      *
-     * @return ConfigProviderFile
+     * @return ConfigProviderInterface
      */
     public function makeFileProvider($path)
     {

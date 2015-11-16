@@ -1,16 +1,34 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\UnitStatusBuilder;
+namespace CodeTool\ArtifactDownloader\UnitSatus\Updater;
 
-class UnitStatusBuilder implements UnitStatusBuilderInterface
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
+use CodeTool\ArtifactDownloader\UnitSatus\Updater\Client\UnitStatusUpdaterClientInterface;
+
+class UnitStatusUpdater implements UnitStatusUpdaterInterface
 {
     const MAX_ERRORS_COUNT = 10;
+
+    /**
+     * @var UnitStatusUpdaterClientInterface
+     */
+    private $updaterClient;
 
     private $status = 'undefined';
 
     private $errors = [];
 
     private $configVersion = 'undefined';
+
+    /**
+     * UnitStatusUpdater constructor.
+     *
+     * @param UnitStatusUpdaterClientInterface $updaterClient
+     */
+    public function __construct(UnitStatusUpdaterClientInterface $updaterClient)
+    {
+        $this->updaterClient = $updaterClient;
+    }
 
     public function addError($error)
     {
@@ -37,10 +55,7 @@ class UnitStatusBuilder implements UnitStatusBuilderInterface
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function build()
+    protected function build()
     {
         return json_encode(
             [
@@ -51,5 +66,13 @@ class UnitStatusBuilder implements UnitStatusBuilderInterface
             ],
             JSON_PRETTY_PRINT
         );
+    }
+
+    /**
+     * @return ResultInterface
+     */
+    public function flush()
+    {
+        return $this->updaterClient->update($this->build());
     }
 }

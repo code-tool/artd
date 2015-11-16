@@ -31,6 +31,14 @@ class UnitConfig implements UnitConfigInterface
     /**
      * @return string
      */
+    public function getConfigProvider()
+    {
+        return $this->getOptOrEnvOrDefault('config-provider', 'CONFIG_PROVIDER', 'etcd');
+    }
+
+    /**
+     * @return string
+     */
     public function getConfigPath()
     {
         return $this->getOptOrEnvOrDefault('config-path', 'CONFIG_PATH', 'artifact-downloader/config');

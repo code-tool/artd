@@ -5,7 +5,7 @@ namespace {
     use CodeTool\ArtifactDownloader\Archive;
     use CodeTool\ArtifactDownloader\ArtifactDownloader;
     use CodeTool\ArtifactDownloader\Command;
-    use CodeTool\ArtifactDownloader\Config\Factory\ConfigFactory;
+    use CodeTool\ArtifactDownloader\Config;
     use CodeTool\ArtifactDownloader\CmdRunner;
     use CodeTool\ArtifactDownloader\DomainObject;
     use CodeTool\ArtifactDownloader\DirectoryComparator;
@@ -18,6 +18,8 @@ namespace {
     use CodeTool\ArtifactDownloader\Result;
     use CodeTool\ArtifactDownloader\Runit;
     use CodeTool\ArtifactDownloader\UnitConfig;
+    use CodeTool\ArtifactDownloader\UnitSatus\Updater\Client\UnitStatusUpdaterClientEtcd;
+    use CodeTool\ArtifactDownloader\UnitSatus\Updater\UnitStatusUpdater;
     use CodeTool\ArtifactDownloader\UnitStatusBuilder;
     use CodeTool\ArtifactDownloader\Util;
     use CodeTool\ArtifactDownloader\Scope;
@@ -299,23 +301,59 @@ namespace {
 
     //
     $container['config.factory'] = function (Container $container) {
-        return new ConfigFactory($container['domain_object.factory'], $container['scope.config.factory']);
+        return new Config\Factory\ConfigFactory(
+            $container['domain_object.factory'],
+            $container['scope.config.factory']
+        );
+    };
+
+    $container['config.provider.result.factory'] = function () {
+        return new Config\Provider\Result\Factory\ConfigProviderResultFactory();
+    };
+
+    $container['config.provider.factory'] = function (Container $container) {
+        return new Config\Provider\Factory\ConfigProviderFactory(
+            $container['error.factory'],
+            $container['config.factory'],
+            $container['config.provider.result.factory'],
+            $container['etcd_client']
+        );
+    };
+
+    $container['config.provider'] = function (Container $container) {
+        /** @var UnitConfig\UnitConfigInterface $unitConfig */
+        $unitConfig = $container['unit_config'];
+        /** @var Config\Provider\Factory\ConfigProviderFactory $factory */
+        $configProviderFactory =  $container['config.provider.factory'];
+
+        return $configProviderFactory
+            ->makeByProviderName($unitConfig->getConfigProvider(), $unitConfig->getConfigPath());
     };
 
     //
-    $container['unit_status_builder'] = function () {
-        return new UnitStatusBuilder\UnitStatusBuilder();
+    $container['unit_status.updater.client.etcd'] = function (Container $container) {
+        /** @var UnitConfig\UnitConfigInterface $unitConfig */
+        $unitConfig = $container['unit_config'];
+
+        return new UnitStatusUpdaterClientEtcd(
+            $container['etcd_client'],
+            $unitConfig->getStatusDirectoryPath() . '/' . $unitConfig->getName()
+        );
+    };
+
+    $container['unit_status.updater.client'] = $container['unit_status.updater.client.etcd'];
+
+    $container['unit_status.updater'] = function (Container $container) {
+        return new UnitStatusUpdater($container['unit_status.updater.client']);
     };
 
     //
     $container['artifact_downloader'] = function (Container $container) {
         return new ArtifactDownloader(
             $container['logger'],
-            $container['unit_config'],
-            $container['etcd_client'],
-            $container['config.factory'],
+            $container['config.provider'],
             $container['scope.config.processor'],
-            $container['unit_status_builder']
+            $container['unit_status.updater']
         );
     };
 

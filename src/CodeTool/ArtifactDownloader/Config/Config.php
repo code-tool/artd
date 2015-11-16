@@ -9,12 +9,7 @@ class Config implements ConfigInterface
     /**
      * @var string
      */
-    private $version;
-
-    /**
-     * @var string
-     */
-    private $timestamp;
+    private $revision;
 
     /**
      * @var \CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigInterface[]
@@ -22,31 +17,21 @@ class Config implements ConfigInterface
     private $scopesConfigs;
 
     /**
-     * @param string                 $version
-     * @param string                 $timestamp
+     * @param string                 $revision
      * @param ScopeConfigInterface[] $scopesConfigs
      */
-    public function __construct($version, $timestamp, array $scopesConfigs)
+    public function __construct($revision, array $scopesConfigs)
     {
-        $this->version = $version;
-        $this->timestamp = $timestamp;
+        $this->revision = $revision;
         $this->scopesConfigs = $scopesConfigs;
     }
 
     /**
      * @return string
      */
-    public function getVersion()
+    public function getRevision()
     {
-        return $this->version;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTimestamp()
-    {
-        return $this->timestamp;
+        return $this->revision;
     }
 
     /**

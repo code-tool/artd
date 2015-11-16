@@ -9,32 +9,26 @@ use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigInterface;
 interface ConfigFactoryInterface
 {
     /**
-     * @param string                 $version
-     * @param string                 $timestamp
+     * @param string                 $revision
      * @param ScopeConfigInterface[] $scopesConfigs
      *
      * @return ConfigInterface
      */
-    public function create($version, $timestamp, array $scopesConfigs);
+    public function create($revision, array $scopesConfigs);
 
     /**
+     * @param string                $revision
      * @param DomainObjectInterface $do
      *
      * @return ConfigInterface
      */
-    public function createFromDo(DomainObjectInterface $do);
+    public function createFromDo($revision, DomainObjectInterface $do);
 
     /**
-     * @param array $data
+     * @param string $revision
+     * @param array  $data
      *
      * @return ConfigInterface
      */
-    public function createFromArray(array $data);
-
-    /**
-     * @param string $json
-     *
-     * @return ConfigInterface
-     */
-    public function createFromJson($json);
+    public function createFromArray($revision, array $data);
 }

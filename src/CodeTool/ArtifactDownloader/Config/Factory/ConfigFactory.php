@@ -34,23 +34,23 @@ class ConfigFactory implements ConfigFactoryInterface
     }
 
     /**
-     * @param string $version
-     * @param string $timestamp
+     * @param string                 $revision
      * @param ScopeConfigInterface[] $scopesConfigs
      *
      * @return ConfigInterface
      */
-    public function create($version, $timestamp, array $scopesConfigs)
+    public function create($revision, array $scopesConfigs)
     {
-        return new Config($version, $timestamp, $scopesConfigs);
+        return new Config($revision, $scopesConfigs);
     }
 
     /**
+     * @param string                $revision
      * @param DomainObjectInterface $do
      *
      * @return ConfigInterface
      */
-    public function createFromDo(DomainObjectInterface $do)
+    public function createFromDo($revision, DomainObjectInterface $do)
     {
         $scopesConfig = $do->get('scope');
         $scopesConfigArray = [];
@@ -58,31 +58,17 @@ class ConfigFactory implements ConfigFactoryInterface
             $scopesConfigArray[] = $this->scopeConfigFactory->createFromDo($scopePath, $config);
         }
 
-        return $this->create($do->get('version'), $do->get('timestamp'), $scopesConfigArray);
+        return $this->create($revision, $scopesConfigArray);
     }
 
     /**
-     * @param array $data
+     * @param string $revision
+     * @param array  $data
      *
      * @return ConfigInterface
      */
-    public function createFromArray(array $data)
+    public function createFromArray($revision, array $data)
     {
-        return $this->createFromDo($this->domainObjectFactory->makeRecursiveFromArray($data));
-    }
-
-    /**
-     * @param string $json
-     *
-     * @return ConfigInterface
-     */
-    public function createFromJson($json)
-    {
-        $data = json_decode($json, true);
-        if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new \RuntimeException(json_last_error_msg());
-        }
-
-        return $this->createFromArray($data);
+        return $this->createFromDo($revision, $this->domainObjectFactory->makeRecursiveFromArray($data));
     }
 }

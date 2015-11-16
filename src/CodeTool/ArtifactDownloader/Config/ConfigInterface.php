@@ -6,12 +6,7 @@ interface ConfigInterface
     /**
      * @return string
      */
-    public function getVersion();
-
-    /**
-     * @return string
-     */
-    public function getTimestamp();
+    public function getRevision();
 
     /**
      * @return \CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigInterface[]

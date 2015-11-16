@@ -2,12 +2,10 @@
 
 namespace CodeTool\ArtifactDownloader;
 
-use CodeTool\ArtifactDownloader\Config\Factory\ConfigFactoryInterface;
-use CodeTool\ArtifactDownloader\EtcdClient\EtcdClientInterface;
-use CodeTool\ArtifactDownloader\EtcdClient\Result\EtcdClientResultInterface;
+use CodeTool\ArtifactDownloader\Config\Provider\ConfigProviderInterface;
+use CodeTool\ArtifactDownloader\Config\Provider\Result\ConfigProviderResultInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\Processor\ScopeConfigProcessor;
-use CodeTool\ArtifactDownloader\UnitConfig\UnitConfigInterface;
-use CodeTool\ArtifactDownloader\UnitStatusBuilder\UnitStatusBuilderInterface;
+use CodeTool\ArtifactDownloader\UnitSatus\Updater\UnitStatusUpdaterInterface;
 use Psr\Log\LoggerInterface;
 
 class ArtifactDownloader
@@ -24,24 +22,14 @@ class ArtifactDownloader
     private $logger;
 
     /**
-     * @var UnitConfigInterface
+     * @var ConfigProviderInterface
      */
-    private $unitConfig;
+    private $configProvider;
 
     /**
-     * @var ConfigFactoryInterface
+     * @var UnitStatusUpdaterInterface
      */
-    private $configFactory;
-
-    /**
-     * @var EtcdClientInterface
-     */
-    private $etcdClient;
-
-    /**
-     * @var UnitStatusBuilderInterface
-     */
-    private $unitStatusBuilder;
+    private $unitStatusUpdater;
 
     /**
      * @var ScopeConfigProcessor
@@ -49,9 +37,9 @@ class ArtifactDownloader
     private $scopeConfigProcessor;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    private $lastConfigModifiedIndex;
+    private $lastConfigRevision;
 
     /**
      * @var int
@@ -60,26 +48,21 @@ class ArtifactDownloader
 
     /**
      * @param LoggerInterface            $logger
-     * @param UnitConfigInterface        $unitConfig
-     * @param EtcdClientInterface        $etcdClient
-     * @param ConfigFactoryInterface     $configFactory
+     * @param ConfigProviderInterface    $configProvider
      * @param ScopeConfigProcessor       $scopeConfigProcessor
-     * @param UnitStatusBuilderInterface $unitStatusBuilder
+     * @param UnitStatusUpdaterInterface $unitStatusUpdater
      */
     public function __construct(
         LoggerInterface $logger,
-        UnitConfigInterface $unitConfig,
-        EtcdClientInterface $etcdClient,
-        ConfigFactoryInterface $configFactory,
+        ConfigProviderInterface $configProvider,
         ScopeConfigProcessor $scopeConfigProcessor,
-        UnitStatusBuilderInterface $unitStatusBuilder
+        UnitStatusUpdaterInterface $unitStatusUpdater
     ) {
         $this->logger = $logger;
-        $this->unitConfig = $unitConfig;
-        $this->etcdClient = $etcdClient;
-        $this->configFactory = $configFactory;
+        $this->configProvider = $configProvider;
+
         $this->scopeConfigProcessor = $scopeConfigProcessor;
-        $this->unitStatusBuilder = $unitStatusBuilder;
+        $this->unitStatusUpdater = $unitStatusUpdater;
     }
 
     /**
@@ -90,7 +73,7 @@ class ArtifactDownloader
     private function logErrorAndPushToUnitStatus($message)
     {
         $this->logger->error($message);
-        $this->unitStatusBuilder
+        $this->unitStatusUpdater
             ->setStatus('error')
             ->addError($message);
 
@@ -102,12 +85,11 @@ class ArtifactDownloader
      */
     private function updateUnitStatus()
     {
-        $newUnitStatus = $this->unitStatusBuilder->build();
-        $statusKey = $this->unitConfig->getStatusDirectoryPath() . '/' . $this->unitConfig->getName();
+        // $newUnitStatus = $this->unitStatusUpdater->build();
+        // $statusKey = $this->unitConfig->getStatusDirectoryPath() . '/' . $this->unitConfig->getName();
+        // $this->logger->debug(sprintf('Try to update unit status to %s', $newUnitStatus));
 
-        $this->logger->debug(sprintf('Try to update unit status to %s', $newUnitStatus));
-
-        $result = $this->etcdClient->set($statusKey, $newUnitStatus);
+        $result = $this->unitStatusUpdater->flush();
 
         if (null !== $result->getError()) {
             $this->logger->error(sprintf(
@@ -118,23 +100,23 @@ class ArtifactDownloader
             return false;
         }
 
-        $this->logger->info(sprintf('Successfully updated unit status => %s', $newUnitStatus));
+        // $this->logger->info(sprintf('Successfully updated unit status => %s', $newUnitStatus));
 
         return true;
     }
 
     /**
-     * @param EtcdClientResultInterface $etcdClientResult
+     * @param ConfigProviderResultInterface $configProviderResult
      *
      * @return bool
      */
-    private function handleEtcdClientResult(EtcdClientResultInterface $etcdClientResult)
+    private function handleEtcdClientResult(ConfigProviderResultInterface $configProviderResult)
     {
-        if (null !== $etcdClientResult->getError()) {
+        if (null !== $configProviderResult->getError()) {
             $this
                 ->logErrorAndPushToUnitStatus(sprintf(
                     'Fail while getting new config revision: %s',
-                    $etcdClientResult->getError()->getMessage()
+                    $configProviderResult->getError()->getMessage()
                 ))
                 ->updateUnitStatus();
 
@@ -142,21 +124,19 @@ class ArtifactDownloader
         }
 
         // Set new status
-        $this->unitStatusBuilder->setStatus('applying');
+        $this->unitStatusUpdater->setStatus('applying');
         if (false === $this->updateUnitStatus()) {
             return false;
         }
 
-        // Parse config and build collection
-        $configString = $etcdClientResult->getResponse()->getNode()->getValue();
-        $this->logger->debug(sprintf('Got new config: %s', $configString));
-
-        // Parse Config ->
-        $parsedConfig = $this->configFactory->createFromJson($configString);
+        // Version ?
+        // $this->logger->debug(sprintf('Got new config: %s', $configString));
 
         // Apply config
         $applyStart = microtime(true);
-        $configApplyResult = $this->scopeConfigProcessor->process($parsedConfig->getScopesConfig());
+        $configApplyResult = $this->scopeConfigProcessor
+            ->process($configProviderResult->getConfig()->getScopesConfig());
+
         if (false === $configApplyResult->isSuccessful()) {
             $this->logger->error(sprintf('Error while config apply: %s', $configApplyResult->getError()->getMessage()));
 
@@ -167,18 +147,15 @@ class ArtifactDownloader
             return false;
         }
 
+        // Update applied config index
+        $this->lastConfigRevision = $configProviderResult->getConfig()->getRevision();
+
         $this->logger->info(sprintf(
             'Scope synchronised to version %s in %f sec',
-            $parsedConfig->getVersion(),
+            $configProviderResult->getConfig()->getRevision(),
             microtime(true) - $applyStart
         ));
-
-        // Update applied config index
-        $this->lastConfigModifiedIndex = $etcdClientResult->getResponse()->getNode()->getModifiedIndex();
-        $this->logger->debug(sprintf('Last configModifiedIndex: %d', $this->lastConfigModifiedIndex));
-
-        // $this-> UpdateVersion UnitScopeConfigVersion
-        $this->unitStatusBuilder->setStatus('sync')->setConfigVersion($parsedConfig->getVersion());
+        $this->unitStatusUpdater->setStatus('sync')->setConfigVersion($this->lastConfigRevision);
         $this->updateUnitStatus();
 
         return true;
@@ -195,7 +172,7 @@ class ArtifactDownloader
             return;
         }
 
-        $this->lastSleepTimeout += 5;
+        $this->lastSleepTimeout += mt_rand(1, 5);
         if ($this->lastSleepTimeout >= self::MAX_SLEEP_TIMEOUT) {
             $this->lastSleepTimeout = self::MAX_SLEEP_TIMEOUT;
         }
@@ -213,20 +190,7 @@ class ArtifactDownloader
         $this->updateUnitStatus();
 
         while (true) {
-            if (null === $this->lastConfigModifiedIndex) {
-                $this->logger->info(sprintf(
-                    'Try to get last config revision (%s).',
-                    $this->unitConfig->getConfigPath()
-                ));
-                $result = $this->etcdClient->get($this->unitConfig->getConfigPath());
-            } else {
-                $this->logger->info('Waiting for new config revision.');
-                $result = $this->etcdClient->watch(
-                    $this->unitConfig->getConfigPath(),
-                    $this->lastConfigModifiedIndex + 1
-                );
-            }
-
+            $result = $this->configProvider->getConfigAfterRevision($this->lastConfigRevision);
             $this->sleepOnError($this->handleEtcdClientResult($result));
         }
     }

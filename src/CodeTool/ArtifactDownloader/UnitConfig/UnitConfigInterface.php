@@ -17,6 +17,11 @@ interface UnitConfigInterface
     /**
      * @return string
      */
+    public function getConfigProvider();
+
+    /**
+     * @return string
+     */
     public function getConfigPath();
 
     /**

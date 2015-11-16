@@ -27,7 +27,7 @@ error_reporting(-1);
 ini_set('display_errors', 1);
 
 try {
-    $compiler = new Compiler($container['util.cmd_runner']);
+    $compiler = new Compiler($container['cmd_runner']);
     $compiler->compile();
 } catch (\Exception $e) {
     echo

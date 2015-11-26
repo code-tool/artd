@@ -128,7 +128,7 @@ class HttpClient implements HttpClientInterface
         $this->setBasicCurlParameters($ch);
 
         $this->responseHeaders = [];
-        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$responseHeaders) {
+        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($ch, $header) {
             $this->responseHeaders[] = $header;
 
             return strlen($header);

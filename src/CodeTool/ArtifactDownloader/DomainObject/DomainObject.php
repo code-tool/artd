@@ -35,7 +35,9 @@ class DomainObject implements DomainObjectInterface
     public function get($key)
     {
         if (false === $this->has($key)) {
-            throw new \InvalidArgumentException('');
+            throw new \InvalidArgumentException(
+                sprintf('Property with name "%s" dose not exists in %s', $key, get_class($this))
+            );
         }
 
         return $this->data[$key];

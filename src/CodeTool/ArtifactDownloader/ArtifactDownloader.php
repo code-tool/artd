@@ -75,7 +75,7 @@ class ArtifactDownloader
         $this->logger->error($message);
         $this->unitStatusUpdater
             ->setStatus('error')
-            ->addError($message);
+            ->addError($message, time());
 
         return $this;
     }

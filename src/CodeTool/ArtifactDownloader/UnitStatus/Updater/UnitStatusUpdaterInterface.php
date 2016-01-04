@@ -8,10 +8,11 @@ interface UnitStatusUpdaterInterface
 {
     /**
      * @param string $error
+     * @param int    $ts
      *
-     * @return UnitStatusUpdaterInterface
+     * @return UnitStatusUpdater
      */
-    public function addError($error);
+    public function addError($error, $ts);
 
     /**
      * @param string $status

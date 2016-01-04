@@ -119,17 +119,17 @@ class ArtifactDownloader
             return false;
         }
 
+        $configVersion = $configProviderResult->getConfig()->getVersion();
+        $configRevision = $configProviderResult->getConfig()->getRevision();
+
+        $this->logger->debug(sprintf('Got new config version: %s (rev: %s)', $configVersion, $configRevision));
+
         // Set new status
-        $this->unitStatusUpdater->setStatus('applying');
+        $this->unitStatusUpdater->setStatus('applying')->setConfigVersion($configVersion);
+
         if (false === $this->updateUnitStatus()) {
             return false;
         }
-
-        $this->logger->debug(sprintf(
-            'Got new config version: %s (rev: %s)',
-            $configProviderResult->getConfig()->getVersion(),
-            $configProviderResult->getConfig()->getRevision()
-        ));
 
         // Apply config
         $applyStart = microtime(true);
@@ -147,14 +147,15 @@ class ArtifactDownloader
         }
 
         // Update applied config index
-        $this->lastConfigRevision = $configProviderResult->getConfig()->getRevision();
+        $this->lastConfigRevision = $configRevision;
 
         $this->logger->info(sprintf(
             'Scope synchronised to version %s in %f sec',
             $configProviderResult->getConfig()->getVersion(),
             microtime(true) - $applyStart
         ));
-        $this->unitStatusUpdater->setStatus('sync')->setConfigVersion($configProviderResult->getConfig()->getVersion());
+
+        $this->unitStatusUpdater->setStatus('sync');
         $this->updateUnitStatus();
 
         return true;

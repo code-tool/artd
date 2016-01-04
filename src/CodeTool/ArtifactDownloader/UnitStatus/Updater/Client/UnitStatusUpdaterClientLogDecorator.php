@@ -26,6 +26,14 @@ class UnitStatusUpdaterClientLogDecorator implements UnitStatusUpdaterClientInte
     {
         $this->logger->debug(sprintf('Try to update unit status to %s', $statusString));
 
+        $result = $this->unitStatusUpdaterClient->update($statusString);
+
+        if (null !== $result->getError()) {
+            $this->logger->warning(sprintf('Failed to update unit status: %s', $result->getError()->getMessage()));
+        } else {
+            $this->logger->info('Successfully updated unit status.');
+        }
+
         return $this->unitStatusUpdaterClient->update($statusString);
     }
 }

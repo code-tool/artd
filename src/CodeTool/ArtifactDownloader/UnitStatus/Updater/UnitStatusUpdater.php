@@ -77,8 +77,8 @@ class UnitStatusUpdater implements UnitStatusUpdaterInterface
             [
                 'ts' => time(),
                 'status' => $this->status,
+                'config_version' => $this->configVersion,
                 'last_errors' => array_reverse($this->errors),
-                'config_version' => $this->configVersion
             ],
             JSON_PRETTY_PRINT
         );

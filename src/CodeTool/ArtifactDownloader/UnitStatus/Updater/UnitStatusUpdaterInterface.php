@@ -1,6 +1,6 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\UnitSatus\Updater;
+namespace CodeTool\ArtifactDownloader\UnitStatus\Updater;
 
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 

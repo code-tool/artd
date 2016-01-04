@@ -18,9 +18,7 @@ namespace {
     use CodeTool\ArtifactDownloader\Result;
     use CodeTool\ArtifactDownloader\Runit;
     use CodeTool\ArtifactDownloader\UnitConfig;
-    use CodeTool\ArtifactDownloader\UnitSatus\Updater\Client\UnitStatusUpdaterClientEtcd;
-    use CodeTool\ArtifactDownloader\UnitSatus\Updater\UnitStatusUpdater;
-    use CodeTool\ArtifactDownloader\UnitStatusBuilder;
+    use CodeTool\ArtifactDownloader\UnitStatus;
     use CodeTool\ArtifactDownloader\Util;
     use CodeTool\ArtifactDownloader\Scope;
     use fool\echolog\Echolog;
@@ -331,20 +329,27 @@ namespace {
     };
 
     //
-    $container['unit_status.updater.client.etcd'] = function (Container $container) {
+    $container['unit_status.updater.client.factory'] = function (Container $container) {
+        return new UnitStatus\Updater\Client\Factory\UnitStatusUpdaterClientFactory(
+            $container['result.factory'],
+            $container['etcd_client']
+        );
+    };
+
+    $container['unit_status.updater.client'] = function (Container $container) {
         /** @var UnitConfig\UnitConfigInterface $unitConfig */
         $unitConfig = $container['unit_config'];
+        /** @var UnitStatus\Updater\Client\Factory\UnitStatusUpdaterClientFactoryInterface $clientFactory */
+        $clientFactory = $container['unit_status.updater.client.factory'];
 
-        return new UnitStatusUpdaterClientEtcd(
-            $container['etcd_client'],
+        return $clientFactory->makeByName(
+            $unitConfig->getStatusUpdaterClient(),
             $unitConfig->getStatusDirectoryPath() . '/' . $unitConfig->getName()
         );
     };
 
-    $container['unit_status.updater.client'] = $container['unit_status.updater.client.etcd'];
-
     $container['unit_status.updater'] = function (Container $container) {
-        return new UnitStatusUpdater($container['unit_status.updater.client']);
+        return new UnitStatus\Updater\UnitStatusUpdater($container['unit_status.updater.client']);
     };
 
     //

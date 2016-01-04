@@ -5,7 +5,7 @@ namespace CodeTool\ArtifactDownloader;
 use CodeTool\ArtifactDownloader\Config\Provider\ConfigProviderInterface;
 use CodeTool\ArtifactDownloader\Config\Provider\Result\ConfigProviderResultInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\Processor\ScopeConfigProcessor;
-use CodeTool\ArtifactDownloader\UnitSatus\Updater\UnitStatusUpdaterInterface;
+use CodeTool\ArtifactDownloader\UnitStatus\Updater\UnitStatusUpdaterInterface;
 use Psr\Log\LoggerInterface;
 
 class ArtifactDownloader
@@ -182,16 +182,31 @@ class ArtifactDownloader
         sleep($this->lastSleepTimeout);
     }
 
-    public function work()
+    /**
+     * @param bool $infinity
+     *
+     * @return int
+     */
+    public function work($infinity = false)
     {
         $this->logger->notice(sprintf('ArtifactDownloader v: %s (%s)', self::VERSION, self::RELEASE_DATE));
 
         // update unit status
         $this->updateUnitStatus();
 
-        while (true) {
+        do {
             $result = $this->configProvider->getConfigAfterRevision($this->lastConfigRevision);
-            $this->sleepOnError($this->handleEtcdClientResult($result));
+            $handleResult = $this->handleEtcdClientResult($result);
+            if ($infinity) {
+                $this->sleepOnError($handleResult);
+            }
+
+        } while ($infinity);
+
+        if (false === $handleResult) {
+            return 1;
         }
+
+        return 0;
     }
 }

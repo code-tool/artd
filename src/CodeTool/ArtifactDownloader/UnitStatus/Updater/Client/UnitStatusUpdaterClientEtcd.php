@@ -1,6 +1,6 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\UnitSatus\Updater\Client;
+namespace CodeTool\ArtifactDownloader\UnitStatus\Updater\Client;
 
 use CodeTool\ArtifactDownloader\EtcdClient\EtcdClientInterface;
 

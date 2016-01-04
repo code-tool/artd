@@ -7,8 +7,7 @@ $container = require_once __DIR__ . '/../src/container.php';
 $artifactDownloader = $container['artifact_downloader'];
 
 try {
-    $returnCode = 0;
-    $artifactDownloader->work();
+    $returnCode = $artifactDownloader->work();
 } catch (Exception $e) {
     $returnCode = 1;
     echo $e->getMessage(), PHP_EOL, $e->getTraceAsString();

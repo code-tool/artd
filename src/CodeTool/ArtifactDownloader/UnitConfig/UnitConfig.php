@@ -67,4 +67,12 @@ class UnitConfig implements UnitConfigInterface
     {
         return $this->getOptOrEnvOrDefault('etcd-server-url', 'ETCD_SERVER_URL', EtcdClient::DEFAULT_SERVER);
     }
+
+    /**
+     * @return string
+     */
+    public function getStatusUpdaterClient()
+    {
+        return $this->getOptOrEnvOrDefault('status-updater-client', 'STATUS_UPDATER_CLIENT', 'etcd');
+    }
 }

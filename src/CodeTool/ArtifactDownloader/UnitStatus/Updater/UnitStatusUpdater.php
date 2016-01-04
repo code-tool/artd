@@ -1,9 +1,9 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\UnitSatus\Updater;
+namespace CodeTool\ArtifactDownloader\UnitStatus\Updater;
 
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
-use CodeTool\ArtifactDownloader\UnitSatus\Updater\Client\UnitStatusUpdaterClientInterface;
+use CodeTool\ArtifactDownloader\UnitStatus\Updater\Client\UnitStatusUpdaterClientInterface;
 
 class UnitStatusUpdater implements UnitStatusUpdaterInterface
 {

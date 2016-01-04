@@ -33,4 +33,9 @@ interface UnitConfigInterface
      * @return string
      */
     public function getEtcdServerUrl();
+
+    /**
+     * @return string
+     */
+    public function getStatusUpdaterClient();
 }

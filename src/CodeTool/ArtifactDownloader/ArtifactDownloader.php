@@ -85,10 +85,6 @@ class ArtifactDownloader
      */
     private function updateUnitStatus()
     {
-        // $newUnitStatus = $this->unitStatusUpdater->build();
-        // $statusKey = $this->unitConfig->getStatusDirectoryPath() . '/' . $this->unitConfig->getName();
-        // $this->logger->debug(sprintf('Try to update unit status to %s', $newUnitStatus));
-
         $result = $this->unitStatusUpdater->flush();
 
         if (null !== $result->getError()) {

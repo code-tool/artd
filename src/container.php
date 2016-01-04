@@ -342,10 +342,12 @@ namespace {
         /** @var UnitStatus\Updater\Client\Factory\UnitStatusUpdaterClientFactoryInterface $clientFactory */
         $clientFactory = $container['unit_status.updater.client.factory'];
 
-        return $clientFactory->makeByName(
+        $client = $clientFactory->makeByName(
             $unitConfig->getStatusUpdaterClient(),
             $unitConfig->getStatusDirectoryPath() . '/' . $unitConfig->getName()
         );
+
+        return new UnitStatus\Updater\Client\UnitStatusUpdaterClientLogDecorator($container['logger'], $client);
     };
 
     $container['unit_status.updater'] = function (Container $container) {

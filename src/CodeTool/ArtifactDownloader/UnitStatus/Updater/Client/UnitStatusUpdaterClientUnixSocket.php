@@ -39,7 +39,7 @@ class UnitStatusUpdaterClientUnixSocket implements UnitStatusUpdaterClientInterf
 
     public function update($statusString)
     {
-        $sHandle = fsockopen(sprintf('unix://%s', $this->socketPath), -1, $errNo, $errStr, $this->maxTimeout);
+        $sHandle = @fsockopen(sprintf('unix://%s', $this->socketPath), -1, $errNo, $errStr, $this->maxTimeout);
         if (false === $sHandle) {
             return $this->resultFactory->createError($errStr);
         }

@@ -35,13 +35,14 @@ class ConfigFactory implements ConfigFactoryInterface
 
     /**
      * @param string                 $revision
+     * @param string                 $version
      * @param ScopeConfigInterface[] $scopesConfigs
      *
      * @return ConfigInterface
      */
-    public function create($revision, array $scopesConfigs)
+    public function create($revision, $version, array $scopesConfigs)
     {
-        return new Config($revision, $scopesConfigs);
+        return new Config($revision, $version, $scopesConfigs);
     }
 
     /**
@@ -58,7 +59,7 @@ class ConfigFactory implements ConfigFactoryInterface
             $scopesConfigArray[] = $this->scopeConfigFactory->createFromDo($scopePath, $config);
         }
 
-        return $this->create($revision, $scopesConfigArray);
+        return $this->create($revision, $do->getOrDefault('version', $revision), $scopesConfigArray);
     }
 
     /**

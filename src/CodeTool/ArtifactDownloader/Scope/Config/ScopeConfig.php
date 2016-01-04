@@ -15,6 +15,11 @@ class ScopeConfig implements ScopeConfigInterface
     private $scopeRules;
 
     /**
+     * @var bool
+     */
+    private $exactMatchRequired;
+
+    /**
      * @param string                     $scopePath
      * @param bool                       $exactMatchRequired
      * @param ScopeConfigRuleInterface[] $scopeRules

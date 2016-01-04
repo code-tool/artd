@@ -7,6 +7,7 @@ use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\UnitStatus\Updater\Client\UnitStatusUpdaterClientEtcd;
 use CodeTool\ArtifactDownloader\UnitStatus\Updater\Client\UnitStatusUpdaterClientInterface;
 use CodeTool\ArtifactDownloader\UnitStatus\Updater\Client\UnitStatusUpdaterClientNone;
+use CodeTool\ArtifactDownloader\UnitStatus\Updater\Client\UnitStatusUpdaterClientUnixSocket;
 
 class UnitStatusUpdaterClientFactory implements UnitStatusUpdaterClientFactoryInterface
 {
@@ -50,6 +51,12 @@ class UnitStatusUpdaterClientFactory implements UnitStatusUpdaterClientFactoryIn
         return new UnitStatusUpdaterClientEtcd($this->etcdClient, $statusPath);
     }
 
+    protected function makeUnixSocket($socketPath)
+    {
+        $socketPath = '/tmp/artd-status-updater.sock';
+        return new UnitStatusUpdaterClientUnixSocket($this->resultFactory, $socketPath);
+    }
+
     /**
      * @param string $name
      * @param string $path
@@ -63,6 +70,8 @@ class UnitStatusUpdaterClientFactory implements UnitStatusUpdaterClientFactoryIn
                 return $this->makeNoneClient();
             case 'etcd':
                 return $this->makeEtcdClient($path);
+            case 'unix-socket':
+                return $this->makeUnixSocket($path);
             default:
                 throw new \InvalidArgumentException(sprintf('Unknown unit status updater with name "%s"', $name));
         }

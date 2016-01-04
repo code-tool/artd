@@ -1,9 +1,9 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\UnitSatus\Updater;
+namespace CodeTool\ArtifactDownloader\UnitStatus\Updater;
 
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
-use CodeTool\ArtifactDownloader\UnitSatus\Updater\Client\UnitStatusUpdaterClientInterface;
+use CodeTool\ArtifactDownloader\UnitStatus\Updater\Client\UnitStatusUpdaterClientInterface;
 
 class UnitStatusUpdater implements UnitStatusUpdaterInterface
 {
@@ -30,9 +30,15 @@ class UnitStatusUpdater implements UnitStatusUpdaterInterface
         $this->updaterClient = $updaterClient;
     }
 
-    public function addError($error)
+    /**
+     * @param string $error
+     * @param int    $ts
+     *
+     * @return UnitStatusUpdater
+     */
+    public function addError($error, $ts)
     {
-        $this->errors[] = $error;
+        $this->errors[] = ['ts' => $ts, 'msg' => $error];
 
         if (count($this->errors) > self::MAX_ERRORS_COUNT) {
             array_shift($this->errors);
@@ -41,6 +47,11 @@ class UnitStatusUpdater implements UnitStatusUpdaterInterface
         return $this;
     }
 
+    /**
+     * @param string $status
+     *
+     * @return UnitStatusUpdater
+     */
     public function setStatus($status)
     {
         $this->status = $status;
@@ -48,6 +59,11 @@ class UnitStatusUpdater implements UnitStatusUpdaterInterface
         return $this;
     }
 
+    /**
+     * @param string $configVersion
+     *
+     * @return UnitStatusUpdater
+     */
     public function setConfigVersion($configVersion)
     {
         $this->configVersion = $configVersion;
@@ -61,8 +77,8 @@ class UnitStatusUpdater implements UnitStatusUpdaterInterface
             [
                 'ts' => time(),
                 'status' => $this->status,
+                'config_version' => $this->configVersion,
                 'last_errors' => array_reverse($this->errors),
-                'config_version' => $this->configVersion
             ],
             JSON_PRETTY_PRINT
         );

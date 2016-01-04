@@ -12,17 +12,24 @@ class Config implements ConfigInterface
     private $revision;
 
     /**
+     * @var string
+     */
+    private $version;
+
+    /**
      * @var \CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigInterface[]
      */
     private $scopesConfigs;
 
     /**
      * @param string                 $revision
+     * @param string                 $version
      * @param ScopeConfigInterface[] $scopesConfigs
      */
-    public function __construct($revision, array $scopesConfigs)
+    public function __construct($revision, $version, array $scopesConfigs)
     {
         $this->revision = $revision;
+        $this->version = $version;
         $this->scopesConfigs = $scopesConfigs;
     }
 
@@ -32,6 +39,14 @@ class Config implements ConfigInterface
     public function getRevision()
     {
         return $this->revision;
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->version;
     }
 
     /**

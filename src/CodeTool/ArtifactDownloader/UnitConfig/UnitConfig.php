@@ -13,7 +13,7 @@ class UnitConfig implements UnitConfigInterface
             return $opt[$optName];
         }
 
-        if (false !== ($envVal = getenv($env))) {
+        if ('' !== $env && false !== ($envVal = getenv($env))) {
             return $envVal;
         }
 
@@ -66,5 +66,21 @@ class UnitConfig implements UnitConfigInterface
     public function getEtcdServerUrl()
     {
         return $this->getOptOrEnvOrDefault('etcd-server-url', 'ETCD_SERVER_URL', EtcdClient::DEFAULT_SERVER);
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusUpdaterClient()
+    {
+        return $this->getOptOrEnvOrDefault('status-updater-client', 'STATUS_UPDATER_CLIENT', 'etcd');
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsApplyOnceMode()
+    {
+        return array_key_exists('apply-once', getopt('', ['apply-once']));
     }
 }

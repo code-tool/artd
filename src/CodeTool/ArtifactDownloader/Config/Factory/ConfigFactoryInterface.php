@@ -10,11 +10,12 @@ interface ConfigFactoryInterface
 {
     /**
      * @param string                 $revision
+     * @param string                 $version
      * @param ScopeConfigInterface[] $scopesConfigs
      *
      * @return ConfigInterface
      */
-    public function create($revision, array $scopesConfigs);
+    public function create($revision, $version, array $scopesConfigs);
 
     /**
      * @param string                $revision

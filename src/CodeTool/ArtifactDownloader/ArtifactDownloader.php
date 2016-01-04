@@ -5,7 +5,7 @@ namespace CodeTool\ArtifactDownloader;
 use CodeTool\ArtifactDownloader\Config\Provider\ConfigProviderInterface;
 use CodeTool\ArtifactDownloader\Config\Provider\Result\ConfigProviderResultInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\Processor\ScopeConfigProcessor;
-use CodeTool\ArtifactDownloader\UnitSatus\Updater\UnitStatusUpdaterInterface;
+use CodeTool\ArtifactDownloader\UnitStatus\Updater\UnitStatusUpdaterInterface;
 use Psr\Log\LoggerInterface;
 
 class ArtifactDownloader
@@ -74,35 +74,10 @@ class ArtifactDownloader
     {
         $this->logger->error($message);
         $this->unitStatusUpdater
-            ->setStatus('error')
-            ->addError($message);
+            ->addError($message, time())
+            ->flush();
 
         return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    private function updateUnitStatus()
-    {
-        // $newUnitStatus = $this->unitStatusUpdater->build();
-        // $statusKey = $this->unitConfig->getStatusDirectoryPath() . '/' . $this->unitConfig->getName();
-        // $this->logger->debug(sprintf('Try to update unit status to %s', $newUnitStatus));
-
-        $result = $this->unitStatusUpdater->flush();
-
-        if (null !== $result->getError()) {
-            $this->logger->error(sprintf(
-                'Failed to update unit status: %s',
-                $result->getError()->getMessage()
-            ));
-
-            return false;
-        }
-
-        // $this->logger->info(sprintf('Successfully updated unit status => %s', $newUnitStatus));
-
-        return true;
     }
 
     /**
@@ -113,24 +88,23 @@ class ArtifactDownloader
     private function handleEtcdClientResult(ConfigProviderResultInterface $configProviderResult)
     {
         if (null !== $configProviderResult->getError()) {
-            $this
-                ->logErrorAndPushToUnitStatus(sprintf(
-                    'Fail while getting new config revision: %s',
-                    $configProviderResult->getError()->getMessage()
-                ))
-                ->updateUnitStatus();
+            $this->logErrorAndPushToUnitStatus(sprintf(
+                'Fail while getting new config revision: %s',
+                $configProviderResult->getError()->getMessage()
+            ));
 
             return false;
         }
 
-        // Set new status
-        $this->unitStatusUpdater->setStatus('applying');
-        if (false === $this->updateUnitStatus()) {
-            return false;
-        }
+        $configVersion = $configProviderResult->getConfig()->getVersion();
+        $configRevision = $configProviderResult->getConfig()->getRevision();
 
-        // Version ?
-        // $this->logger->debug(sprintf('Got new config: %s', $configString));
+        $this->logger->notice(sprintf('Got new config version: %s (rev: %s)', $configVersion, $configRevision));
+
+        // Todo is this error critical?
+        $this->unitStatusUpdater
+            ->setStatus(sprintf('Applying config. v: %s, rev: %s', $configVersion, $configRevision))
+            ->flush();
 
         // Apply config
         $applyStart = microtime(true);
@@ -138,25 +112,23 @@ class ArtifactDownloader
             ->process($configProviderResult->getConfig()->getScopesConfig());
 
         if (false === $configApplyResult->isSuccessful()) {
-            $this->logger->error(sprintf('Error while config apply: %s', $configApplyResult->getError()->getMessage()));
-
-            $this
-                ->logErrorAndPushToUnitStatus($configApplyResult->getError()->getMessage())
-                ->updateUnitStatus();
+            $this->logErrorAndPushToUnitStatus(
+                sprintf('Error while config apply: %s', $configApplyResult->getError()->getMessage())
+            );
 
             return false;
         }
 
         // Update applied config index
-        $this->lastConfigRevision = $configProviderResult->getConfig()->getRevision();
+        $this->lastConfigRevision = $configRevision;
 
-        $this->logger->info(sprintf(
+        $this->logger->notice(sprintf(
             'Scope synchronised to version %s in %f sec',
-            $configProviderResult->getConfig()->getRevision(),
+            $configVersion,
             microtime(true) - $applyStart
         ));
-        $this->unitStatusUpdater->setStatus('sync')->setConfigVersion($this->lastConfigRevision);
-        $this->updateUnitStatus();
+
+        $this->unitStatusUpdater->setConfigVersion($configVersion)->flush();
 
         return true;
     }
@@ -182,16 +154,35 @@ class ArtifactDownloader
         sleep($this->lastSleepTimeout);
     }
 
-    public function work()
+    /**
+     * @param bool $infinity
+     *
+     * @return int
+     */
+    public function work($infinity = false)
     {
         $this->logger->notice(sprintf('ArtifactDownloader v: %s (%s)', self::VERSION, self::RELEASE_DATE));
 
-        // update unit status
-        $this->updateUnitStatus();
+        do {
+            $this->unitStatusUpdater
+                ->setStatus(sprintf(
+                    'Waiting for config. Last rev: %s',
+                    $this->lastConfigRevision === null ? 'null': $this->lastConfigRevision
+                ))
+                ->flush();
 
-        while (true) {
             $result = $this->configProvider->getConfigAfterRevision($this->lastConfigRevision);
-            $this->sleepOnError($this->handleEtcdClientResult($result));
+            $handleResult = $this->handleEtcdClientResult($result);
+            if ($infinity) {
+                $this->sleepOnError($handleResult);
+            }
+
+        } while ($infinity);
+
+        if (false === $handleResult) {
+            return 1;
         }
+
+        return 0;
     }
 }

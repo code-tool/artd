@@ -3,6 +3,7 @@
 namespace CodeTool\ArtifactDownloader\Scope\Config\Processor;
 
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
+use CodeTool\ArtifactDownloader\Config\ConfigInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeHandlerInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigInterface;
@@ -11,7 +12,7 @@ use CodeTool\ArtifactDownloader\Scope\Info\Factory\ScopeInfoFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 use Psr\Log\LoggerInterface;
 
-class ScopeConfigProcessor
+class ScopeConfigProcessor implements ScopeConfigProcessorInterface
 {
     private $logger;
 
@@ -127,13 +128,13 @@ class ScopeConfigProcessor
     }
 
     /**
-     * @param ScopeConfigInterface[] $scopesConfigs
+     * @param ConfigInterface $config
      *
      * @return \CodeTool\ArtifactDownloader\Result\ResultInterface
      */
-    public function process(array $scopesConfigs)
+    public function process(ConfigInterface $config)
     {
-        foreach ($scopesConfigs as $scopeConfig) {
+        foreach ($config->getScopesConfig() as $scopeConfig) {
             $processResult = $this->processScopeConfig($scopeConfig);
 
             if (false === $processResult->isSuccessful()) {

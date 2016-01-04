@@ -4,7 +4,7 @@ namespace CodeTool\ArtifactDownloader;
 
 use CodeTool\ArtifactDownloader\Config\Provider\ConfigProviderInterface;
 use CodeTool\ArtifactDownloader\Config\Provider\Result\ConfigProviderResultInterface;
-use CodeTool\ArtifactDownloader\Scope\Config\Processor\ScopeConfigProcessor;
+use CodeTool\ArtifactDownloader\Scope\Config\Processor\ScopeConfigProcessorInterface;
 use CodeTool\ArtifactDownloader\UnitStatus\Updater\UnitStatusUpdaterInterface;
 use Psr\Log\LoggerInterface;
 
@@ -32,7 +32,7 @@ class ArtifactDownloader
     private $unitStatusUpdater;
 
     /**
-     * @var ScopeConfigProcessor
+     * @var ScopeConfigProcessorInterface
      */
     private $scopeConfigProcessor;
 
@@ -47,15 +47,15 @@ class ArtifactDownloader
     private $lastSleepTimeout = 0;
 
     /**
-     * @param LoggerInterface            $logger
-     * @param ConfigProviderInterface    $configProvider
-     * @param ScopeConfigProcessor       $scopeConfigProcessor
-     * @param UnitStatusUpdaterInterface $unitStatusUpdater
+     * @param LoggerInterface               $logger
+     * @param ConfigProviderInterface       $configProvider
+     * @param ScopeConfigProcessorInterface $scopeConfigProcessor
+     * @param UnitStatusUpdaterInterface    $unitStatusUpdater
      */
     public function __construct(
         LoggerInterface $logger,
         ConfigProviderInterface $configProvider,
-        ScopeConfigProcessor $scopeConfigProcessor,
+        ScopeConfigProcessorInterface $scopeConfigProcessor,
         UnitStatusUpdaterInterface $unitStatusUpdater
     ) {
         $this->logger = $logger;
@@ -108,8 +108,7 @@ class ArtifactDownloader
 
         // Apply config
         $applyStart = microtime(true);
-        $configApplyResult = $this->scopeConfigProcessor
-            ->process($configProviderResult->getConfig()->getScopesConfig());
+        $configApplyResult = $this->scopeConfigProcessor->process($configProviderResult->getConfig());
 
         if (false === $configApplyResult->isSuccessful()) {
             $this->logErrorAndPushToUnitStatus(
@@ -167,7 +166,7 @@ class ArtifactDownloader
             $this->unitStatusUpdater
                 ->setStatus(sprintf(
                     'Waiting for config. Last rev: %s',
-                    $this->lastConfigRevision === null ? 'null': $this->lastConfigRevision
+                    $this->lastConfigRevision === null ? 'null' : $this->lastConfigRevision
                 ))
                 ->flush();
 
@@ -176,7 +175,6 @@ class ArtifactDownloader
             if ($infinity) {
                 $this->sleepOnError($handleResult);
             }
-
         } while ($infinity);
 
         if (false === $handleResult) {

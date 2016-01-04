@@ -51,7 +51,7 @@ class UnitStatusUpdaterClientFactory implements UnitStatusUpdaterClientFactoryIn
         return new UnitStatusUpdaterClientEtcd($this->etcdClient, $statusPath);
     }
 
-    protected function makeUnixSocket($socketPath)
+    protected function makeUnixSocketClient($socketPath)
     {
         $socketPath = '/tmp/artd-status-updater.sock';
         return new UnitStatusUpdaterClientUnixSocket($this->resultFactory, $socketPath);
@@ -71,7 +71,7 @@ class UnitStatusUpdaterClientFactory implements UnitStatusUpdaterClientFactoryIn
             case 'etcd':
                 return $this->makeEtcdClient($path);
             case 'unix-socket':
-                return $this->makeUnixSocket($path);
+                return $this->makeUnixSocketClient($path);
             default:
                 throw new \InvalidArgumentException(sprintf('Unknown unit status updater with name "%s"', $name));
         }

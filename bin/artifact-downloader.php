@@ -13,4 +13,4 @@ try {
     echo $e->getMessage(), PHP_EOL, $e->getTraceAsString();
 }
 
-return $returnCode;
+exit($returnCode);

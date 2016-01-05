@@ -344,7 +344,7 @@ namespace {
 
         $client = $clientFactory->makeByName(
             $unitConfig->getStatusUpdaterClient(),
-            $unitConfig->getStatusDirectoryPath() . '/' . $unitConfig->getName()
+            $unitConfig->getStatusUpdaterPath()
         );
 
         return new UnitStatus\Updater\Client\UnitStatusUpdaterClientLogDecorator($container['logger'], $client);

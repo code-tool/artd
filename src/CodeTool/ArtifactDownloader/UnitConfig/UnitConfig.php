@@ -3,9 +3,17 @@
 namespace CodeTool\ArtifactDownloader\UnitConfig;
 
 use CodeTool\ArtifactDownloader\EtcdClient\EtcdClient;
+use CodeTool\ArtifactDownloader\UnitStatus\Updater\Client\Factory\UnitStatusUpdaterClientFactoryInterface;
 
 class UnitConfig implements UnitConfigInterface
 {
+    /**
+     * @param string $optName
+     * @param string $env
+     * @param mixed  $default
+     *
+     * @return string
+     */
     private function getOptOrEnvOrDefault($optName, $env, $default)
     {
         $opt = getopt('', [$optName . '::']);
@@ -18,14 +26,6 @@ class UnitConfig implements UnitConfigInterface
         }
 
         return $default;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->getOptOrEnvOrDefault('name', 'NAME', gethostname());
     }
 
     /**
@@ -47,9 +47,22 @@ class UnitConfig implements UnitConfigInterface
     /**
      * @return string
      */
-    public function getStatusDirectoryPath()
+    public function getStatusUpdaterClient()
     {
-        return $this->getOptOrEnvOrDefault('status-directory', 'STATUS_DIRECTORY', 'artifact-downloader/status');
+        return $this->getOptOrEnvOrDefault('status-updater-client', 'STATUS_UPDATER_CLIENT', 'etcd');
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusUpdaterPath()
+    {
+        $default = 'artifact-downloader/status'; // //UnitStatusUpdaterClientFactoryInterface::CLIENT_ETCD:
+        if (UnitStatusUpdaterClientFactoryInterface::CLIENT_UNIX_SOCKET === $this->getStatusUpdaterClient()) {
+            $default = '/tmp/artd-status-updater.sock';
+        }
+
+        return $this->getOptOrEnvOrDefault('status-updater-path', 'STATUS_UPDATER_PATH', $default);
     }
 
     /**
@@ -66,14 +79,6 @@ class UnitConfig implements UnitConfigInterface
     public function getEtcdServerUrl()
     {
         return $this->getOptOrEnvOrDefault('etcd-server-url', 'ETCD_SERVER_URL', EtcdClient::DEFAULT_SERVER);
-    }
-
-    /**
-     * @return string
-     */
-    public function getStatusUpdaterClient()
-    {
-        return $this->getOptOrEnvOrDefault('status-updater-client', 'STATUS_UPDATER_CLIENT', 'etcd');
     }
 
     /**

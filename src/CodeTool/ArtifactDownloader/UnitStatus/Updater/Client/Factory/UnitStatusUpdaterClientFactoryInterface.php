@@ -6,6 +6,12 @@ use CodeTool\ArtifactDownloader\UnitStatus\Updater\Client\UnitStatusUpdaterClien
 
 interface UnitStatusUpdaterClientFactoryInterface
 {
+    const CLIENT_NONE = 'none';
+
+    const CLIENT_ETCD = 'etcd';
+
+    const CLIENT_UNIX_SOCKET = 'unix-socket';
+
     /**
      * @param string $name
      * @param string $path

@@ -7,22 +7,23 @@ interface UnitConfigInterface
     /**
      * @return string
      */
-    public function getName();
-
-    /**
-     * @return int
-     */
-    public function getStatusDirectoryPath();
-
-    /**
-     * @return string
-     */
     public function getConfigProvider();
 
     /**
      * @return string
      */
     public function getConfigPath();
+
+
+    /**
+     * @return string
+     */
+    public function getStatusUpdaterClient();
+
+    /**
+     * @return int
+     */
+    public function getStatusUpdaterPath();
 
     /**
      * @return string
@@ -33,11 +34,6 @@ interface UnitConfigInterface
      * @return string
      */
     public function getEtcdServerUrl();
-
-    /**
-     * @return string
-     */
-    public function getStatusUpdaterClient();
 
     /**
      * @return bool

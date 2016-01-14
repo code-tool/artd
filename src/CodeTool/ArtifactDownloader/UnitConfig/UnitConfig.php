@@ -33,7 +33,7 @@ class UnitConfig implements UnitConfigInterface
      */
     public function getConfigProvider()
     {
-        return $this->getOptOrEnvOrDefault('config-provider', 'CONFIG_PROVIDER', 'etcd');
+        return $this->getOptOrEnvOrDefault('config-provider', 'ARTD_CONFIG_PROVIDER', 'etcd');
     }
 
     /**
@@ -41,7 +41,7 @@ class UnitConfig implements UnitConfigInterface
      */
     public function getConfigPath()
     {
-        return $this->getOptOrEnvOrDefault('config-path', 'CONFIG_PATH', 'artifact-downloader/config');
+        return $this->getOptOrEnvOrDefault('config-path', 'ARTD_CONFIG_PATH', 'artifact-downloader/config');
     }
 
     /**
@@ -49,7 +49,7 @@ class UnitConfig implements UnitConfigInterface
      */
     public function getStatusUpdaterClient()
     {
-        return $this->getOptOrEnvOrDefault('status-updater-client', 'STATUS_UPDATER_CLIENT', 'etcd');
+        return $this->getOptOrEnvOrDefault('status-updater-client', 'ARTD_STATUS_UPDATER_CLIENT', 'etcd');
     }
 
     /**
@@ -62,7 +62,7 @@ class UnitConfig implements UnitConfigInterface
             $default = '/tmp/artd-status-updater.sock';
         }
 
-        return $this->getOptOrEnvOrDefault('status-updater-path', 'STATUS_UPDATER_PATH', $default);
+        return $this->getOptOrEnvOrDefault('status-updater-path', 'ARTD_STATUS_UPDATER_PATH', $default);
     }
 
     /**
@@ -70,7 +70,7 @@ class UnitConfig implements UnitConfigInterface
      */
     public function getResourceCredentialsConfigPath()
     {
-        return $this->getOptOrEnvOrDefault('resource-credentials', 'RESOURCE_CREDENTIALS', null);
+        return $this->getOptOrEnvOrDefault('resource-credentials', 'ARTD_RESOURCE_CREDENTIALS', null);
     }
 
     /**
@@ -78,7 +78,7 @@ class UnitConfig implements UnitConfigInterface
      */
     public function getEtcdServerUrl()
     {
-        return $this->getOptOrEnvOrDefault('etcd-server-url', 'ETCD_SERVER_URL', EtcdClient::DEFAULT_SERVER);
+        return $this->getOptOrEnvOrDefault('etcd-server-url', 'ARTD_ETCD_SERVER_URL', EtcdClient::DEFAULT_SERVER);
     }
 
     /**

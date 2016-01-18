@@ -89,9 +89,11 @@ class HttpClient implements HttpClientInterface
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
         // enable keep-alive
-        curl_setopt($ch, CURLOPT_TCP_KEEPIDLE, 5);
-        curl_setopt($ch, CURLOPT_TCP_KEEPINTVL, 5);
-        curl_setopt($ch, CURLOPT_TCP_KEEPALIVE, 1);
+        if (curl_version() >= 0x071900) {
+            curl_setopt($ch, CURLOPT_TCP_KEEPIDLE, 5);
+            curl_setopt($ch, CURLOPT_TCP_KEEPINTVL, 5);
+            curl_setopt($ch, CURLOPT_TCP_KEEPALIVE, 1);
+        }
     }
 
     private function createResultFromChAndResponse($ch)

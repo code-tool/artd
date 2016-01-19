@@ -64,24 +64,6 @@ class BasicUtil
     }
 
     /**
-     * @param string     $path
-     * @param bool|false $reverseOrder
-     *
-     * @return \SplFileInfo[]
-     */
-    public function getFileIterator($path, $reverseOrder = false)
-    {
-        if (is_file($path)) {
-            return new \ArrayIterator([new \SplFileInfo($path)]);
-        }
-
-        return new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS),
-            $reverseOrder === true ? \RecursiveIteratorIterator::CHILD_FIRST : \RecursiveIteratorIterator::SELF_FIRST
-        );
-    }
-
-    /**
      * @param string $source
      *
      * @return bool

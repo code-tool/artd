@@ -223,8 +223,20 @@ namespace {
     };
 
     // fs
+    $container['fs.util.chmod_arg_parser'] = function () {
+        return new Fs\Util\FsUtilChmodArgParser();
+    };
+
+    $container['fs.util.permissions_str_parser'] = function () {
+        return new Fs\Util\FsUtilPermissionStrParser();
+    };
+
     $container['fs.command.factory'] = function (Container $container) {
-        return new Fs\Command\Factory\FsCommandFactory($container['result.factory']);
+        return new Fs\Command\Factory\FsCommandFactory(
+            $container['result.factory'],
+            $container['fs.util.chmod_arg_parser'],
+            $container['fs.util.permissions_str_parser']
+        );
     };
 
     //

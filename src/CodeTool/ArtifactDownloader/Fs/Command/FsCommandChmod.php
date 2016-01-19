@@ -3,6 +3,7 @@
 namespace CodeTool\ArtifactDownloader\Fs\Command;
 
 use CodeTool\ArtifactDownloader\Command\CommandInterface;
+use CodeTool\ArtifactDownloader\Fs\Util\FsUtilChmodArgParserInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
@@ -19,6 +20,11 @@ class FsCommandChmod implements CommandInterface
     private $resultFactory;
 
     /**
+     * @var FsUtilChmodArgParserInterface
+     */
+    private $fsUtilChmodArgParser;
+
+    /**
      * @var string
      */
     private $filePath;
@@ -29,13 +35,20 @@ class FsCommandChmod implements CommandInterface
     private $mode;
 
     /**
-     * @param ResultFactoryInterface $resultFactory
+     * @param ResultFactoryInterface        $resultFactory
+     * @param FsUtilChmodArgParserInterface $fsUtilChmodArgParser
      * @param string                        $filePath
      * @param string                        $mode
      */
-    public function __construct(ResultFactoryInterface $resultFactory, $filePath, $mode)
-    {
+    public function __construct(
+        ResultFactoryInterface $resultFactory,
+        FsUtilChmodArgParserInterface $fsUtilChmodArgParser,
+        $filePath,
+        $mode
+    ) {
         $this->resultFactory = $resultFactory;
+        $this->fsUtilChmodArgParser = $fsUtilChmodArgParser;
+
         $this->filePath = $filePath;
         $this->mode = $mode;
     }
@@ -45,7 +58,10 @@ class FsCommandChmod implements CommandInterface
      */
     public function execute()
     {
-        if (false === @chmod($this->filePath, $this->mode)) {
+        $fileInfo = new \SplFileInfo($this->filePath);
+        $mode = $this->fsUtilChmodArgParser->parseMode($fileInfo, $this->mode);
+
+        if (false === @chmod($this->filePath, $mode)) {
             return $this->resultFactory->createErrorFromGetLast(
                 sprintf('Can\' set permissions "%s" on "%s"', $this->mode, $this->filePath)
             );
@@ -56,6 +72,6 @@ class FsCommandChmod implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('chmod(%s, mode=%o)', $this->filePath, $this->mode);
+        return sprintf('chmod(%s, mode=%s)', $this->filePath, $this->mode);
     }
 }

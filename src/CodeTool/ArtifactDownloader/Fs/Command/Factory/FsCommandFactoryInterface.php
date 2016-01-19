@@ -2,6 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader\Fs\Command\Factory;
 
+use CodeTool\ArtifactDownloader\Fs\Command\FsCommandPermissions;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChgrp;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChmod;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChown;
@@ -85,4 +86,12 @@ interface FsCommandFactoryInterface
      * @return FsCommandRename
      */
     public function createRenameCommand($sourcePath, $targetPath);
+
+    /**
+     * @param string $path
+     * @param string $permissions
+     *
+     * @return FsCommandPermissions
+     */
+    public function createPermissionsCommandFromStr($path, $permissions);
 }

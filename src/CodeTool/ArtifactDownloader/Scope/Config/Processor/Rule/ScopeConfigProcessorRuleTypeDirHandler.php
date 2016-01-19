@@ -80,6 +80,15 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
         }
     }
 
+    private function addPermissionsCommand(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
+    {
+        if (false === $do->has('permissions')) {
+            return;
+        }
+
+        $collection->add($this->fsCommandFactory->createPermissionsCommandFromStr($target, $do->get('permissions')));
+    }
+
     /**
      * Move to separate class ?
      *
@@ -209,6 +218,7 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
 
             // Fix permissions, if need
             $this->addGMOCommands($collection, $realTargetPath, $scopeConfigRule);
+            $this->addPermissionsCommand($collection, $realTargetPath, $scopeConfigRule);
 
             return $this->resultFactory->createSuccessful();
         }
@@ -220,16 +230,17 @@ class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRule
         if (false === $isSourceLocal) {
             // If source remote, download it and get new source path
             $source = $this->addForRemoteSource($collection, $source, $realTargetPath, $scopeConfigRule);
+            // Fix permissions
+            $this->addGMOCommands($collection, $source, $scopeConfigRule);
+            $this->addPermissionsCommand($collection, $source, $scopeConfigRule);
         } else {
-            // todo Is source absolute path?
+            // todo: Fix case when source is local directory. Is source absolute path?
             $source = $scopeInfo->getAbsPathByForTarget($source);
         }
 
         if (false === $targetExists) {
             // Now, if target dose not exists, just move
             $collection->add($this->fsCommandFactory->createMvCommand($source, $realTargetPath));
-            // Fix permissions, if need
-            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigRule);
 
             return $this->resultFactory->createSuccessful();
         }

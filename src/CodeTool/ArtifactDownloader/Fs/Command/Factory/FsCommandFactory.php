@@ -2,6 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader\Fs\Command\Factory;
 
+use CodeTool\ArtifactDownloader\Fs\Command\FsCommandPermissions;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChgrp;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChmod;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChown;
@@ -11,6 +12,8 @@ use CodeTool\ArtifactDownloader\Fs\Command\FsCommandMv;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandRename;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandRm;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandSymlink;
+use CodeTool\ArtifactDownloader\Fs\Util\FsUtilChmodArgParserInterface;
+use CodeTool\ArtifactDownloader\Fs\Util\FsUtilPermissionStrParserInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 
 /**
@@ -27,11 +30,30 @@ class FsCommandFactory implements FsCommandFactoryInterface
     private $resultFactory;
 
     /**
-     * @param ResultFactoryInterface $resultFactory
+     * @var FsUtilChmodArgParserInterface
      */
-    public function __construct(ResultFactoryInterface $resultFactory)
-    {
+    private $fsUtilChmodArgParser;
+
+    /**
+     * @var FsUtilPermissionStrParserInterface
+     */
+    private $fsUtilPermissionStrParser;
+
+    /**
+     * FsCommandFactory constructor.
+     *
+     * @param ResultFactoryInterface             $resultFactory
+     * @param FsUtilChmodArgParserInterface      $fsUtilChmodArgParser
+     * @param FsUtilPermissionStrParserInterface $fsUtilPermissionStrParser
+     */
+    public function __construct(
+        ResultFactoryInterface $resultFactory,
+        FsUtilChmodArgParserInterface $fsUtilChmodArgParser,
+        FsUtilPermissionStrParserInterface $fsUtilPermissionStrParser
+    ) {
         $this->resultFactory = $resultFactory;
+        $this->fsUtilChmodArgParser = $fsUtilChmodArgParser;
+        $this->fsUtilPermissionStrParser = $fsUtilPermissionStrParser;
     }
 
     /**
@@ -53,7 +75,7 @@ class FsCommandFactory implements FsCommandFactoryInterface
      */
     public function createChmodCommand($filePath, $mode)
     {
-        return new FsCommandChmod($this->resultFactory, $filePath, $mode);
+        return new FsCommandChmod($this->resultFactory, $this->fsUtilChmodArgParser, $filePath, $mode);
     }
 
     /**
@@ -131,5 +153,26 @@ class FsCommandFactory implements FsCommandFactoryInterface
     public function createRenameCommand($sourcePath, $targetPath)
     {
         return new FsCommandRename($this->resultFactory, $sourcePath, $targetPath);
+    }
+
+    /**
+     * @param string $path
+     * @param string $permissions
+     *
+     * @return FsCommandPermissions
+     */
+    public function createPermissionsCommandFromStr($path, $permissions)
+    {
+        list($uid, $gid, $mode, $recursive) = $this->fsUtilPermissionStrParser->parse($permissions);
+
+        return new FsCommandPermissions(
+            $this->resultFactory,
+            $this->fsUtilChmodArgParser,
+            $path,
+            $uid,
+            $gid,
+            $mode,
+            $recursive
+        );
     }
 }

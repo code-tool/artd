@@ -184,24 +184,21 @@ class FsCommandPermissions implements CommandInterface
     /**
      * @return ResultInterface
      */
-    private function executeRecursive()
+    public function execute()
     {
-        $iterator = $this->getFileIterator($this->path);
+        if (true === $this->recursive && false === is_file($this->path)) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($this->path, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::SELF_FIRST
+            );
 
-        foreach ($iterator as $splObjectInfo) {
-            if (null !== ($error = $this->doChange($splObjectInfo))) {
-                return $error;
+            foreach ($iterator as $splObjectInfo) {
+                if (null !== ($error = $this->doChange($splObjectInfo))) {
+                    return $error;
+                }
             }
         }
 
-        return $this->resultFactory->createSuccessful();
-    }
-
-    /**
-     * @return ResultInterface
-     */
-    private function executeNonRecursive()
-    {
         $fileInfo = new \SplFileInfo($this->path);
 
         if (null !== ($error = $this->doChange($fileInfo))) {
@@ -209,18 +206,6 @@ class FsCommandPermissions implements CommandInterface
         }
 
         return $this->resultFactory->createSuccessful();
-    }
-
-    /**
-     * @return ResultInterface
-     */
-    public function execute()
-    {
-        if (true === $this->recursive) {
-            return $this->executeRecursive();
-        }
-
-        return $this->executeNonRecursive();
     }
 
     /**

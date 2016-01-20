@@ -4,23 +4,23 @@ namespace {
 
     use CodeTool\ArtifactDownloader\Archive;
     use CodeTool\ArtifactDownloader\ArtifactDownloader;
+    use CodeTool\ArtifactDownloader\CmdRunner;
     use CodeTool\ArtifactDownloader\Command;
     use CodeTool\ArtifactDownloader\Config;
-    use CodeTool\ArtifactDownloader\CmdRunner;
-    use CodeTool\ArtifactDownloader\DomainObject;
     use CodeTool\ArtifactDownloader\DirectoryComparator;
+    use CodeTool\ArtifactDownloader\DomainObject;
     use CodeTool\ArtifactDownloader\Error;
     use CodeTool\ArtifactDownloader\EtcdClient;
-    use CodeTool\ArtifactDownloader\HttpClient;
     use CodeTool\ArtifactDownloader\FcgiClient;
     use CodeTool\ArtifactDownloader\Fs;
+    use CodeTool\ArtifactDownloader\HttpClient;
     use CodeTool\ArtifactDownloader\ResourceCredentials;
     use CodeTool\ArtifactDownloader\Result;
     use CodeTool\ArtifactDownloader\Runit;
+    use CodeTool\ArtifactDownloader\Scope;
     use CodeTool\ArtifactDownloader\UnitConfig;
     use CodeTool\ArtifactDownloader\UnitStatus;
     use CodeTool\ArtifactDownloader\Util;
-    use CodeTool\ArtifactDownloader\Scope;
     use fool\echolog\Echolog;
     use Pimple\Container;
     use Psr\Log;
@@ -28,13 +28,16 @@ namespace {
     $container = new Container();
 
     //
-    $container['logger'] = function () {
-        return new Echolog(); // Log\NullLogger();
+    $container['unit_config'] = function () {
+        return new UnitConfig\UnitConfig();
     };
 
     //
-    $container['unit_config'] = function () {
-        return new UnitConfig\UnitConfig();
+    $container['logger'] = function (Container $container) {
+        /** @var UnitConfig\UnitConfigInterface $unitConfig */
+        $unitConfig = $container['unit_config'];
+
+        return new Echolog($unitConfig->getLogLevel()); // Log\NullLogger();
     };
 
     //

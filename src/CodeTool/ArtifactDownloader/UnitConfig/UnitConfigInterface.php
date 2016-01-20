@@ -7,6 +7,11 @@ interface UnitConfigInterface
     /**
      * @return string
      */
+    public function getLogLevel();
+
+    /**
+     * @return string
+     */
     public function getConfigProvider();
 
     /**

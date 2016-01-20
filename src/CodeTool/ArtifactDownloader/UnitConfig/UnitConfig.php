@@ -4,6 +4,7 @@ namespace CodeTool\ArtifactDownloader\UnitConfig;
 
 use CodeTool\ArtifactDownloader\EtcdClient\EtcdClient;
 use CodeTool\ArtifactDownloader\UnitStatus\Updater\Client\Factory\UnitStatusUpdaterClientFactoryInterface;
+use Psr\Log\LogLevel;
 
 class UnitConfig implements UnitConfigInterface
 {
@@ -26,6 +27,14 @@ class UnitConfig implements UnitConfigInterface
         }
 
         return $default;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLogLevel()
+    {
+        return $this->getOptOrEnvOrDefault('log-level', 'ARTD_LOG_LEVEL', LogLevel::DEBUG);
     }
 
     /**

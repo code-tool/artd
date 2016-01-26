@@ -131,8 +131,8 @@ namespace {
         return new Util\BasicUtil();
     };
 
-    $container['cmd_runner.result.factory'] = function () {
-        return new CmdRunner\Result\Factory\CmdRunnerResultFactory();
+    $container['cmd_runner.result.factory'] = function (Container $container) {
+        return new CmdRunner\Result\Factory\CmdRunnerResultFactory($container['error.factory']);
     };
 
     $container['cmd_runner'] = function (Container $container) {

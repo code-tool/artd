@@ -34,9 +34,9 @@ class CmdRunner implements CmdRunnerInterface
             2 => ['pipe', 'w'], // stderr
         ];
 
-        $process = proc_open($cmd, $descriptorSpec, $pipes, $cwd, $env);
+        $process = @proc_open($cmd, $descriptorSpec, $pipes, $cwd, $env);
         if (false === is_resource($process)) {
-            return $this->cmdRunnerResultFactory->make(-1, null, null);
+            return $this->cmdRunnerResultFactory->makeFromGetLast();
         }
 
         $stdOut = stream_get_contents($pipes[1]);

@@ -2,7 +2,10 @@
 
 namespace CodeTool\ArtifactDownloader\CmdRunner\Result;
 
-class CmdRunnerResult implements CmdRunnerResultInterface
+use CodeTool\ArtifactDownloader\Error\ErrorInterface;
+use CodeTool\ArtifactDownloader\Result\Result;
+
+class CmdRunnerResult extends Result implements CmdRunnerResultInterface
 {
     /**
      * @var int
@@ -20,12 +23,15 @@ class CmdRunnerResult implements CmdRunnerResultInterface
     private $stdErr;
 
     /**
-     * @param int         $exitCode
-     * @param string|null $stdOut
-     * @param string|null $stdErr
+     * @param int            $exitCode
+     * @param string|null    $stdOut
+     * @param string|null    $stdErr
+     * @param ErrorInterface $error
      */
-    public function __construct($exitCode, $stdOut, $stdErr)
+    public function __construct($exitCode, $stdOut, $stdErr, ErrorInterface $error = null)
     {
+        parent::__construct($error);
+
         $this->exitCode = $exitCode;
         $this->stdOut = $stdOut;
         $this->stdErr = $stdErr;

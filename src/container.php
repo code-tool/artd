@@ -139,6 +139,10 @@ namespace {
         return new CmdRunner\CmdRunner($container['cmd_runner.result.factory']);
     };
 
+    $container['cmd_runner.command.factory'] = function (Container $container) {
+        return new CmdRunner\Command\Factory\CmdRunnerCommandFactory($container['cmd_runner']);
+    };
+
     //
     $container['archive.unarchiver_factory'] = function (Container $container) {
         return new Archive\Factory\UnarchiverFactory(

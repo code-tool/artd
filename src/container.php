@@ -295,6 +295,13 @@ namespace {
         );
     };
 
+    $container['scope.config.processor.rule.exec'] = function (Container $container) {
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeExecHandler(
+            $container['result.factory'],
+            $container['cmd_runner.command.factory']
+        );
+    };
+
     //
     $container['scope.config.processor'] = function (Container $container) {
         return new Scope\Config\Processor\ScopeConfigProcessor(
@@ -306,7 +313,8 @@ namespace {
                 $container['scope.config.processor.rule.symlink'],
                 $container['scope.config.processor.rule.dir'],
                 $container['scope.config.processor.rule.fcgi_request'],
-                $container['scope.config.processor.rule.runit']
+                $container['scope.config.processor.rule.runit'],
+                $container['scope.config.processor.rule.exec']
             ]
         );
     };

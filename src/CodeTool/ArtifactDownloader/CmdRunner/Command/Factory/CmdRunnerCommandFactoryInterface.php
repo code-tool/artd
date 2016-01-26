@@ -14,5 +14,5 @@ interface CmdRunnerCommandFactoryInterface
      *
      * @return CmdRunnerCommandExec
      */
-    public function createExec($cmd, $cwd, $clearEnv = false, array $env = []);
+    public function createExecCommand($cmd, $cwd, $clearEnv = false, array $env = []);
 }

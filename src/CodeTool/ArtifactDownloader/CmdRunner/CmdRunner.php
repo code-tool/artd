@@ -21,18 +21,20 @@ class CmdRunner implements CmdRunnerInterface
     }
 
     /**
-     * @param string $cmd
+     * @param string        $cmd
+     * @param string|null   $cwd
+     * @param string[]|null $env
      *
      * @return CmdRunnerResultInterface
      */
-    public function run($cmd)
+    public function run($cmd, $cwd = null, $env = null)
     {
         $descriptorSpec = [
             1 => ['pipe', 'w'], // stdout
             2 => ['pipe', 'w'], // stderr
         ];
 
-        $process = proc_open($cmd, $descriptorSpec, $pipes);
+        $process = proc_open($cmd, $descriptorSpec, $pipes, $cwd, $env);
         if (false === is_resource($process)) {
             return $this->cmdRunnerResultFactory->make(-1, null, null);
         }

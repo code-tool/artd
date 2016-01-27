@@ -77,12 +77,6 @@ class TarUnarchiver implements UnarchiverInterface
             return $this->resultFactory->createError('Can\'t find tag or gtar', $this);
         }
 
-        $runResult = $this->cmdRunner->run($this->buildCmd($source, $target));
-
-        if (0 !== $runResult->getExitCode()) {
-            return $this->resultFactory->createError($runResult->getStdErr());
-        }
-
-        return $this->resultFactory->createSuccessful();
+        return $this->cmdRunner->run($this->buildCmd($source, $target));
     }
 }

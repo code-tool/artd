@@ -2,7 +2,9 @@
 
 namespace CodeTool\ArtifactDownloader\CmdRunner\Result;
 
-interface CmdRunnerResultInterface
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
+
+interface CmdRunnerResultInterface extends ResultInterface
 {
     /**
      * @return int

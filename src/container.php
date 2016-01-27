@@ -131,12 +131,16 @@ namespace {
         return new Util\BasicUtil();
     };
 
-    $container['cmd_runner.result.factory'] = function () {
-        return new CmdRunner\Result\Factory\CmdRunnerResultFactory();
+    $container['cmd_runner.result.factory'] = function (Container $container) {
+        return new CmdRunner\Result\Factory\CmdRunnerResultFactory($container['error.factory']);
     };
 
     $container['cmd_runner'] = function (Container $container) {
         return new CmdRunner\CmdRunner($container['cmd_runner.result.factory']);
+    };
+
+    $container['cmd_runner.command.factory'] = function (Container $container) {
+        return new CmdRunner\Command\Factory\CmdRunnerCommandFactory($container['cmd_runner']);
     };
 
     //
@@ -291,6 +295,13 @@ namespace {
         );
     };
 
+    $container['scope.config.processor.rule.exec'] = function (Container $container) {
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeExecHandler(
+            $container['result.factory'],
+            $container['cmd_runner.command.factory']
+        );
+    };
+
     //
     $container['scope.config.processor'] = function (Container $container) {
         return new Scope\Config\Processor\ScopeConfigProcessor(
@@ -302,7 +313,8 @@ namespace {
                 $container['scope.config.processor.rule.symlink'],
                 $container['scope.config.processor.rule.dir'],
                 $container['scope.config.processor.rule.fcgi_request'],
-                $container['scope.config.processor.rule.runit']
+                $container['scope.config.processor.rule.runit'],
+                $container['scope.config.processor.rule.exec']
             ]
         );
     };

@@ -14,4 +14,9 @@ interface CmdRunnerResultFactoryInterface
      * @return CmdRunnerResultInterface
      */
     public function make($exitCode, $stdOut, $stdErr);
+
+    /**
+     * @return CmdRunnerResultInterface
+     */
+    public function makeFromGetLast();
 }

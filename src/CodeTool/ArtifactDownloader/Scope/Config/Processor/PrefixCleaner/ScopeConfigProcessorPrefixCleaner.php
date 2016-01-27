@@ -61,6 +61,12 @@ class ScopeConfigProcessorPrefixCleaner
         return $result;
     }
 
+    /**
+     * @param ScopeInfoInterface $scopeInfo
+     * @param string             $prefix
+     *
+     * @return string
+     */
     private function getNearestPathForPrefix(ScopeInfoInterface $scopeInfo, $prefix)
     {
         $path = $scopeInfo->getAbsPathByForTarget($prefix);
@@ -76,6 +82,12 @@ class ScopeConfigProcessorPrefixCleaner
         return $scopeInfo->getAbsPathByForTarget(substr($prefix, 0, $separatorRPos));
     }
 
+    /**
+     * @param ScopeInfoInterface $scopeInfo
+     * @param string             $prefix
+     *
+     * @return \DirectoryIterator
+     */
     private function getDirectoryIteratorForPrefix(ScopeInfoInterface $scopeInfo, $prefix)
     {
         return new \DirectoryIterator($this->getNearestPathForPrefix($scopeInfo, $prefix));

@@ -49,13 +49,13 @@ class ScopeConfigProcessorRuleTypeExecHandler implements ScopeConfigProcessorRul
         ScopeConfigRuleInterface $scopeConfigRule
     ) {
         $clearEnv = filter_var(
-            $scopeConfigRule->getOrDefault('clear_env', true),
+            $scopeConfigRule->getOrDefault('clear_env', false),
             FILTER_VALIDATE_BOOLEAN,
             FILTER_NULL_ON_FAILURE
         );
 
         if (null === $clearEnv) {
-            $clearEnv = true;
+            $clearEnv = false;
         }
 
         $env = [];

@@ -32,7 +32,11 @@ class CmdRunnerResultFactory implements CmdRunnerResultFactoryInterface
     {
         $error = null;
         if ($exitCode !== 0) {
-            $error = $this->errorFactory->create($stdErr);
+            if ('' === $errorMessage = trim($stdErr)) {
+                $errorMessage = trim($stdOut);
+            }
+
+            $error = $this->errorFactory->create($errorMessage);
         }
 
         return new CmdRunnerResult($exitCode, $stdOut, $stdErr, $error);

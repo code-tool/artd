@@ -62,9 +62,9 @@ class CmdRunnerCommandExec implements CommandInterface
     {
         $envStr = '';
         foreach ($this->env as $name => $value) {
-            $envStr .= sprintf('%s=%s ');
+            $envStr .= sprintf('%s=%s ', $name, $value);
         }
 
-        return sprintf('%s%s', $envStr, $this->cmd);
+        return sprintf('cd %s; %s%s', $this->cwd, $envStr, $this->cmd);
     }
 }

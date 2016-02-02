@@ -31,6 +31,11 @@ class CmdRunnerCommandFactory implements CmdRunnerCommandFactoryInterface
         $result = [];
         if (false === $clearEnv) {
             $result = $_ENV;
+
+            if ([] === $_ENV) {
+                // todo Find better way or write warning
+                $result = $_SERVER;
+            }
         }
 
         return array_merge($result, $env);

@@ -80,7 +80,7 @@ class UnitStatusUpdater implements UnitStatusUpdaterInterface
                 'config_version' => $this->configVersion,
                 'last_errors' => array_reverse($this->errors),
             ],
-            JSON_PRETTY_PRINT
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
         );
     }
 

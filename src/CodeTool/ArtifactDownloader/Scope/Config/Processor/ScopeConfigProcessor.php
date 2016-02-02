@@ -83,7 +83,7 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
     private function handleRule(ScopeInfoInterface $scopeInfo, ScopeConfigRuleInterface $rule)
     {
         if (null === ($handler = $this->getHandlerForRule($rule))) {
-            return $this->resultFactory->createError('Can\'t find handler for rule type %s', $rule->getType());
+            return $this->resultFactory->createError(sprintf('Can\'t find handler for rule type %s', $rule->getType()));
         }
 
         $collection = $this->commandFactory->createCollection();

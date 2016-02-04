@@ -60,9 +60,19 @@ class CmdRunnerCommandExec implements CommandInterface
      */
     public function __toString()
     {
+        static $suppressKeys = ['HISTSIZE, LS_COLORS', 'PS1'];
+
         $envStr = '';
+        $suppressed = false;
         foreach ($this->env as $name => $value) {
+            if (in_array($name, $suppressKeys, true)) {
+                $suppressed = true;
+                continue;
+            }
             $envStr .= sprintf('%s=%s ', $name, $value);
+        }
+        if ($suppressed) {
+            $envStr = '[suppressed] ' . $envStr;
         }
 
         return sprintf('cd %s; %s%s', $this->cwd, $envStr, $this->cmd);

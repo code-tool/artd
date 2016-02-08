@@ -7,15 +7,15 @@ interface ScopeConfigInterface
     /**
      * @return string
      */
-    public function getScopePath();
+    public function getPath();
 
     /**
-     * @return bool
+     * @return string|null
      */
-    public function isExactMatchRequired();
+    public function getCleanupPrefix();
 
     /**
      * @return ScopeConfigRuleInterface[]
      */
-    public function getScopeRules();
+    public function getRules();
 }

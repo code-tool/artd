@@ -7,51 +7,51 @@ class ScopeConfig implements ScopeConfigInterface
     /**
      * @var string
      */
-    private $scopePath;
+    private $path;
+
+    /**
+     * @var string|null
+     */
+    private $cleanupPrefix;
 
     /**
      * @var ScopeConfigRuleInterface[]
      */
-    private $scopeRules;
+    private $rules;
 
     /**
-     * @var bool
+     * @param string                     $path
+     * @param ScopeConfigRuleInterface[] $rules
+     * @param string|null                $cleanupPrefix
      */
-    private $exactMatchRequired;
-
-    /**
-     * @param string                     $scopePath
-     * @param bool                       $exactMatchRequired
-     * @param ScopeConfigRuleInterface[] $scopeRules
-     */
-    public function __construct($scopePath, $exactMatchRequired, array $scopeRules)
+    public function __construct($path, array $rules, $cleanupPrefix = null)
     {
-        $this->scopePath = $scopePath;
-        $this->exactMatchRequired = $exactMatchRequired;
-        $this->scopeRules = $scopeRules;
+        $this->path = $path;
+        $this->cleanupPrefix = $cleanupPrefix;
+        $this->rules = $rules;
     }
 
     /**
      * @return string
      */
-    public function getScopePath()
+    public function getPath()
     {
-        return $this->scopePath;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExactMatchRequired()
-    {
-        return $this->exactMatchRequired;
+        return $this->path;
     }
 
     /**
      * @return ScopeConfigRuleInterface[]
      */
-    public function getScopeRules()
+    public function getRules()
     {
-        return $this->scopeRules;
+        return $this->rules;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCleanupPrefix()
+    {
+        return $this->cleanupPrefix;
     }
 }

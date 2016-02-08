@@ -5,6 +5,7 @@ namespace CodeTool\ArtifactDownloader\Scope\Config\Processor;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
 use CodeTool\ArtifactDownloader\Config\ConfigInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Scope\Config\Processor\PrefixCleaner\ScopeConfigProcessorPrefixCleaner;
 use CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeHandlerInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
@@ -32,6 +33,11 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
     private $scopeInfoFactory;
 
     /**
+     * @var ScopeConfigProcessorPrefixCleaner
+     */
+    private $scopeConfigProcessorPrefixCleaner;
+
+    /**
      * @var Rule\ScopeConfigProcessorRuleTypeHandlerInterface[]
      */
     private $typeHandlers;
@@ -40,7 +46,8 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
      * @param LoggerInterface                                $logger
      * @param ResultFactoryInterface                         $resultFactory
      * @param CommandFactoryInterface                        $commandFactory
-     * @param                                                $scopeInfoFactory $scopeInfoFactory
+     * @param ScopeInfoFactoryInterface                      $scopeInfoFactory
+     * @param ScopeConfigProcessorPrefixCleaner              $scopeConfigProcessorPrefixCleaner
      * @param ScopeConfigProcessorRuleTypeHandlerInterface[] $typeHandlers
      */
     public function __construct(
@@ -48,12 +55,14 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
         ResultFactoryInterface $resultFactory,
         CommandFactoryInterface $commandFactory,
         ScopeInfoFactoryInterface $scopeInfoFactory,
+        ScopeConfigProcessorPrefixCleaner $scopeConfigProcessorPrefixCleaner,
         array $typeHandlers
     ) {
         $this->logger = $logger;
         $this->resultFactory = $resultFactory;
         $this->commandFactory = $commandFactory;
         $this->scopeInfoFactory = $scopeInfoFactory;
+        $this->scopeConfigProcessorPrefixCleaner = $scopeConfigProcessorPrefixCleaner;
 
         $this->typeHandlers = $typeHandlers;
     }
@@ -107,22 +116,17 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
      */
     private function processScopeConfig(ScopeConfigInterface $scopeConfig)
     {
-        $this->logger->info(sprintf('Applying config for scope %s', $scopeConfig->getScopePath()));
+        $this->logger->info(sprintf('Applying config for scope %s', $scopeConfig->getPath()));
 
         $scopeInfo = $this->scopeInfoFactory->makeForConfig($scopeConfig);
 
-        foreach ($scopeConfig->getScopeRules() as $rule) {
+        foreach ($scopeConfig->getRules() as $rule) {
             $ruleHandleResult = $this->handleRule($scopeInfo, $rule);
 
             if (false === $ruleHandleResult->isSuccessful()) {
                 return $ruleHandleResult;
             }
-
         }
-
-        /*if (true === $scopeConfig->isExactMatchRequired()) {
-            // todo Implement
-        }*/
 
         return $this->resultFactory->createSuccessful();
     }

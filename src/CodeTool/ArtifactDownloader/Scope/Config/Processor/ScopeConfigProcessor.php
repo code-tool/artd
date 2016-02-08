@@ -110,6 +110,48 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
     }
 
     /**
+     * @param ScopeInfoInterface   $scopeInfo
+     * @param ScopeConfigInterface $scopeConfig
+     *
+     * @return \CodeTool\ArtifactDownloader\Result\ResultInterface
+     */
+    private function handleRules(ScopeInfoInterface $scopeInfo, ScopeConfigInterface $scopeConfig)
+    {
+        foreach ($scopeConfig->getRules() as $rule) {
+            $ruleHandleResult = $this->handleRule($scopeInfo, $rule);
+
+            if (false === $ruleHandleResult->isSuccessful()) {
+                return $ruleHandleResult;
+            }
+        }
+
+        return $this->resultFactory->createSuccessful();
+    }
+
+    /**
+     * @param ScopeInfoInterface   $scopeInfo
+     * @param ScopeConfigInterface $scopeConfig
+     */
+    private function cleanScope(ScopeInfoInterface $scopeInfo, ScopeConfigInterface $scopeConfig)
+    {
+        $collection = $this->commandFactory->createCollection();
+        $this->scopeConfigProcessorPrefixCleaner->buildCollection($collection, $scopeInfo, $scopeConfig);
+
+        if ($collection->count() <= 0) {
+            return;
+        }
+
+        $this->logger->debug(sprintf('Built collection for scope cleanup ->%s%s', PHP_EOL, $collection));
+        $cleanupResult = $collection->execute();
+
+        if ($cleanupResult->isSuccessful()) {
+            return;
+        }
+
+        $this->logger->warning('Error while scope cleanup: %s', $cleanupResult->getError());
+    }
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      *
      * @return \CodeTool\ArtifactDownloader\Result\ResultInterface
@@ -120,15 +162,10 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
 
         $scopeInfo = $this->scopeInfoFactory->makeForConfig($scopeConfig);
 
-        foreach ($scopeConfig->getRules() as $rule) {
-            $ruleHandleResult = $this->handleRule($scopeInfo, $rule);
+        $handleResult = $this->handleRules($scopeInfo, $scopeConfig);
+        $this->cleanScope($scopeInfo, $scopeConfig);
 
-            if (false === $ruleHandleResult->isSuccessful()) {
-                return $ruleHandleResult;
-            }
-        }
-
-        return $this->resultFactory->createSuccessful();
+        return $handleResult;
     }
 
     /**

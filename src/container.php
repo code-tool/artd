@@ -303,12 +303,20 @@ namespace {
     };
 
     //
+    $container['scope.config.processor.prefix_cleaner'] = function (Container $container) {
+        return new Scope\Config\Processor\PrefixCleaner\ScopeConfigProcessorPrefixCleaner(
+            $container['fs.command.factory']
+        );
+    };
+
+    //
     $container['scope.config.processor'] = function (Container $container) {
         return new Scope\Config\Processor\ScopeConfigProcessor(
             $container['logger'],
             $container['result.factory'],
             $container['command.factory'],
             $container['scope.info.factory'],
+            $container['scope.config.processor.prefix_cleaner'],
             [
                 $container['scope.config.processor.rule.symlink'],
                 $container['scope.config.processor.rule.dir'],

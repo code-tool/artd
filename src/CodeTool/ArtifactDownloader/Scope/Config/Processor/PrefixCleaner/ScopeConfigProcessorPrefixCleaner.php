@@ -2,42 +2,24 @@
 
 namespace CodeTool\ArtifactDownloader\Scope\Config\Processor\PrefixCleaner;
 
-use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
+use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Fs\Command\Factory\FsCommandFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
-use CodeTool\ArtifactDownloader\Scope\Info\Factory\ScopeInfoFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 
 class ScopeConfigProcessorPrefixCleaner
 {
-    /**
-     * @var ScopeInfoFactoryInterface
-     */
-    private $scopeInfoFactory;
-
-    /**
-     * @var CommandFactoryInterface
-     */
-    private $commandFactory;
-
     /**
      * @var FsCommandFactoryInterface
      */
     private $fsCommandFactory;
 
     /**
-     * @param ScopeInfoFactoryInterface $scopeInfoFactory
-     * @param CommandFactoryInterface   $commandFactory
      * @param FsCommandFactoryInterface $fsCommandFactory
      */
-    public function __construct(
-        ScopeInfoFactoryInterface $scopeInfoFactory,
-        CommandFactoryInterface $commandFactory,
-        FsCommandFactoryInterface $fsCommandFactory
-    ) {
-        $this->scopeInfoFactory = $scopeInfoFactory;
-        $this->commandFactory = $commandFactory;
+    public function __construct(FsCommandFactoryInterface $fsCommandFactory)
+    {
         $this->fsCommandFactory = $fsCommandFactory;
     }
 
@@ -65,7 +47,7 @@ class ScopeConfigProcessorPrefixCleaner
      * @param ScopeInfoInterface $scopeInfo
      * @param string             $prefix
      *
-     * @return string
+     * @return string|false
      */
     private function getNearestPathForPrefix(ScopeInfoInterface $scopeInfo, $prefix)
     {
@@ -79,43 +61,56 @@ class ScopeConfigProcessorPrefixCleaner
             return $scopeInfo->getAbsPathByForTarget('');
         }
 
-        return $scopeInfo->getAbsPathByForTarget(substr($prefix, 0, $separatorRPos));
+        $result = $scopeInfo->getAbsPathByForTarget(substr($prefix, 0, $separatorRPos));
+
+        if (false === is_dir($result)) {
+            return false;
+        }
+
+        return $result;
     }
 
     /**
-     * @param ScopeInfoInterface $scopeInfo
-     * @param string             $prefix
-     *
-     * @return \DirectoryIterator
+     * @param CommandCollectionInterface $collection
+     * @param ScopeInfoInterface         $scopeInfo
+     * @param ScopeConfigInterface       $scopeConfig
      */
-    private function getDirectoryIteratorForPrefix(ScopeInfoInterface $scopeInfo, $prefix)
-    {
-        return new \DirectoryIterator($this->getNearestPathForPrefix($scopeInfo, $prefix));
-    }
+    public function buildCollection(
+        CommandCollectionInterface $collection,
+        ScopeInfoInterface $scopeInfo,
+        ScopeConfigInterface $scopeConfig
+    ) {
+        if (null === $scopeConfig->getCleanupPrefix()) {
+            return;
+        }
 
-    public function clean(ScopeConfigInterface $scopeConfig)
-    {
-        $prefix = 'release';
-        $scopeInfo = $this->scopeInfoFactory->makeForConfig($scopeConfig);
+        if (false === $nearestPath = $this->getNearestPathForPrefix($scopeInfo, $scopeConfig->getCleanupPrefix())) {
+            return;
+        }
 
-        $collection = $this->commandFactory->createCollection();
-        $directoryIterator = $this->getDirectoryIteratorForPrefix($scopeInfo, $prefix);
-        $mentionedTargets = $this->buildScopePaths($scopeInfo, $scopeConfig->getScopeRules());
+        $absPathWithPrefix = $scopeInfo->getAbsPathByForTarget($scopeConfig->getCleanupPrefix());
+        $mentionedTargets = $this->buildScopePaths($scopeInfo, $scopeConfig->getRules());
 
-        foreach ($directoryIterator as $fileInfo) {
+        foreach (new \DirectoryIterator($nearestPath) as $fileInfo) {
             if ($fileInfo->isDot()) {
                 continue;
             }
 
+            $filePathname = $fileInfo->getPathname();
+
+            if (0 !== strpos($filePathname, $absPathWithPrefix)) {
+                // Skip path that dose not match to prefix
+                continue;
+            }
+
             foreach ($mentionedTargets as $mentionedTarget) {
-                if (strpos($mentionedTarget, $fileInfo->getPathname()) === 0) {
+                if (strpos($mentionedTarget, $filePathname) === 0) {
+                    // Skip path that mentioned in config
                     continue 2;
                 }
             }
 
-            $collection->add($this->fsCommandFactory->createRmCommand($fileInfo->getPathname()));
+            $collection->add($this->fsCommandFactory->createRmCommand($filePathname));
         }
-
-        echo $collection;
     }
 }

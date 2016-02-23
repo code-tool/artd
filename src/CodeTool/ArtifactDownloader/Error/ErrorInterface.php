@@ -17,4 +17,9 @@ interface ErrorInterface
      * @return ErrorInterface|null
      */
     public function getPrevError();
+
+    /**
+     * @return string
+     */
+    public function __toString();
 }

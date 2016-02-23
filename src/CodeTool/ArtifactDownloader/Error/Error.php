@@ -54,4 +54,12 @@ class Error implements ErrorInterface
     {
         return $this->prevError;
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getMessage();
+    }
 }

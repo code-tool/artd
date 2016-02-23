@@ -148,7 +148,7 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
             return;
         }
 
-        $this->logger->warning('Error while scope cleanup: %s', $cleanupResult->getError()->getMessage());
+        $this->logger->warning(sprintf('Error while scope cleanup: %s', $cleanupResult->getError()->getMessage()));
     }
 
     /**

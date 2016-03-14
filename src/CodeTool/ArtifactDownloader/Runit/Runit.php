@@ -3,6 +3,7 @@
 namespace CodeTool\ArtifactDownloader\Runit;
 
 use CodeTool\ArtifactDownloader\CmdRunner\CmdRunnerInterface;
+use CodeTool\ArtifactDownloader\CmdRunner\Result\CmdRunnerResultInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
@@ -48,12 +49,12 @@ class Runit implements RunitInterface
      */
     private function getSvPath()
     {
-        if (null === $this->svPath) {
-            $this->svPath = $this->basicUtil->getBinPath('sv');
+        if (null !== $this->svPath) {
+            return $this->svPath;
+        }
 
-            if (null === $this->svPath) {
-                throw new \RuntimeException(sprintf('Can\'t find sv binary. Does runit installed?'));
-            }
+        if (null === ($this->svPath = $this->basicUtil->getBinPath('sv'))) {
+            throw new \RuntimeException(sprintf('Can\'t find sv binary. Does runit installed?'));
         }
 
         return $this->svPath;
@@ -83,6 +84,21 @@ class Runit implements RunitInterface
     }
 
     /**
+     * @param CmdRunnerResultInterface $runResult
+     *
+     * @return \CodeTool\ArtifactDownloader\Result\ResultInterface
+     */
+    private function createErrorFromRunResult(CmdRunnerResultInterface $runResult)
+    {
+        $message = $runResult->getStdErr();
+        if ('' !== $message || null === $message) {
+            $message = $runResult->getStdOut();
+        }
+
+        return $this->resultFactory->createError($message);
+    }
+
+    /**
      * @param string $name
      * @param string $command
      * @param string $expectedStatus
@@ -99,7 +115,7 @@ class Runit implements RunitInterface
             return $this->resultFactory->createSuccessful();
         }
 
-        return $this->resultFactory->createError($runResult->getStdOut());
+        return $this->createErrorFromRunResult($runResult);
     }
 
     /**
@@ -112,7 +128,7 @@ class Runit implements RunitInterface
     {
         $runResult = $this->execSvCommand($name, 'status');
         if (0 !== $runResult->getExitCode()) {
-            return $this->resultFactory->createError($runResult->getStdOut());
+            return $this->createErrorFromRunResult($runResult);
         }
         $initialStatus = $this->getStrBeforeSymbol($runResult->getStdOut());
 

@@ -2,16 +2,17 @@
 
 namespace CodeTool\ArtifactDownloader\Fs\Command\Factory;
 
-use CodeTool\ArtifactDownloader\Fs\Command\FsCommandPermissions;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChgrp;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChmod;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChown;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandCp;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandMkDir;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandMv;
+use CodeTool\ArtifactDownloader\Fs\Command\FsCommandPermissions;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandRename;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandRm;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandSymlink;
+use CodeTool\ArtifactDownloader\Fs\Command\FsCommandWriteFile;
 
 interface FsCommandFactoryInterface
 {
@@ -94,4 +95,12 @@ interface FsCommandFactoryInterface
      * @return FsCommandPermissions
      */
     public function createPermissionsCommandFromStr($path, $permissions);
+
+    /**
+     * @param string $path
+     * @param string $content
+     *
+     * @return FsCommandWriteFile
+     */
+    public function createWriteFileCommand($path, $content);
 }

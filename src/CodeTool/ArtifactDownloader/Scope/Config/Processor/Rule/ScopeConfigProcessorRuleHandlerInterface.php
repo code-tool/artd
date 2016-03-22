@@ -7,7 +7,7 @@ use CodeTool\ArtifactDownloader\Result\ResultInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 
-interface ScopeConfigProcessorRuleTypeHandlerInterface
+interface ScopeConfigProcessorRuleHandlerInterface
 {
     /**
      * @return string[]

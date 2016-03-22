@@ -6,7 +6,7 @@ use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
 use CodeTool\ArtifactDownloader\Config\ConfigInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\Processor\PrefixCleaner\ScopeConfigProcessorPrefixCleaner;
-use CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeHandlerInterface;
+use CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule\ScopeConfigProcessorRuleHandlerInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\Factory\ScopeInfoFactoryInterface;
@@ -38,17 +38,17 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
     private $scopeConfigProcessorPrefixCleaner;
 
     /**
-     * @var Rule\ScopeConfigProcessorRuleTypeHandlerInterface[]
+     * @var Rule\ScopeConfigProcessorRuleHandlerInterface[]
      */
     private $typeHandlers;
 
     /**
-     * @param LoggerInterface                                $logger
-     * @param ResultFactoryInterface                         $resultFactory
-     * @param CommandFactoryInterface                        $commandFactory
-     * @param ScopeInfoFactoryInterface                      $scopeInfoFactory
-     * @param ScopeConfigProcessorPrefixCleaner              $scopeConfigProcessorPrefixCleaner
-     * @param ScopeConfigProcessorRuleTypeHandlerInterface[] $typeHandlers
+     * @param LoggerInterface                            $logger
+     * @param ResultFactoryInterface                     $resultFactory
+     * @param CommandFactoryInterface                    $commandFactory
+     * @param ScopeInfoFactoryInterface                  $scopeInfoFactory
+     * @param ScopeConfigProcessorPrefixCleaner          $scopeConfigProcessorPrefixCleaner
+     * @param ScopeConfigProcessorRuleHandlerInterface[] $typeHandlers
      */
     public function __construct(
         LoggerInterface $logger,
@@ -70,7 +70,7 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
     /**
      * @param ScopeConfigRuleInterface $rule
      *
-     * @return ScopeConfigProcessorRuleTypeHandlerInterface|null
+     * @return ScopeConfigProcessorRuleHandlerInterface|null
      */
     private function getHandlerForRule(ScopeConfigRuleInterface $rule)
     {

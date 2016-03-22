@@ -8,7 +8,7 @@ use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 
-class ScopeConfigProcessorRuleTypeExecHandler implements ScopeConfigProcessorRuleTypeHandlerInterface
+class ScopeConfigProcessorRuleExecHandler implements ScopeConfigProcessorRuleHandlerInterface
 {
     /**
      * @var ResultFactoryInterface

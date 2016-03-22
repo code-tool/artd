@@ -9,7 +9,7 @@ use CodeTool\ArtifactDownloader\Result\ResultInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 
-class ScopeConfigProcessorRuleTypeFcgiRequestHandler implements ScopeConfigProcessorRuleTypeHandlerInterface
+class ScopeConfigProcessorRuleFcgiRequestHandler implements ScopeConfigProcessorRuleHandlerInterface
 {
     /**
      * @var ResultFactoryInterface

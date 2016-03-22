@@ -8,7 +8,7 @@ use CodeTool\ArtifactDownloader\Runit\Command\Factory\RunitCommandFactoryInterfa
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 
-class ScopeConfigProcessorRuleTypeRunitHandler implements ScopeConfigProcessorRuleTypeHandlerInterface
+class ScopeConfigProcessorRuleRunitHandler implements ScopeConfigProcessorRuleHandlerInterface
 {
     /**
      * @var ResultFactoryInterface

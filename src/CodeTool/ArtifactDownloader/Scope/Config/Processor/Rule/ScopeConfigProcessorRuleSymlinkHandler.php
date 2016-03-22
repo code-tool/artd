@@ -9,7 +9,7 @@ use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
-class ScopeConfigProcessorRuleTypeSymlinkHandler implements ScopeConfigProcessorRuleTypeHandlerInterface
+class ScopeConfigProcessorRuleSymlinkHandler implements ScopeConfigProcessorRuleHandlerInterface
 {
     /**
      * @var BasicUtil

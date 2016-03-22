@@ -12,7 +12,7 @@ use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
-class ScopeConfigProcessorRuleTypeDirHandler implements ScopeConfigProcessorRuleTypeHandlerInterface
+class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHandlerInterface
 {
     /**
      * @var BasicUtil

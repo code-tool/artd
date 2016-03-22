@@ -268,7 +268,7 @@ namespace {
     };
 
     $container['scope.config.processor.rule.symlink'] = function (Container $container) {
-        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeSymlinkHandler(
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleSymlinkHandler(
             $container['util.basic_util'],
             $container['result.factory'],
             $container['fs.command.factory']
@@ -276,7 +276,7 @@ namespace {
     };
 
     $container['scope.config.processor.rule.dir'] = function (Container $container) {
-        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeDirHandler(
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleDirHandler(
             $container['util.basic_util'],
             $container['result.factory'],
             $container['command.factory'],
@@ -285,21 +285,21 @@ namespace {
     };
 
     $container['scope.config.processor.rule.fcgi_request'] = function (Container $container) {
-        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeFcgiRequestHandler(
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleFcgiRequestHandler(
             $container['result.factory'],
             $container['fcgi_client.command.factory']
         );
     };
 
     $container['scope.config.processor.rule.runit'] = function (Container $container) {
-        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeRunitHandler(
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleRunitHandler(
             $container['result.factory'],
             $container['runit.command.factory']
         );
     };
 
     $container['scope.config.processor.rule.exec'] = function (Container $container) {
-        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleTypeExecHandler(
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleExecHandler(
             $container['result.factory'],
             $container['cmd_runner.command.factory']
         );

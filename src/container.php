@@ -305,6 +305,16 @@ namespace {
         );
     };
 
+    $container['scope.config.processor.rule.fpm_opcache_flush'] = function (Container $container) {
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleFpmOpcahceFlushHandler(
+            $container['result.factory'],
+            $container['fs.command.factory'],
+            $container['fcgi_client.command.factory'],
+            $container['util.basic_util'],
+            $container['resource_dir']
+        );
+    };
+
     //
     $container['scope.config.processor.prefix_cleaner'] = function (Container $container) {
         return new Scope\Config\Processor\PrefixCleaner\ScopeConfigProcessorPrefixCleaner(

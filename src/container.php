@@ -27,6 +27,9 @@ namespace {
 
     $container = new Container();
 
+    $container['base_dir'] = __DIR__ . '/..';
+    $container['resource_dir'] = $container['base_dir'] . '/resource';
+
     //
     $container['unit_config'] = function () {
         return new UnitConfig\UnitConfig();

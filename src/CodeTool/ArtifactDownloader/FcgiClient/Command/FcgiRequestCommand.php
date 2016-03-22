@@ -5,7 +5,7 @@ namespace CodeTool\ArtifactDownloader\FcgiClient\Command;
 use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\FcgiClient\FcgiClientInterface;
 
-class FcgiCommandRequest implements CommandInterface
+class FcgiRequestCommand implements CommandInterface
 {
     /**
      * @var FcgiClientInterface

@@ -2,7 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader\FcgiClient\Command\Factory;
 
-use CodeTool\ArtifactDownloader\FcgiClient\Command\FcgiCommandRequest;
+use CodeTool\ArtifactDownloader\FcgiClient\Command\FcgiRequestCommand;
 
 interface FcgiCommandFactoryInterface
 {
@@ -11,7 +11,7 @@ interface FcgiCommandFactoryInterface
      * @param string[] $headers
      * @param string   $stdin
      *
-     * @return FcgiCommandRequest
+     * @return FcgiRequestCommand
      */
     public function createFcgiRequestCommand($socketPath, array $headers, $stdin);
 }

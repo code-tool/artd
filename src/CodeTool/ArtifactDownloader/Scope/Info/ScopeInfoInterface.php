@@ -5,6 +5,11 @@ namespace CodeTool\ArtifactDownloader\Scope\Info;
 interface ScopeInfoInterface
 {
     /**
+     * @return string
+     */
+    public function getPath();
+
+    /**
      * @return bool
      */
     public function isScopeExists();

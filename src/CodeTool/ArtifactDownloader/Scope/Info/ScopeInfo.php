@@ -20,6 +20,14 @@ class ScopeInfo implements ScopeInfoInterface
     }
 
     /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->scopeConfig->getPath();
+    }
+
+    /**
      * @return bool
      */
     public function isScopeExists()

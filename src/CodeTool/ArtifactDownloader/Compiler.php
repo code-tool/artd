@@ -213,7 +213,7 @@ EOF;
         // add warning once the phar is older than 60 days
         if (preg_match('{^[a-f0-9]+$}', $this->getVersion())) {
             $warningTime = ((int) $this->getVersionDate()->format('U')) + 60 * 86400;
-            $stub .= "define('COMPOSER_DEV_WARNING_TIME', $warningTime);\n";
+            $stub .= "define('ARTD_DEV_WARNING_TIME', $warningTime);\n";
         }
 
         return $stub . <<<'EOF'
@@ -265,6 +265,9 @@ EOF;
             $this->addFile($phar, new \SplFileInfo($this->getRootDir() . '/vendor/composer/include_paths.php'));
         }
         $this->addFile($phar, new \SplFileInfo($this->getRootDir() . '/vendor/composer/ClassLoader.php'));
+
+        // Resource
+        $this->addFile($phar, new \SplFileInfo($this->getRootDir() . '/resource/opcache_flush.php'));
 
         $this->addToolBinBin($phar);
 

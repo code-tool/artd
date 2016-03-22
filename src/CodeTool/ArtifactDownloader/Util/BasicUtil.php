@@ -4,6 +4,10 @@ namespace CodeTool\ArtifactDownloader\Util;
 
 class BasicUtil
 {
+    const TMP_NAME_DEFAULT_PREFIX = 'artd-';
+
+    const TMP_NAME_DEFAULT_POSTFIX = '';
+
     /**
      * @param string $binName
      *
@@ -40,17 +44,20 @@ class BasicUtil
         return $str;
     }
 
-    public function getTmpName()
+    public function getTmpName($prefix = self::TMP_NAME_DEFAULT_PREFIX, $postfix = self::TMP_NAME_DEFAULT_POSTFIX)
     {
-        return 'artifact-downloader-' . posix_getpid() . '-' . $this->getRandomStr(5);
+        return $prefix . posix_getpid() . '-' . $this->getRandomStr(5) . $postfix;
     }
 
     /**
+     * @param string $prefix
+     * @param string $postfix
+     *
      * @return string
      */
-    public function getTmpPath()
+    public function getTmpPath($prefix = self::TMP_NAME_DEFAULT_PREFIX, $postfix = self::TMP_NAME_DEFAULT_POSTFIX)
     {
-        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . $this->getTmpName();
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . $this->getTmpName($prefix, $postfix);
     }
 
     /**

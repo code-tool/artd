@@ -306,7 +306,7 @@ namespace {
     };
 
     $container['scope.config.processor.rule.fpm_opcache_flush'] = function (Container $container) {
-        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleFpmOpcahceFlushHandler(
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleFpmOpcacheFlushHandler(
             $container['result.factory'],
             $container['fs.command.factory'],
             $container['fcgi_client.command.factory'],
@@ -335,7 +335,8 @@ namespace {
                 $container['scope.config.processor.rule.dir'],
                 $container['scope.config.processor.rule.fcgi_request'],
                 $container['scope.config.processor.rule.runit'],
-                $container['scope.config.processor.rule.exec']
+                $container['scope.config.processor.rule.exec'],
+                $container['scope.config.processor.rule.fpm_opcache_flush']
             ]
         );
     };

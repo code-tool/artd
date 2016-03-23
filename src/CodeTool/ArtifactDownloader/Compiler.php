@@ -249,6 +249,7 @@ EOF;
             ->exclude('docs')
             ->in($this->getRootDir() . '/vendor/psr/')
             ->in($this->getRootDir() . '/vendor/fool/')
+            ->in($this->getRootDir() . '/vendor/adoy/')
             ->in($this->getRootDir() . '/vendor/pimple/');
 
         foreach ($finder as $file) {

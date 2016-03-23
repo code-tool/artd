@@ -11,7 +11,7 @@ use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
-class ScopeConfigProcessorRuleFpmOpcahceFlushHandler implements ScopeConfigProcessorRuleHandlerInterface
+class ScopeConfigProcessorRuleFpmOpcacheFlushHandler implements ScopeConfigProcessorRuleHandlerInterface
 {
     /**
      * @var ResultFactoryInterface

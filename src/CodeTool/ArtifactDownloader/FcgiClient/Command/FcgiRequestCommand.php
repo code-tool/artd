@@ -47,7 +47,7 @@ class FcgiRequestCommand implements CommandInterface
      */
     public function execute()
     {
-        return $this->fcgiClient->makeRequest($this->fcgiClient, $this->headers, $this->stdin);
+        return $this->fcgiClient->makeRequest($this->socketPath, $this->headers, $this->stdin);
     }
 
     /**

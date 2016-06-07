@@ -3,6 +3,8 @@ namespace CodeTool\ArtifactDownloader\EtcdClient;
 
 interface EtcdClientInterface
 {
+    const ERROR_CODE_EVENT_INDEX_CLEARED = 401;
+
     /**
      * Set the value of a key
      *

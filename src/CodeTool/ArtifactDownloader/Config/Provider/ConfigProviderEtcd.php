@@ -5,7 +5,9 @@ namespace CodeTool\ArtifactDownloader\Config\Provider;
 use CodeTool\ArtifactDownloader\Config\Factory\ConfigFactoryInterface;
 use CodeTool\ArtifactDownloader\Config\Provider\Result\Factory\ConfigProviderResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Error\Factory\ErrorFactoryInterface;
+use CodeTool\ArtifactDownloader\EtcdClient\EtcdClient;
 use CodeTool\ArtifactDownloader\EtcdClient\EtcdClientInterface;
+use CodeTool\ArtifactDownloader\EtcdClient\Result\EtcdClientResultInterface;
 
 class ConfigProviderEtcd extends ConfigProviderAbstract
 {
@@ -33,6 +35,23 @@ class ConfigProviderEtcd extends ConfigProviderAbstract
     }
 
     /**
+     * @param EtcdClientResultInterface $etcdClientResult
+     *
+     * @return Result\ConfigProviderResultInterface
+     */
+    private function etcdClientResultToProviderResult(EtcdClientResultInterface $etcdClientResult)
+    {
+        if (false === $etcdClientResult->isSuccessful()) {
+            return $this->getConfigProviderResultFactory()->createError($etcdClientResult->getError());
+        }
+
+        return $this->createResult(
+            $etcdClientResult->getResponse()->getNode()->getModifiedIndex(),
+            $etcdClientResult->getResponse()->getNode()->getValue()
+        );
+    }
+
+    /**
      * @param int $revision
      *
      * @return Result\ConfigProviderResultInterface
@@ -40,18 +59,18 @@ class ConfigProviderEtcd extends ConfigProviderAbstract
     public function getConfigAfterRevision($revision)
     {
         if (null === $revision) {
-            $result = $this->etcdClient->get($this->path);
+            $etcdClientResult = $this->etcdClient->get($this->path);
         } else {
-            $result = $this->etcdClient->watch($this->path, $revision + 1);
+            $etcdClientResult = $this->etcdClient->watch($this->path, $revision + 1);
         }
 
-        if (false === $result->isSuccessful()) {
-            return $this->getConfigProviderResultFactory()->createError($result->getError());
+        if (false === $etcdClientResult->isSuccessful() &&
+            null !== $etcdClientResult->getError()->getDetails() &&
+            EtcdClient::ERROR_CODE_EVENT_INDEX_CLEARED === $etcdClientResult->getError()->getDetails()->getErrorCode()
+        ) {
+            $etcdClientResult = $this->etcdClient->get($this->path);
         }
 
-        return $this->createResult(
-            $result->getResponse()->getNode()->getModifiedIndex(),
-            $result->getResponse()->getNode()->getValue()
-        );
+        return $this->etcdClientResultToProviderResult($etcdClientResult);
     }
 }

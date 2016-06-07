@@ -5,7 +5,6 @@ namespace CodeTool\ArtifactDownloader\Config\Provider;
 use CodeTool\ArtifactDownloader\Config\Factory\ConfigFactoryInterface;
 use CodeTool\ArtifactDownloader\Config\Provider\Result\Factory\ConfigProviderResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Error\Factory\ErrorFactoryInterface;
-use CodeTool\ArtifactDownloader\EtcdClient\EtcdClient;
 use CodeTool\ArtifactDownloader\EtcdClient\EtcdClientInterface;
 use CodeTool\ArtifactDownloader\EtcdClient\Result\EtcdClientResultInterface;
 
@@ -66,7 +65,8 @@ class ConfigProviderEtcd extends ConfigProviderAbstract
 
         if (false === $etcdClientResult->isSuccessful() &&
             null !== $etcdClientResult->getError()->getDetails() &&
-            EtcdClient::ERROR_CODE_EVENT_INDEX_CLEARED === $etcdClientResult->getError()->getDetails()->getErrorCode()
+            EtcdClientInterface::ERROR_CODE_EVENT_INDEX_CLEARED ===
+                $etcdClientResult->getError()->getDetails()->getErrorCode()
         ) {
             $etcdClientResult = $this->etcdClient->get($this->path);
         }

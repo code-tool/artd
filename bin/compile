@@ -36,3 +36,5 @@ try {
 
     exit(1);
 }
+
+shell_exec('composer install -q');

@@ -101,7 +101,5 @@ class ConfigProviderEtcd extends ConfigProviderAbstract
 
             $revision = $xEtcdIndex;
         } while (true);
-
-        return $this->etcdClientResultToProviderResult($etcdClientResult);
     }
 }

@@ -265,6 +265,11 @@ EOF;
         if (file_exists($this->getRootDir() . '/vendor/composer/include_paths.php')) {
             $this->addFile($phar, new \SplFileInfo($this->getRootDir() . '/vendor/composer/include_paths.php'));
         }
+
+        if (file_exists($this->getRootDir() . '/vendor/composer/autoload_static.php')) {
+            $this->addFile($phar, new \SplFileInfo($this->getRootDir() . '/vendor/composer/autoload_static.php'));
+        }
+
         $this->addFile($phar, new \SplFileInfo($this->getRootDir() . '/vendor/composer/ClassLoader.php'));
 
         // Resource

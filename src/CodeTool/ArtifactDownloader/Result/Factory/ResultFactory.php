@@ -35,6 +35,13 @@ class ResultFactory implements ResultFactoryInterface
         return $this->create(null);
     }
 
+    /**
+     * @param string              $message
+     * @param null                $context
+     * @param ErrorInterface|null $prevError
+     *
+     * @return ResultInterface
+     */
     public function createError($message, $context = null, ErrorInterface $prevError = null)
     {
         return $this->create($this->errorFactory->create($message, $context, $prevError));
@@ -45,7 +52,7 @@ class ResultFactory implements ResultFactoryInterface
      * @param null                $context
      * @param ErrorInterface|null $prevError
      *
-     * @return ErrorInterface
+     * @return ResultInterface
      */
     public function createErrorFromGetLast($prefix, $context = null, ErrorInterface $prevError = null)
     {
@@ -57,7 +64,7 @@ class ResultFactory implements ResultFactoryInterface
      * @param null                $context
      * @param ErrorInterface|null $prevError
      *
-     * @return ErrorInterface
+     * @return Result|ResultInterface
      */
     public function createErrorFromException(\Exception $exception, $context = null, ErrorInterface $prevError = null)
     {

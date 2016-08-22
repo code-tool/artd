@@ -85,7 +85,7 @@ class ArtifactDownloader
      *
      * @return bool
      */
-    private function handleEtcdClientResult(ConfigProviderResultInterface $configProviderResult)
+    private function handleConfigProviderResult(ConfigProviderResultInterface $configProviderResult)
     {
         if (null !== $configProviderResult->getError()) {
             $this->logErrorAndPushToUnitStatus(sprintf(
@@ -171,7 +171,7 @@ class ArtifactDownloader
                 ->flush();
 
             $result = $this->configProvider->getConfigAfterRevision($this->lastConfigRevision);
-            $handleResult = $this->handleEtcdClientResult($result);
+            $handleResult = $this->handleConfigProviderResult($result);
             if ($infinity) {
                 $this->sleepOnError($handleResult);
             }

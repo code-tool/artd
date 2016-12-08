@@ -173,7 +173,7 @@ class HttpClient implements HttpClientInterface
     {
         $ch = $this->getNewCurlHandle($url);
 
-        if (false === ($targetFileHandle = @fopen($target, 'wb+'))) {
+        if (false === ($targetFileHandle = @fopen($target, 'w+b'))) {
             return $this->httpClientResultFactory->createError(sprintf('Can\'t open file "%s" for writing.', $target));
         }
 

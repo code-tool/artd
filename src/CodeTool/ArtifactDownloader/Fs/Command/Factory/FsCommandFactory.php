@@ -2,6 +2,8 @@
 
 namespace CodeTool\ArtifactDownloader\Fs\Command\Factory;
 
+use CodeTool\ArtifactDownloader\Fs\Command\FsCommandAssertIsDir;
+use CodeTool\ArtifactDownloader\Fs\Command\FsCommandAssertIsFile;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChgrp;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChmod;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandChown;
@@ -186,5 +188,25 @@ class FsCommandFactory implements FsCommandFactoryInterface
     public function createWriteFileCommand($path, $content)
     {
         return new FsCommandWriteFile($this->resultFactory, $path, $content);
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return FsCommandAssertIsFile
+     */
+    public function createAssertIsFile($path)
+    {
+        return new FsCommandAssertIsFile($this->resultFactory, $path);
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return FsCommandAssertIsDir
+     */
+    public function createAssertIsDir($path)
+    {
+        return new FsCommandAssertIsDir($this->resultFactory, $path);
     }
 }

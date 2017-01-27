@@ -146,6 +146,7 @@ class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHand
                 $unarchivePath,
                 $do->get('archive_format')
             ))
+            ->add($this->fsCommandFactory->createAssertIsDir($unarchivePath))
             ->add($this->fsCommandFactory->createRmCommand($downloadPath));
 
         return $unarchivePath;

@@ -1,8 +1,10 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\DirectoryComparator;
+namespace CodeTool\ArtifactDownloader\Comparator\Directory;
 
-class DirectoryComparatorSimple implements DirectoryComparatorInterface
+use CodeTool\ArtifactDownloader\Comparator\AbstractComparatorSimple;
+
+class DirectoryComparatorSimple extends AbstractComparatorSimple implements DirectoryComparatorInterface
 {
     /**
      * @param string $path
@@ -30,25 +32,6 @@ class DirectoryComparatorSimple implements DirectoryComparatorInterface
     private function getTargetPathBySourcePath($source, $target, $filePath)
     {
         return str_replace($source, $target, $filePath);
-    }
-
-    /**
-     * @param \SplFileInfo $fileInfo1
-     * @param \SplFileInfo $fileInfo2
-     *
-     * @return bool
-     */
-    private function isFilesEqual(\SplFileInfo $fileInfo1, \SplFileInfo $fileInfo2)
-    {
-        if (false === $fileInfo1->isReadable() || false === $fileInfo2->isReadable()) {
-            return false;
-        }
-
-        if ($fileInfo1->getSize() !== $fileInfo2->getSize()) {
-            return false;
-        }
-
-        return $fileInfo1->getMTime() === $fileInfo2->getMTime();
     }
 
     /**

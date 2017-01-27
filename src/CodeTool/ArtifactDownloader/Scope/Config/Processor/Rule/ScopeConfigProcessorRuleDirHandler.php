@@ -12,27 +12,14 @@ use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
 use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 use CodeTool\ArtifactDownloader\Util\BasicUtil;
 
-class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHandlerInterface
+class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRuleHandler implements
+    ScopeConfigProcessorRuleHandlerInterface
 {
-    /**
-     * @var BasicUtil
-     */
-    private $basicUtil;
-
     /**
      * @var ResultFactoryInterface
      */
     private $resultFactory;
 
-    /**
-     * @var CommandFactoryInterface
-     */
-    private $commandFactory;
-
-    /**
-     * @var FsCommandFactoryInterface
-     */
-    private $fsCommandFactory;
 
     /**
      * @param BasicUtil                 $basicUtil
@@ -46,10 +33,9 @@ class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHand
         CommandFactoryInterface $commandFactory,
         FsCommandFactoryInterface $fsCommandFactory
     ) {
-        $this->basicUtil = $basicUtil;
         $this->resultFactory = $resultFactory;
-        $this->commandFactory = $commandFactory;
-        $this->fsCommandFactory = $fsCommandFactory;
+
+        parent::__construct($basicUtil, $commandFactory, $fsCommandFactory);
     }
 
     /**
@@ -57,7 +43,7 @@ class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHand
      */
     public function getSupportedTypes()
     {
-        return ['dir'];
+        return [self::CONFIG_RULE_DIR];
     }
 
     /**
@@ -67,52 +53,38 @@ class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHand
      */
     private function addGMOCommands(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
     {
-        if ($do->has('group')) {
-            $collection->add($this->fsCommandFactory->createChgrpCommand($target, $do->get('group')));
+        $fsCommand = $this->getFsCommandFactory();
+
+        if ($do->has(self::CONFIG_RULE_GROUP)) {
+            $collection->add($fsCommand->createChgrpCommand($target, $do->get(self::CONFIG_RULE_GROUP)));
         }
 
-        if ($do->has('owner')) {
-            $collection->add($this->fsCommandFactory->createChownCommand($target, $do->get('owner')));
+        if ($do->has(self::CONFIG_RULE_OWNER)) {
+            $collection->add($fsCommand->createChownCommand($target, $do->get(self::CONFIG_RULE_OWNER)));
         }
 
-        if ($do->has('mode')) {
-            $collection->add($this->fsCommandFactory->createChmodCommand($target, $do->get('mode')));
+        if ($do->has(self::CONFIG_RULE_MODE)) {
+            $collection->add($fsCommand->createChmodCommand($target, $do->get(self::CONFIG_RULE_MODE)));
         }
-    }
-
-    private function addPermissionsCommand(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
-    {
-        if (false === $do->has('permissions')) {
-            return;
-        }
-
-        $collection->add($this->fsCommandFactory->createPermissionsCommandFromStr($target, $do->get('permissions')));
     }
 
     /**
-     * Move to separate class ?
-     *
      * @param CommandCollectionInterface $collection
      * @param string                     $target
      * @param DomainObjectInterface      $do
-     *
-     * @return bool
      */
-    private function addHashCheck(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
+    private function addPermissionsCommand(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
     {
-        if (null === ($hash = $do->getOrDefault('hash', null))) {
-            return false;
+        if (false === $do->has(self::CONFIG_RULE_PERMISSIONS)) {
+            return;
         }
 
-        $algorithm = CommandCheckFileSignature::DEFAULT_ALGORITHM;
-        if (false !== ($delimiterPos = strpos($hash, ':'))) {
-            $algorithm = substr($hash, 0, $delimiterPos);
-            $hash = substr($hash, $delimiterPos + 1);
-        }
-
-        $collection->add($this->commandFactory->createCheckFileSignatureCommand($target, $hash, $algorithm));
-
-        return true;
+        $collection->add($this->getFsCommandFactory()
+            ->createPermissionsCommandFromStr(
+                $target,
+                $do->get(self::CONFIG_RULE_PERMISSIONS)
+            )
+        );
     }
 
     /**
@@ -129,25 +101,29 @@ class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHand
         $target,
         DomainObjectInterface $do
     ) {
+        $basicUtil = $this->getBasicUtil();
+        $commandFactory = $this->getCommandFactory();
+        $fsCommandFactory = $this->getFsCommandFactory();
+
         // download file
-        $downloadPath = $this->basicUtil->getTmpPath();
-        $collection->add($this->commandFactory->createDownloadFileCommand($source, $downloadPath));
+        $downloadPath = $basicUtil->getTmpPath();
+        $collection->add($commandFactory->createDownloadFileCommand($source, $downloadPath));
 
         // check hash if needed
         $this->addHashCheck($collection, $downloadPath, $do);
 
-        $unarchivePath = $this->basicUtil->getRelativeTmpPath($target);
+        $unarchivePath = $basicUtil->getRelativeTmpPath($target);
 
         // unarchive
         $collection
-            ->add($this->fsCommandFactory->createMkDirCommand($unarchivePath, 0755, true))
-            ->add($this->commandFactory->createUnarchiveCommand(
+            ->add($fsCommandFactory->createMkDirCommand($unarchivePath, 0755, true))
+            ->add($commandFactory->createUnarchiveCommand(
                 $downloadPath,
                 $unarchivePath,
-                $do->get('archive_format')
+                $do->get(self::CONFIG_RULE_ARCHIVE_FORMAT)
             ))
-            ->add($this->fsCommandFactory->createAssertIsDir($unarchivePath))
-            ->add($this->fsCommandFactory->createRmCommand($downloadPath));
+            ->add($fsCommandFactory->createAssertIsDir($unarchivePath))
+            ->add($fsCommandFactory->createRmCommand($downloadPath));
 
         return $unarchivePath;
     }
@@ -166,32 +142,13 @@ class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHand
     ) {
         $this->addHashCheck($collection, $source, $do);
 
-        if (true === $do->has('archive_format')) {
+        if (true === $do->has(self::CONFIG_RULE_ARCHIVE_FORMAT)) {
             $collection->add(
-                $this->commandFactory->createUnarchiveCommand($source, $target, $do->get('archive_format'))
+                $this->getCommandFactory()->createUnarchiveCommand($source, $target, $do->get(self::CONFIG_RULE_ARCHIVE_FORMAT))
             );
         } else {
-            $collection->add($this->fsCommandFactory->createCpCommand($source, $target));
+            $collection->add($this->getFsCommandFactory()->createCpCommand($source, $target));
         }
-    }
-
-    /**
-     * @param string $sourcePath
-     * @param string $targetPath
-     *
-     * @return CommandCollectionInterface
-     */
-    private function buildSwapOperation($sourcePath, $targetPath)
-    {
-        // todo If source local, do not move, just copy
-        $newTargetPath = $this->basicUtil->getRelativeTmpPath($targetPath);
-        // double move. target to tmp path, after source to target and remove tmp
-        $result = $this->commandFactory->createCollection()
-            ->add($this->fsCommandFactory->createMvCommand($targetPath, $newTargetPath))
-            ->add($this->fsCommandFactory->createMvCommand($sourcePath, $targetPath))
-            ->add($this->fsCommandFactory->createRmCommand($newTargetPath));
-
-        return $result;
     }
 
     /**
@@ -206,15 +163,18 @@ class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHand
         ScopeInfoInterface $scopeInfo,
         ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        $realTarget = $scopeConfigRule->get('target');
+        $basicUtil = $this->getBasicUtil();
+        $commandFactory = $this->getCommandFactory();
+        $fsCommandFactory = $this->getFsCommandFactory();
+        $realTarget = $scopeConfigRule->get(self::CONFIG_RULE_TARGET);
         $realTargetPath = $scopeInfo->getAbsPathByForTarget($realTarget);
         $targetExists = $scopeInfo->isTargetExists($realTarget);
 
         // If no source defined
-        if (false === $scopeConfigRule->has('source')) {
+        if (false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE)) {
             if (false === $targetExists) {
                 // And directory dose not exists. Just create new
-                $collection->add($this->fsCommandFactory->createMkDirCommand($realTargetPath, 0755, true));
+                $collection->add($fsCommandFactory->createMkDirCommand($realTargetPath, 0755, true));
             }
 
             // Fix permissions, if need
@@ -225,8 +185,8 @@ class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHand
         }
 
         // Source defined
-        $source = $scopeConfigRule->get('source');
-        $isSourceLocal = $this->basicUtil->isSourceLocal($source);
+        $source = $scopeConfigRule->get(self::CONFIG_RULE_SOURCE);
+        $isSourceLocal = $basicUtil->isSourceLocal($source);
 
         if (false === $isSourceLocal) {
             // If source remote, download it and get new source path
@@ -241,22 +201,18 @@ class ScopeConfigProcessorRuleDirHandler implements ScopeConfigProcessorRuleHand
 
         if (false === $targetExists) {
             // Now, if target dose not exists, just move
-            $collection->add($this->fsCommandFactory->createMvCommand($source, $realTargetPath));
+            $collection->add($fsCommandFactory->createMvCommand($source, $realTargetPath));
 
             return $this->resultFactory->createSuccessful();
         }
 
-        $successCompareCommand = $isSourceLocal
-            ? $this->commandFactory->createNopCommand()
-            : $this->fsCommandFactory->createRmCommand($source);
-
         // So, if target exists, we should compare directories
         $collection->add(
-            $this->commandFactory->createCompareDirsCommand(
+            $commandFactory->createCompareDirsCommand(
                 $source,
                 $realTargetPath,
                 // if its equals, remove source (only for remote)
-                $successCompareCommand,
+                $this->getCompareCommand($source, $isSourceLocal),
                 // else, swap
                 $this->buildSwapOperation($source, $realTargetPath)
             )

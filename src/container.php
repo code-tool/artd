@@ -6,8 +6,11 @@ namespace {
     use CodeTool\ArtifactDownloader\ArtifactDownloader;
     use CodeTool\ArtifactDownloader\CmdRunner;
     use CodeTool\ArtifactDownloader\Command;
+    use CodeTool\ArtifactDownloader\Comparator\File\FileComparatorNegative;
+    use CodeTool\ArtifactDownloader\Comparator\File\FileComparatorSimple;
     use CodeTool\ArtifactDownloader\Config;
-    use CodeTool\ArtifactDownloader\DirectoryComparator;
+    use CodeTool\ArtifactDownloader\Comparator\Directory\DirectoryComparatorNegative;
+    use CodeTool\ArtifactDownloader\Comparator\Directory\DirectoryComparatorSimple;
     use CodeTool\ArtifactDownloader\DomainObject;
     use CodeTool\ArtifactDownloader\Error;
     use CodeTool\ArtifactDownloader\EtcdClient;
@@ -157,15 +160,27 @@ namespace {
 
     //
     $container['directory_comparator.negative'] = function () {
-        return new DirectoryComparator\DirectoryComparatorNegative();
+        return new DirectoryComparatorNegative();
     };
 
     $container['directory_comparator.simple'] = function () {
-        return new DirectoryComparator\DirectoryComparatorSimple();
+        return new DirectoryComparatorSimple();
     };
 
     $container['directory_comparator'] = function (Container $container) {
         return $container['directory_comparator.simple'];
+    };
+
+    $container['file_comparator.negative'] = function () {
+        return new FileComparatorNegative();
+    };
+
+    $container['file_comparator.simple'] = function () {
+        return new FileComparatorSimple();
+    };
+
+    $container['file_comparator'] = function (Container $container) {
+        return $container['file_comparator.simple'];
     };
 
     //
@@ -175,6 +190,7 @@ namespace {
             $container['http_client'],
             $container['archive.unarchiver_factory'],
             $container['directory_comparator'],
+            $container['file_comparator'],
             $container['logger']
         );
     };
@@ -284,6 +300,15 @@ namespace {
         );
     };
 
+    $container['scope.config.processor.rule.file'] = function (Container $container) {
+        return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleFileHandler(
+            $container['util.basic_util'],
+            $container['result.factory'],
+            $container['command.factory'],
+            $container['fs.command.factory']
+        );
+    };
+
     $container['scope.config.processor.rule.fcgi_request'] = function (Container $container) {
         return new Scope\Config\Processor\Rule\ScopeConfigProcessorRuleFcgiRequestHandler(
             $container['result.factory'],
@@ -333,6 +358,7 @@ namespace {
             [
                 $container['scope.config.processor.rule.symlink'],
                 $container['scope.config.processor.rule.dir'],
+                $container['scope.config.processor.rule.file'],
                 $container['scope.config.processor.rule.fcgi_request'],
                 $container['scope.config.processor.rule.runit'],
                 $container['scope.config.processor.rule.exec'],

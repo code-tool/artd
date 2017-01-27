@@ -46,6 +46,18 @@ class ScopeInfo implements ScopeInfoInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function isPathForTargetIsAbs($target)
+    {
+        if (false === strpos($target, $this->scopeConfig->getPath())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @param string $target
      *
      * @return bool

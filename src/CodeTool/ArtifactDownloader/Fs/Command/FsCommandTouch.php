@@ -4,8 +4,9 @@ namespace CodeTool\ArtifactDownloader\Fs\Command;
 
 use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
+use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
-class FsCommandAssertIsFile implements CommandInterface
+class FsCommandTouch implements CommandInterface
 {
     /**
      * @var ResultFactoryInterface
@@ -21,16 +22,24 @@ class FsCommandAssertIsFile implements CommandInterface
      * @param ResultFactoryInterface $resultFactory
      * @param string                 $path
      */
-    public function __construct(ResultFactoryInterface $resultFactory, $path)
-    {
+    public function __construct(
+        ResultFactoryInterface $resultFactory,
+        $path
+    ) {
         $this->resultFactory = $resultFactory;
         $this->path = $path;
     }
 
+    /**
+     * @return ResultInterface
+     */
     public function execute()
     {
-        if (true !== is_file($this->path)) {
-            $this->resultFactory->createError(sprintf('%s is not file', $this->path));
+        if (false === @touch($this->path)) {
+            return $this->resultFactory->createErrorFromGetLast(sprintf(
+                'Can\'t touch file "%s"',
+                $this->path
+            ));
         }
 
         return $this->resultFactory->createSuccessful();
@@ -38,6 +47,6 @@ class FsCommandAssertIsFile implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('assert(true === is_file(%s))', $this->path);
+        return sprintf('touch(%s)', $this->path);
     }
 }

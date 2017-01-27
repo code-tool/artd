@@ -5,6 +5,7 @@ namespace CodeTool\ArtifactDownloader\Command\Factory;
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\CommandCompareDirs;
+use CodeTool\ArtifactDownloader\Command\CommandCompareFiles;
 use CodeTool\ArtifactDownloader\Command\CommandDownloadFile;
 use CodeTool\ArtifactDownloader\Command\CommandInterface;
 use CodeTool\ArtifactDownloader\Command\CommandNop;
@@ -61,6 +62,21 @@ interface CommandFactoryInterface
      * @return CommandCompareDirs
      */
     public function createCompareDirsCommand(
+        $sourcePath,
+        $targetPath,
+        CommandInterface $onEqualCommand,
+        CommandInterface $onNotEqualCommand
+    );
+
+    /**
+     * @param string           $sourcePath
+     * @param string           $targetPath
+     * @param CommandInterface $onEqualCommand
+     * @param CommandInterface $onNotEqualCommand
+     *
+     * @return CommandCompareFiles
+     */
+    public function createCompareFilesCommand(
         $sourcePath,
         $targetPath,
         CommandInterface $onEqualCommand,

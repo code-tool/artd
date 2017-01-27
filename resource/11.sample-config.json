@@ -1,0 +1,22 @@
+{
+  "version": "1",
+  "timestamp": "newer",
+  "scope": {
+    "/home/ghostbuster/sources/gameinspire/ad/debug": {
+      "exact_match": true,
+      "rules": [
+        {
+          "type": "file",
+          "target": "file.txt",
+          "source": "http://vulkanstavka.stage-00.ginsp.net/assets/txt.tar",
+
+          "hash": "6a79e31db3876165154e6977e75e1082f993f92c429310628ac982463a0a4e03",
+          "archive_format": "tar",
+
+          "user": "www-data",
+          "group": "www-data"
+        }
+      ]
+    }
+  }
+}

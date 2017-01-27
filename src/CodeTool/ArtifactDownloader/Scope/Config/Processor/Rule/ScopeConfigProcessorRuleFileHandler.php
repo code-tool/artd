@@ -113,16 +113,17 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
             $scopeConfigRule,
             $scopeInfo,
             $source,
-            $realTarget,
+            $realTargetPath,
             $isSourceLocal
         );
 
         $fileSource = $this->getSourceFilePathFromSourceDir($sourceDir, $realTarget);
+        $sourceToRm = $this->getSourceToRm($sourceDir, $fileSource, $isSourceLocal);
 
         if (false === $targetExists) {
             $collection
                 ->add($fsCommandFactory->createCpCommand($fileSource, $realTargetPath))
-                ->add($fsCommandFactory->createRmCommand($sourceDir));
+                ->add($fsCommandFactory->createRmCommand($sourceToRm));
 
             return $this->resultFactory->createSuccessful();
         }
@@ -173,5 +174,21 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
     private function getSourceFilePathFromSourceDir($sourceDir, $realTargetName)
     {
         return sprintf('%s/%s', $sourceDir, $realTargetName);
+    }
+
+    /**
+     * @param string $sourceDir
+     * @param string $fileSource
+     * @param bool   $isLocal
+     *
+     * @return mixed
+     */
+    private function getSourceToRm($sourceDir, $fileSource, $isLocal = false)
+    {
+        if (false === $isLocal) {
+            return $sourceDir;
+        }
+
+        return $fileSource;
     }
 }

@@ -14,7 +14,6 @@ use CodeTool\ArtifactDownloader\Fs\Command\FsCommandPermissions;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandRename;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandRm;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandSymlink;
-use CodeTool\ArtifactDownloader\Fs\Command\FsCommandTouch;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandWriteFile;
 use CodeTool\ArtifactDownloader\Fs\Util\FsUtilChmodArgParserInterface;
 use CodeTool\ArtifactDownloader\Fs\Util\FsUtilPermissionStrParserInterface;
@@ -114,14 +113,6 @@ class FsCommandFactory implements FsCommandFactoryInterface
     public function createMkDirCommand($path, $mode = 0777, $recursive = false)
     {
         return new FsCommandMkDir($this->resultFactory, $path, $mode, $recursive);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createTouchCommand($path, $data)
-    {
-        return new FsCommandTouch($this->resultFactory, $path, $data);
     }
 
     /**

@@ -2,9 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader\Comparator\File;
 
-use CodeTool\ArtifactDownloader\Comparator\AbstractComparatorSimple;
-
-class FileComparatorSimple extends AbstractComparatorSimple implements FileComparatorInterface
+class FileComparatorSimple implements FileComparatorInterface
 {
     /**
      * @param string $source
@@ -15,11 +13,6 @@ class FileComparatorSimple extends AbstractComparatorSimple implements FileCompa
      */
     public function isEqual($source, $target, $strategy)
     {
-        $sourceFileObject = new \SplFileInfo($source);
-        $targetFileObject = new \SplFileInfo($target);
-
-        if (false === $this->isFilesEqual($sourceFileObject, $targetFileObject)) {
-            return false;
-        }
+        return hash_file('md5', $source) === hash_file('md5', $target);
     }
 }

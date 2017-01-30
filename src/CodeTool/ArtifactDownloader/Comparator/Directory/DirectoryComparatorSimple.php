@@ -2,9 +2,7 @@
 
 namespace CodeTool\ArtifactDownloader\Comparator\Directory;
 
-use CodeTool\ArtifactDownloader\Comparator\AbstractComparatorSimple;
-
-class DirectoryComparatorSimple extends AbstractComparatorSimple implements DirectoryComparatorInterface
+class DirectoryComparatorSimple implements DirectoryComparatorInterface
 {
     /**
      * @param string $path
@@ -58,5 +56,24 @@ class DirectoryComparatorSimple extends AbstractComparatorSimple implements Dire
         }
 
         return true;
+    }
+
+    /**
+     * @param \SplFileInfo $fileInfo1
+     * @param \SplFileInfo $fileInfo2
+     *
+     * @return bool
+     */
+    private function isFilesEqual(\SplFileInfo $fileInfo1, \SplFileInfo $fileInfo2)
+    {
+        if (false === $fileInfo1->isReadable() || false === $fileInfo2->isReadable()) {
+            return false;
+        }
+
+        if ($fileInfo1->getSize() !== $fileInfo2->getSize()) {
+            return false;
+        }
+
+        return $fileInfo1->getMTime() === $fileInfo2->getMTime();
     }
 }

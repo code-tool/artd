@@ -14,7 +14,6 @@ use CodeTool\ArtifactDownloader\Fs\Command\FsCommandPermissions;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandRename;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandRm;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandSymlink;
-use CodeTool\ArtifactDownloader\Fs\Command\FsCommandTouch;
 use CodeTool\ArtifactDownloader\Fs\Command\FsCommandWriteFile;
 
 interface FsCommandFactoryInterface
@@ -59,14 +58,6 @@ interface FsCommandFactoryInterface
      * @return FsCommandMkDir
      */
     public function createMkDirCommand($path, $mode = 0777, $recursive = false);
-
-    /**
-     * @param string $path
-     * @param string $data
-     *
-     * @return FsCommandTouch
-     */
-    public function createTouchCommand($path, $data);
 
     /**
      * @param string $path

@@ -48,7 +48,7 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
      * @param CommandCollectionInterface $collection
      * @param string                     $source
      * @param string                     $realTargetPath
-     * @param DomainObjectInterface      $do
+     * @param ScopeConfigRuleInterface   $scopeConfigRule
      *
      * @return string
      */
@@ -56,7 +56,7 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
         CommandCollectionInterface $collection,
         $source,
         $realTargetPath,
-        DomainObjectInterface $do
+        ScopeConfigRuleInterface $scopeConfigRule
     ) {
         $basicUtil = $this->getBasicUtil();
         $commandFactory = $this->getCommandFactory();
@@ -64,8 +64,7 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
 
         $downloadPath = $basicUtil->getTmpPath();
         $collection->add($commandFactory->createDownloadFileCommand($source, $downloadPath));
-
-        $this->addHashCheck($collection, $downloadPath, $do);
+        $this->addHashCheck($collection, $downloadPath, $scopeConfigRule);
         $unarchivePath = $basicUtil->getRelativeTmpPath($realTargetPath);
 
         $collection
@@ -73,7 +72,7 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
             ->add($commandFactory->createUnarchiveCommand(
                 $downloadPath,
                 $unarchivePath,
-                $do->get(self::CONFIG_RULE_ARCHIVE_FORMAT)
+                $scopeConfigRule->get(self::CONFIG_RULE_ARCHIVE_FORMAT)
             ))
             ->add($fsCommandFactory->createAssertIsFile($unarchivePath))
             ->add($fsCommandFactory->createRmCommand($downloadPath));
@@ -99,9 +98,9 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
         $realTargetPath = $scopeInfo->getAbsPathByForTarget($realTarget);
         $targetExists = $scopeInfo->isTargetExists($realTarget);
 
-        if (false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE)) {
+        if (false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE) && false === $targetExists) {
             $fileContent = $scopeConfigRule->getOrDefault(self::CONFIG_RULE_CONTENT, '');
-            $collection->add($fsCommandFactory->createTouchCommand($realTargetPath, $fileContent));
+            $collection->add($fsCommandFactory->createWriteFileCommand($realTargetPath, $fileContent));
 
             return $this->resultFactory->createSuccessful();
         }
@@ -119,12 +118,11 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
         );
 
         $fileSource = $this->getSourceFilePathFromSourceDir($sourceDir, $realTarget);
-        $sourceToRm = $this->getSourceToRm($sourceDir, $fileSource, $isSourceLocal);
 
         if (false === $targetExists) {
             $collection
-                ->add($fsCommandFactory->createCpCommand($fileSource, $realTargetPath))
-                ->add($fsCommandFactory->createRmCommand($sourceToRm));
+                ->add($fsCommandFactory->createMvCommand($fileSource, $realTargetPath))
+                ->add($fsCommandFactory->createRmCommand($sourceDir));
 
             return $this->resultFactory->createSuccessful();
         }

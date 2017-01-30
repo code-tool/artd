@@ -99,8 +99,9 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
         $realTargetPath = $scopeInfo->getAbsPathByForTarget($realTarget);
         $targetExists = $scopeInfo->isTargetExists($realTarget);
 
-        if (false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE) && false === $targetExists) {
-            $collection->add($fsCommandFactory->createTouchCommand($realTargetPath));
+        if (false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE)) {
+            $fileContent = $scopeConfigRule->getOrDefault(self::CONFIG_RULE_CONTENT, '');
+            $collection->add($fsCommandFactory->createTouchCommand($realTargetPath, $fileContent));
 
             return $this->resultFactory->createSuccessful();
         }

@@ -62,10 +62,11 @@ interface FsCommandFactoryInterface
 
     /**
      * @param string $path
+     * @param string $data
      *
      * @return FsCommandTouch
      */
-    public function createTouchCommand($path);
+    public function createTouchCommand($path, $data);
 
     /**
      * @param string $path

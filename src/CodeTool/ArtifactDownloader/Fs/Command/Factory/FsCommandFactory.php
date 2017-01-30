@@ -119,9 +119,9 @@ class FsCommandFactory implements FsCommandFactoryInterface
     /**
      * @inheritdoc
      */
-    public function createTouchCommand($path)
+    public function createTouchCommand($path, $data)
     {
-        return new FsCommandTouch($this->resultFactory, $path);
+        return new FsCommandTouch($this->resultFactory, $path, $data);
     }
 
     /**

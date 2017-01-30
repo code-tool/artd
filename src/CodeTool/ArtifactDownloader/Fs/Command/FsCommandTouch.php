@@ -19,15 +19,23 @@ class FsCommandTouch implements CommandInterface
     private $path;
 
     /**
+     * @var string
+     */
+    private $data;
+
+    /**
      * @param ResultFactoryInterface $resultFactory
      * @param string                 $path
+     * @param string                 $data
      */
     public function __construct(
         ResultFactoryInterface $resultFactory,
-        $path
+        $path,
+        $data
     ) {
         $this->resultFactory = $resultFactory;
         $this->path = $path;
+        $this->data = $data;
     }
 
     /**
@@ -35,7 +43,7 @@ class FsCommandTouch implements CommandInterface
      */
     public function execute()
     {
-        if (false === @touch($this->path)) {
+        if (false === @file_put_contents($this->path, $this->data)) {
             return $this->resultFactory->createErrorFromGetLast(sprintf(
                 'Can\'t touch file "%s"',
                 $this->path
@@ -47,6 +55,6 @@ class FsCommandTouch implements CommandInterface
 
     public function __toString()
     {
-        return sprintf('touch(%s)', $this->path);
+        return sprintf('file_put_contents(%s, %s)', $this->path, $this->data);
     }
 }

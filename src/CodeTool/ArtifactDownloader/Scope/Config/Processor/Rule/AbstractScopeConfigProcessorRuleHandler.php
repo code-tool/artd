@@ -121,6 +121,7 @@ abstract class AbstractScopeConfigProcessorRuleHandler
 
         // todo If source local, do not move, just copy
         $newTargetPath = $this->basicUtil->getRelativeTmpPath($targetPath);
+
         // double move. target to tmp path, after source to target and remove tmp
         $result = $commandFactory->createCollection()
             ->add($fsCommandFactory->createMvCommand($targetPath, $newTargetPath))

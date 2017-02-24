@@ -118,12 +118,13 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
         $this->addHashCheck($collection, $source, $do);
 
         if (true === $do->has(self::CONFIG_RULE_ARCHIVE_FORMAT)) {
-            $collection->add(
-                $this->getCommandFactory()->createUnarchiveCommand($source, $target, $do->get(self::CONFIG_RULE_ARCHIVE_FORMAT))
-            );
+            $command = $this->getCommandFactory()
+                ->createUnarchiveCommand($source, $target, $do->get(self::CONFIG_RULE_ARCHIVE_FORMAT));
         } else {
-            $collection->add($this->getFsCommandFactory()->createCpCommand($source, $target));
+            $command = $this->getFsCommandFactory()->createCpCommand($source, $target);
         }
+
+        $collection->add($command);
     }
 
     /**

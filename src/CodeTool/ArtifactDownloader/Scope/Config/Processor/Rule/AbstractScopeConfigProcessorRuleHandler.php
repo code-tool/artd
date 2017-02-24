@@ -145,4 +145,20 @@ abstract class AbstractScopeConfigProcessorRuleHandler
 
         return $scopeInfo->getAbsPathByForTarget($sourceTarget);
     }
+
+    /**
+     * @param CommandCollectionInterface $collection
+     * @param string                     $target
+     * @param DomainObjectInterface      $do
+     */
+    protected function addPermissionsCommand(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
+    {
+        if (false === $do->has('permissions')) {
+            return;
+        }
+
+        $collection->add(
+            $this->getFsCommandFactory()->createPermissionsCommandFromStr($target, $do->get('permissions'))
+        );
+    }
 }

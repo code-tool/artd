@@ -9,7 +9,6 @@ use CodeTool\ArtifactDownloader\Scope\Info\ScopeInfoInterface;
 
 interface ScopeConfigProcessorRuleHandlerInterface
 {
-    const CONFIG_RULE_PERMISSIONS = 'permissions';
     const CONFIG_RULE_ARCHIVE_FORMAT = 'archive_format';
     const CONFIG_RULE_TARGET = 'target';
     const CONFIG_RULE_SOURCE = 'source';

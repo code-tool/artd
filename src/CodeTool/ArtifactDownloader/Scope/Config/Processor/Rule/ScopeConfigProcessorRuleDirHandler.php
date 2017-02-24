@@ -47,23 +47,6 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
 
     /**
      * @param CommandCollectionInterface $collection
-     * @param string                     $target
-     * @param DomainObjectInterface      $do
-     */
-    private function addPermissionsCommand(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
-    {
-        if (false === $do->has(self::CONFIG_RULE_PERMISSIONS)) {
-            return;
-        }
-
-        $collection->add(
-            $this->getFsCommandFactory()
-                ->createPermissionsCommandFromStr($target, $do->get(self::CONFIG_RULE_PERMISSIONS))
-        );
-    }
-
-    /**
-     * @param CommandCollectionInterface $collection
      * @param string                     $source
      * @param string                     $target
      * @param DomainObjectInterface      $do

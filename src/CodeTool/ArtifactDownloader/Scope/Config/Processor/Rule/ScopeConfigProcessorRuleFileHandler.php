@@ -81,6 +81,42 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
 
     /**
      * @param CommandCollectionInterface $collection
+     * @param ScopeConfigRuleInterface   $scopeConfigRule
+     * @param ScopeInfoInterface         $scopeInfo
+     * @param string                     $source
+     * @param string                     $realTargetPath
+     * @param bool                       $isSourceLocal
+     *
+     * @return string
+     */
+    private function getSourceDir(
+        CommandCollectionInterface $collection,
+        ScopeConfigRuleInterface $scopeConfigRule,
+        ScopeInfoInterface $scopeInfo,
+        $source,
+        $realTargetPath,
+        $isSourceLocal = false
+    ) {
+        if (false === $isSourceLocal) {
+            return $this->addForRemoteSource($collection, $source, $realTargetPath, $scopeConfigRule);
+        }
+
+        return $this->getPathForTarget($scopeInfo, $source);
+    }
+
+    /**
+     * @param string $sourceDir
+     * @param string $realTargetName
+     *
+     * @return string
+     */
+    private function getSourceFilePathFromSourceDir($sourceDir, $realTargetName)
+    {
+        return sprintf('%s/%s', $sourceDir, $realTargetName);
+    }
+
+    /**
+     * @param CommandCollectionInterface $collection
      * @param ScopeInfoInterface         $scopeInfo
      * @param ScopeConfigRuleInterface   $scopeConfigRule
      *
@@ -96,9 +132,10 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
         $targetExists = $scopeInfo->isTargetExists($realTarget);
 
         if (false === $targetExists && false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE)) {
-            $fileContent = $scopeConfigRule->getOrDefault('content', '');
-
-            $collection->add($this->getFsCommandFactory()->createWriteFileCommand($realTargetPath, $fileContent));
+            $collection->add(
+                $this->getFsCommandFactory()
+                    ->createWriteFileCommand($realTargetPath, $scopeConfigRule->getOrDefault('content', ''))
+            );
 
             return $this->resultFactory->createSuccessful();
         }
@@ -135,57 +172,5 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
         );
 
         return $this->resultFactory->createSuccessful();
-    }
-
-    /**
-     * @param CommandCollectionInterface $collection
-     * @param ScopeConfigRuleInterface   $scopeConfigRule
-     * @param ScopeInfoInterface         $scopeInfo
-     * @param string                     $source
-     * @param string                     $realTargetPath
-     * @param bool                       $isSourceLocal
-     *
-     * @return string
-     */
-    private function getSourceDir(
-        CommandCollectionInterface $collection,
-        ScopeConfigRuleInterface $scopeConfigRule,
-        ScopeInfoInterface $scopeInfo,
-        $source,
-        $realTargetPath,
-        $isSourceLocal = false
-    ) {
-        if (false === $isSourceLocal) {
-            return $this->addForRemoteSource($collection, $source, $realTargetPath, $scopeConfigRule);
-        }
-
-        return $this->getPathForTarget($scopeInfo, $source);
-    }
-
-    /**
-     * @param string $sourceDir
-     * @param string $realTargetName
-     *
-     * @return string
-     */
-    private function getSourceFilePathFromSourceDir($sourceDir, $realTargetName)
-    {
-        return sprintf('%s/%s', $sourceDir, $realTargetName);
-    }
-
-    /**
-     * @param string $sourceDir
-     * @param string $fileSource
-     * @param bool   $isLocal
-     *
-     * @return mixed
-     */
-    private function getSourceToRm($sourceDir, $fileSource, $isLocal = false)
-    {
-        if (false === $isLocal) {
-            return $sourceDir;
-        }
-
-        return $fileSource;
     }
 }

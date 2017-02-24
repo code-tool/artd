@@ -50,39 +50,15 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
      * @param string                     $target
      * @param DomainObjectInterface      $do
      */
-    private function addGMOCommands(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
-    {
-        $fsCommand = $this->getFsCommandFactory();
-
-        if ($do->has(self::CONFIG_RULE_GROUP)) {
-            $collection->add($fsCommand->createChgrpCommand($target, $do->get(self::CONFIG_RULE_GROUP)));
-        }
-
-        if ($do->has(self::CONFIG_RULE_OWNER)) {
-            $collection->add($fsCommand->createChownCommand($target, $do->get(self::CONFIG_RULE_OWNER)));
-        }
-
-        if ($do->has(self::CONFIG_RULE_MODE)) {
-            $collection->add($fsCommand->createChmodCommand($target, $do->get(self::CONFIG_RULE_MODE)));
-        }
-    }
-
-    /**
-     * @param CommandCollectionInterface $collection
-     * @param string                     $target
-     * @param DomainObjectInterface      $do
-     */
     private function addPermissionsCommand(CommandCollectionInterface $collection, $target, DomainObjectInterface $do)
     {
         if (false === $do->has(self::CONFIG_RULE_PERMISSIONS)) {
             return;
         }
 
-        $collection->add($this->getFsCommandFactory()
-            ->createPermissionsCommandFromStr(
-                $target,
-                $do->get(self::CONFIG_RULE_PERMISSIONS)
-            )
+        $collection->add(
+            $this->getFsCommandFactory()
+                ->createPermissionsCommandFromStr($target, $do->get(self::CONFIG_RULE_PERMISSIONS))
         );
     }
 
@@ -174,7 +150,6 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
             }
 
             // Fix permissions, if need
-            $this->addGMOCommands($collection, $realTargetPath, $scopeConfigRule);
             $this->addPermissionsCommand($collection, $realTargetPath, $scopeConfigRule);
 
             return $this->resultFactory->createSuccessful();
@@ -188,7 +163,6 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
             // If source remote, download it and get new source path
             $source = $this->addForRemoteSource($collection, $source, $realTargetPath, $scopeConfigRule);
             // Fix permissions
-            $this->addGMOCommands($collection, $source, $scopeConfigRule);
             $this->addPermissionsCommand($collection, $source, $scopeConfigRule);
         } else {
             // todo: Fix case when source is local directory. Is source absolute path?

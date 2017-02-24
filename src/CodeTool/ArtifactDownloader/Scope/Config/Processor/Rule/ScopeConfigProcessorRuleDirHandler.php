@@ -3,7 +3,6 @@
 namespace CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
-use CodeTool\ArtifactDownloader\Command\CommandCheckFileSignature;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
 use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
 use CodeTool\ArtifactDownloader\Fs\Command\Factory\FsCommandFactoryInterface;
@@ -43,7 +42,7 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
      */
     public function getSupportedTypes()
     {
-        return [self::CONFIG_RULE_DIR];
+        return ['dir'];
     }
 
     /**
@@ -163,9 +162,6 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
         ScopeInfoInterface $scopeInfo,
         ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        $basicUtil = $this->getBasicUtil();
-        $commandFactory = $this->getCommandFactory();
-        $fsCommandFactory = $this->getFsCommandFactory();
         $realTarget = $scopeConfigRule->get(self::CONFIG_RULE_TARGET);
         $realTargetPath = $scopeInfo->getAbsPathByForTarget($realTarget);
         $targetExists = $scopeInfo->isTargetExists($realTarget);
@@ -174,7 +170,7 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
         if (false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE)) {
             if (false === $targetExists) {
                 // And directory dose not exists. Just create new
-                $collection->add($fsCommandFactory->createMkDirCommand($realTargetPath, 0755, true));
+                $collection->add($this->getFsCommandFactory()->createMkDirCommand($realTargetPath, 0755, true));
             }
 
             // Fix permissions, if need
@@ -186,7 +182,7 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
 
         // Source defined
         $source = $scopeConfigRule->get(self::CONFIG_RULE_SOURCE);
-        $isSourceLocal = $basicUtil->isSourceLocal($source);
+        $isSourceLocal = $this->getBasicUtil()->isSourceLocal($source);
 
         if (false === $isSourceLocal) {
             // If source remote, download it and get new source path
@@ -201,14 +197,14 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
 
         if (false === $targetExists) {
             // Now, if target dose not exists, just move
-            $collection->add($fsCommandFactory->createMvCommand($source, $realTargetPath));
+            $collection->add($this->getFsCommandFactory()->createMvCommand($source, $realTargetPath));
 
             return $this->resultFactory->createSuccessful();
         }
 
         // So, if target exists, we should compare directories
         $collection->add(
-            $commandFactory->createCompareDirsCommand(
+            $this->getCommandFactory()->createCompareDirsCommand(
                 $source,
                 $realTargetPath,
                 // if its equals, remove source (only for remote)

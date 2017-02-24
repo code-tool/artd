@@ -4,7 +4,6 @@ namespace CodeTool\ArtifactDownloader\Scope\Config\Processor\Rule;
 
 use CodeTool\ArtifactDownloader\Command\Collection\CommandCollectionInterface;
 use CodeTool\ArtifactDownloader\Command\Factory\CommandFactoryInterface;
-use CodeTool\ArtifactDownloader\DomainObject\DomainObjectInterface;
 use CodeTool\ArtifactDownloader\Fs\Command\Factory\FsCommandFactoryInterface;
 use CodeTool\ArtifactDownloader\Result\Factory\ResultFactoryInterface;
 use CodeTool\ArtifactDownloader\Scope\Config\ScopeConfigRuleInterface;
@@ -41,7 +40,7 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
      */
     public function getSupportedTypes()
     {
-        return [self::CONFIG_RULE_FILE];
+        return ['file'];
     }
 
     /**
@@ -92,15 +91,14 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
         ScopeInfoInterface $scopeInfo,
         ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        $commandFactory = $this->getCommandFactory();
-        $fsCommandFactory = $this->getFsCommandFactory();
         $realTarget = $scopeConfigRule->get(self::CONFIG_RULE_TARGET);
         $realTargetPath = $scopeInfo->getAbsPathByForTarget($realTarget);
         $targetExists = $scopeInfo->isTargetExists($realTarget);
 
-        if (false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE) && false === $targetExists) {
-            $fileContent = $scopeConfigRule->getOrDefault(self::CONFIG_RULE_CONTENT, '');
-            $collection->add($fsCommandFactory->createWriteFileCommand($realTargetPath, $fileContent));
+        if (false === $targetExists && false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE)) {
+            $fileContent = $scopeConfigRule->getOrDefault('content', '');
+
+            $collection->add($this->getFsCommandFactory()->createWriteFileCommand($realTargetPath, $fileContent));
 
             return $this->resultFactory->createSuccessful();
         }
@@ -121,14 +119,14 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
 
         if (false === $targetExists) {
             $collection
-                ->add($fsCommandFactory->createMvCommand($fileSource, $realTargetPath))
-                ->add($fsCommandFactory->createRmCommand($sourceDir));
+                ->add($this->getFsCommandFactory()->createMvCommand($fileSource, $realTargetPath))
+                ->add($this->getFsCommandFactory()->createRmCommand($sourceDir));
 
             return $this->resultFactory->createSuccessful();
         }
 
         $collection->add(
-            $commandFactory->createCompareFilesCommand(
+            $this->getCommandFactory()->createCompareFilesCommand(
                 $fileSource,
                 $realTargetPath,
                 $this->getCompareCommand($sourceDir, $isSourceLocal),

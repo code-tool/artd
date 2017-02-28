@@ -44,6 +44,21 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
     }
 
     /**
+     * @param ScopeInfoInterface       $scopeInfo
+     * @param ScopeConfigRuleInterface $scopeConfigRule
+     *
+     * @return bool
+     */
+    private function isSourceLocal(ScopeInfoInterface $scopeInfo, ScopeConfigRuleInterface $scopeConfigRule)
+    {
+        if (false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE)) {
+            return true;
+        }
+
+        return $this->getBasicUtil()->isSourceLocal($scopeConfigRule->get(self::CONFIG_RULE_SOURCE));
+    }
+
+    /**
      * @param CommandCollectionInterface $collection
      * @param string                     $source
      * @param string                     $realTargetPath
@@ -51,68 +66,109 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
      *
      * @return string
      */
-    private function addForRemoteSource(
+    private function addCommandsForRemoteSource(
         CommandCollectionInterface $collection,
         $source,
         $realTargetPath,
         ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        $basicUtil = $this->getBasicUtil();
-        $commandFactory = $this->getCommandFactory();
-        $fsCommandFactory = $this->getFsCommandFactory();
+        $downloadPath = $this->getBasicUtil()->getTmpPath();
 
-        $downloadPath = $basicUtil->getTmpPath();
-        $collection->add($commandFactory->createDownloadFileCommand($source, $downloadPath));
+        $collection->add($this->getCommandFactory()->createDownloadFileCommand($source, $downloadPath));
         $this->addHashCheck($collection, $downloadPath, $scopeConfigRule);
-        $unarchivePath = $basicUtil->getRelativeTmpPath($realTargetPath);
+
+        $unarchivePath = $this->getBasicUtil()->getRelativeTmpPath($realTargetPath);
 
         $collection
-            ->add($fsCommandFactory->createMkDirCommand($unarchivePath, 0755, true))
-            ->add($commandFactory->createUnarchiveCommand(
+            ->add($this->getFsCommandFactory()->createMkDirCommand($unarchivePath, 0755, true))
+            ->add($this->getCommandFactory()->createUnarchiveCommand(
                 $downloadPath,
                 $unarchivePath,
                 $scopeConfigRule->get(self::CONFIG_RULE_ARCHIVE_FORMAT)
             ))
-            ->add($fsCommandFactory->createAssertIsFile($unarchivePath))
-            ->add($fsCommandFactory->createRmCommand($downloadPath));
+            ->add($this->getFsCommandFactory()->createAssertIsFile($unarchivePath))
+            ->add($this->getFsCommandFactory()->createRmCommand($downloadPath));
 
         return $unarchivePath;
     }
 
     /**
      * @param CommandCollectionInterface $collection
-     * @param ScopeConfigRuleInterface   $scopeConfigRule
      * @param ScopeInfoInterface         $scopeInfo
-     * @param string                     $source
-     * @param string                     $realTargetPath
-     * @param bool                       $isSourceLocal
+     * @param ScopeConfigRuleInterface   $scopeConfigRule
      *
      * @return string
      */
-    private function getSourceDir(
+    private function getSourceFilePathForSource(
         CommandCollectionInterface $collection,
-        ScopeConfigRuleInterface $scopeConfigRule,
         ScopeInfoInterface $scopeInfo,
-        $source,
-        $realTargetPath,
-        $isSourceLocal = false
+        ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        if (false === $isSourceLocal) {
-            return $this->addForRemoteSource($collection, $source, $realTargetPath, $scopeConfigRule);
+        $source = $scopeConfigRule->get(self::CONFIG_RULE_SOURCE);
+
+        if ($this->isSourceLocal($scopeInfo, $scopeConfigRule)) {
+            $collection->add($this->getFsCommandFactory()->createAssertIsFile($source));
+
+            return $source;
         }
 
-        return $this->getPathForTarget($scopeInfo, $source);
+        $realTargetPath = $scopeInfo->getAbsPathByForTarget($scopeConfigRule->get(self::CONFIG_RULE_TARGET));
+
+        return $this->addCommandsForRemoteSource($collection, $source, $realTargetPath, $scopeConfigRule);
     }
 
     /**
-     * @param string $sourceDir
-     * @param string $realTargetName
+     * @param CommandCollectionInterface $collection
+     * @param ScopeConfigRuleInterface   $scopeConfigRule
      *
      * @return string
      */
-    private function getSourceFilePathFromSourceDir($sourceDir, $realTargetName)
+    private function getSourceFilePathForContent(
+        CommandCollectionInterface $collection,
+        ScopeConfigRuleInterface $scopeConfigRule
+    ) {
+        $result = $this->getBasicUtil()->getTmpPath();
+        $collection->add(
+            $this->getFsCommandFactory()
+                ->createWriteFileCommand($result, $scopeConfigRule->getOrDefault('content', ''))
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param CommandCollectionInterface $collection
+     * @param ScopeInfoInterface         $scopeInfo
+     * @param ScopeConfigRuleInterface   $scopeConfigRule
+     *
+     * @return string
+     */
+    private function getSourceFilePath(
+        CommandCollectionInterface $collection,
+        ScopeInfoInterface $scopeInfo,
+        ScopeConfigRuleInterface $scopeConfigRule
+    ) {
+        if ($scopeConfigRule->has(self::CONFIG_RULE_SOURCE)) {
+            $this->getSourceFilePathForSource($collection, $scopeInfo, $scopeConfigRule);
+        }
+
+        return $this->getSourceFilePathForContent($collection, $scopeConfigRule);
+    }
+
+    /**
+     * @param bool   $isSourceLocal
+     * @param string $sourceFile
+     * @param string $realTargetPath
+     *
+     * @return \CodeTool\ArtifactDownloader\Command\CommandInterface
+     */
+    private function buildSwapCommand($isSourceLocal, $sourceFile, $realTargetPath)
     {
-        return sprintf('%s/%s', $sourceDir, $realTargetName);
+        if ($isSourceLocal) {
+            $this->getFsCommandFactory()->createCpCommand($sourceFile, $realTargetPath);
+        }
+
+        return $this->getFsCommandFactory()->createMvCommand($sourceFile, $realTargetPath);
     }
 
     /**
@@ -127,47 +183,25 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
         ScopeInfoInterface $scopeInfo,
         ScopeConfigRuleInterface $scopeConfigRule
     ) {
-        $realTarget = $scopeConfigRule->get(self::CONFIG_RULE_TARGET);
-        $realTargetPath = $scopeInfo->getAbsPathByForTarget($realTarget);
-        $targetExists = $scopeInfo->isTargetExists($realTarget);
+        $target = $scopeConfigRule->get(self::CONFIG_RULE_TARGET);
+        $realTargetPath = $scopeInfo->getAbsPathByForTarget($target);
 
-        if (false === $targetExists && false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE)) {
-            $collection->add(
-                $this->getFsCommandFactory()
-                    ->createWriteFileCommand($realTargetPath, $scopeConfigRule->getOrDefault('content', ''))
-            );
+        $isSourceLocal = $this->isSourceLocal($scopeInfo, $scopeConfigRule);
+        $sourceFilePath = $this->getSourceFilePath($collection, $scopeInfo, $scopeConfigRule);
+        $swapCommand = $this->buildSwapCommand($isSourceLocal, $sourceFilePath, $realTargetPath);
 
-            return $this->resultFactory->createSuccessful();
-        }
-
-        $source = $scopeConfigRule->get(self::CONFIG_RULE_SOURCE);
-        $isSourceLocal = $this->getBasicUtil()->isSourceLocal($source);
-
-        $sourceDir = $this->getSourceDir(
-            $collection,
-            $scopeConfigRule,
-            $scopeInfo,
-            $source,
-            $realTargetPath,
-            $isSourceLocal
-        );
-
-        $fileSource = $this->getSourceFilePathFromSourceDir($sourceDir, $realTarget);
-
-        if (false === $targetExists) {
-            $collection
-                ->add($this->getFsCommandFactory()->createMvCommand($fileSource, $realTargetPath))
-                ->add($this->getFsCommandFactory()->createRmCommand($sourceDir));
+        if (false === $scopeInfo->isTargetExists($target)) {
+            $collection->add($swapCommand);
 
             return $this->resultFactory->createSuccessful();
         }
 
         $collection->add(
             $this->getCommandFactory()->createCompareFilesCommand(
-                $fileSource,
+                $sourceFilePath,
                 $realTargetPath,
-                $this->getCompareCommand($sourceDir, $isSourceLocal),
-                $this->buildSwapOperation($fileSource, $realTargetPath)
+                $this->getCommandOnEqual($sourceFilePath, $isSourceLocal),
+                $swapCommand
             )
         );
 

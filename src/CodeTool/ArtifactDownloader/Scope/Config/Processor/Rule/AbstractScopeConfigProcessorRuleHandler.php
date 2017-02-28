@@ -99,7 +99,7 @@ abstract class AbstractScopeConfigProcessorRuleHandler
      *
      * @return CommandInterface
      */
-    protected function getCompareCommand($source, $isSourceLocal = false)
+    protected function getCommandOnEqual($source, $isSourceLocal = false)
     {
         if (true === $isSourceLocal) {
             return $this->commandFactory->createNopCommand();

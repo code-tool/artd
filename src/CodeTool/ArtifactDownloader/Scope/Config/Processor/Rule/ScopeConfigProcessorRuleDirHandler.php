@@ -166,7 +166,7 @@ class ScopeConfigProcessorRuleDirHandler extends AbstractScopeConfigProcessorRul
                 $source,
                 $realTargetPath,
                 // if its equals, remove source (only for remote)
-                $this->getCompareCommand($source, $isSourceLocal),
+                $this->getCommandOnEqual($source, $isSourceLocal),
                 // else, swap
                 $this->buildSwapOperation($source, $realTargetPath)
             )

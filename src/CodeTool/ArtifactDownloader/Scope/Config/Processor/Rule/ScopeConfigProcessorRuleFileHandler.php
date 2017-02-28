@@ -52,7 +52,7 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
     private function isSourceLocal(ScopeInfoInterface $scopeInfo, ScopeConfigRuleInterface $scopeConfigRule)
     {
         if (false === $scopeConfigRule->has(self::CONFIG_RULE_SOURCE)) {
-            return true;
+            return false;
         }
 
         return $this->getBasicUtil()->isSourceLocal($scopeConfigRule->get(self::CONFIG_RULE_SOURCE));
@@ -165,7 +165,7 @@ class ScopeConfigProcessorRuleFileHandler extends AbstractScopeConfigProcessorRu
     private function buildSwapCommand($isSourceLocal, $sourceFile, $realTargetPath)
     {
         if ($isSourceLocal) {
-            $this->getFsCommandFactory()->createCpCommand($sourceFile, $realTargetPath);
+            return $this->getFsCommandFactory()->createCpCommand($sourceFile, $realTargetPath);
         }
 
         return $this->getFsCommandFactory()->createMvCommand($sourceFile, $realTargetPath);

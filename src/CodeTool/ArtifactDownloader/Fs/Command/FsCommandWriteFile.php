@@ -45,7 +45,7 @@ class FsCommandWriteFile implements CommandInterface
      */
     public function execute()
     {
-        if (false === ($fHandle = @fopen($this->filePath, 'bw'))) {
+        if (false === ($fHandle = @fopen($this->filePath, 'wb'))) {
             return $this->resultFactory->createErrorFromGetLast(
                 sprintf('Can\'t open file %s for writing', $this->filePath)
             );

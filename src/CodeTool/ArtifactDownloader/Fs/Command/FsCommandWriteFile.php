@@ -68,7 +68,9 @@ class FsCommandWriteFile implements CommandInterface
      */
     public function __toString()
     {
-        $contentLength = strlen($this->content);
+        if (0 === $contentLength = strlen($this->content)) {
+            return sprintf('touch(%s)', $this->filePath);
+        }
 
         $content = $this->content;
         if ($contentLength > 5) {

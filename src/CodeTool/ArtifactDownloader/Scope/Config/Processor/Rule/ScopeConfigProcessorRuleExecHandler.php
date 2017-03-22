@@ -63,9 +63,17 @@ class ScopeConfigProcessorRuleExecHandler implements ScopeConfigProcessorRuleHan
             $env = $scopeConfigRule->getOrDefault('env')->toArray();
         }
 
+        $cwd = $scopeInfo->getAbsPathByForTarget('');
+        if (true === $scopeConfigRule->has('cwd')) {
+            $cwd = $scopeConfigRule->get('cwd');
+            if (0 !== strpos($cwd, DIRECTORY_SEPARATOR)) {
+                $cwd = $scopeInfo->getAbsPathByForTarget($cwd);
+            }
+        }
+
         $collection->add($this->cmdRunnerCommandFactory->createExecCommand(
             $scopeConfigRule->get('cmd'),
-            $scopeConfigRule->getOrDefault('cwd', $scopeInfo->getAbsPathByForTarget('')),
+            $cwd,
             $clearEnv,
             $env
         ));

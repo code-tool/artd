@@ -26,5 +26,12 @@ interface ScopeInfoInterface
      *
      * @return bool
      */
+    public function isPathForTargetIsAbs($target);
+
+    /**
+     * @param string $target
+     *
+     * @return bool
+     */
     public function isTargetExists($target);
 }

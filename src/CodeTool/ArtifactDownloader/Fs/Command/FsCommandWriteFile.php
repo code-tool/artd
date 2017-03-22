@@ -45,7 +45,7 @@ class FsCommandWriteFile implements CommandInterface
      */
     public function execute()
     {
-        if (false === ($fHandle = @fopen($this->filePath, 'bw'))) {
+        if (false === ($fHandle = @fopen($this->filePath, 'wb'))) {
             return $this->resultFactory->createErrorFromGetLast(
                 sprintf('Can\'t open file %s for writing', $this->filePath)
             );
@@ -68,7 +68,9 @@ class FsCommandWriteFile implements CommandInterface
      */
     public function __toString()
     {
-        $contentLength = strlen($this->content);
+        if (0 === $contentLength = strlen($this->content)) {
+            return sprintf('touch(%s)', $this->filePath);
+        }
 
         $content = $this->content;
         if ($contentLength > 5) {

@@ -1,8 +1,8 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\DirectoryComparator;
+namespace CodeTool\ArtifactDownloader\Comparator;
 
-interface DirectoryComparatorInterface
+interface ComparatorInterface
 {
     /**
      * @param string $source

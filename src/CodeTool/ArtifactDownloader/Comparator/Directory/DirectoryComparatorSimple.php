@@ -1,6 +1,6 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\DirectoryComparator;
+namespace CodeTool\ArtifactDownloader\Comparator\Directory;
 
 class DirectoryComparatorSimple implements DirectoryComparatorInterface
 {
@@ -33,25 +33,6 @@ class DirectoryComparatorSimple implements DirectoryComparatorInterface
     }
 
     /**
-     * @param \SplFileInfo $fileInfo1
-     * @param \SplFileInfo $fileInfo2
-     *
-     * @return bool
-     */
-    private function isFilesEqual(\SplFileInfo $fileInfo1, \SplFileInfo $fileInfo2)
-    {
-        if (false === $fileInfo1->isReadable() || false === $fileInfo2->isReadable()) {
-            return false;
-        }
-
-        if ($fileInfo1->getSize() !== $fileInfo2->getSize()) {
-            return false;
-        }
-
-        return $fileInfo1->getMTime() === $fileInfo2->getMTime();
-    }
-
-    /**
      * @param string $source
      * @param string $target
      * @param string $strategy
@@ -75,5 +56,24 @@ class DirectoryComparatorSimple implements DirectoryComparatorInterface
         }
 
         return true;
+    }
+
+    /**
+     * @param \SplFileInfo $fileInfo1
+     * @param \SplFileInfo $fileInfo2
+     *
+     * @return bool
+     */
+    private function isFilesEqual(\SplFileInfo $fileInfo1, \SplFileInfo $fileInfo2)
+    {
+        if (false === $fileInfo1->isReadable() || false === $fileInfo2->isReadable()) {
+            return false;
+        }
+
+        if ($fileInfo1->getSize() !== $fileInfo2->getSize()) {
+            return false;
+        }
+
+        return $fileInfo1->getMTime() === $fileInfo2->getMTime();
     }
 }

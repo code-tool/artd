@@ -1,8 +1,8 @@
 <?php
 
-namespace CodeTool\ArtifactDownloader\DirectoryComparator;
+namespace CodeTool\ArtifactDownloader\Comparator;
 
-class DirectoryComparatorNegative implements DirectoryComparatorInterface
+abstract class AbstractComparatorNegative implements ComparatorInterface
 {
     /**
      * @param string $source

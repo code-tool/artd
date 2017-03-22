@@ -2,15 +2,15 @@
 
 namespace CodeTool\ArtifactDownloader\Command;
 
-use CodeTool\ArtifactDownloader\Comparator\Directory\DirectoryComparatorInterface;
+use CodeTool\ArtifactDownloader\Comparator\File\FileComparatorInterface;
 use CodeTool\ArtifactDownloader\Result\ResultInterface;
 
-class CommandCompareDirs implements CommandInterface
+class CommandCompareFiles implements CommandInterface
 {
     /**
-     * @var DirectoryComparatorInterface
+     * @var FileComparatorInterface
      */
-    private $directoryComparator;
+    private $fileComparator;
 
     /**
      * @var string
@@ -33,13 +33,13 @@ class CommandCompareDirs implements CommandInterface
     private $onNotEqualCommand;
 
     public function __construct(
-        DirectoryComparatorInterface $directoryComparator,
+        FileComparatorInterface $fileComparator,
         $source,
         $target,
         CommandInterface $onEqualCommand,
         CommandInterface $onNotEqualCommand
     ) {
-        $this->directoryComparator = $directoryComparator;
+        $this->fileComparator = $fileComparator;
 
         $this->source = $source;
         $this->target = $target;
@@ -53,7 +53,7 @@ class CommandCompareDirs implements CommandInterface
      */
     public function execute()
     {
-        if (false === $this->directoryComparator->isEqual($this->source, $this->target, 'simple')) {
+        if (false === $this->fileComparator->isEqual($this->source, $this->target, 'simple')) {
             return $this->onNotEqualCommand->execute();
         }
 

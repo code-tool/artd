@@ -1,0 +1,13 @@
+{
+  "scope": {
+    "/home/programmer/sources/artifact-downloader/tmp": {
+      "rules": [
+        {
+          "type": "file",
+          "target": "test_file"
+        }
+      ]
+    }
+  },
+  "version": "stage_version"
+}

@@ -7,10 +7,15 @@ use CodeTool\ArtifactDownloader\Result\ResultInterface;
 interface UnitStatusUpdaterInterface
 {
     /**
+     * @return UnitStatusUpdaterInterface
+     */
+    public function clearErrors();
+
+    /**
      * @param string $error
      * @param int    $ts
      *
-     * @return UnitStatusUpdater
+     * @return UnitStatusUpdaterInterface
      */
     public function addError($error, $ts);
 

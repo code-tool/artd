@@ -127,7 +127,7 @@ class ArtifactDownloader
             microtime(true) - $applyStart
         ));
 
-        $this->unitStatusUpdater->setConfigVersion($configVersion)->flush();
+        $this->unitStatusUpdater->setConfigVersion($configVersion)->clearErrors()->flush();
 
         return true;
     }

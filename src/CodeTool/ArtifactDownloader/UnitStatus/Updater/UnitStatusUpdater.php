@@ -31,10 +31,20 @@ class UnitStatusUpdater implements UnitStatusUpdaterInterface
     }
 
     /**
+     * @return UnitStatusUpdaterInterface
+     */
+    public function clearErrors()
+    {
+        $this->errors = [];
+
+        return $this;
+    }
+
+    /**
      * @param string $error
      * @param int    $ts
      *
-     * @return UnitStatusUpdater
+     * @return UnitStatusUpdaterInterface
      */
     public function addError($error, $ts)
     {
@@ -50,7 +60,7 @@ class UnitStatusUpdater implements UnitStatusUpdaterInterface
     /**
      * @param string $status
      *
-     * @return UnitStatusUpdater
+     * @return UnitStatusUpdaterInterface
      */
     public function setStatus($status)
     {
@@ -62,7 +72,7 @@ class UnitStatusUpdater implements UnitStatusUpdaterInterface
     /**
      * @param string $configVersion
      *
-     * @return UnitStatusUpdater
+     * @return UnitStatusUpdaterInterface
      */
     public function setConfigVersion($configVersion)
     {

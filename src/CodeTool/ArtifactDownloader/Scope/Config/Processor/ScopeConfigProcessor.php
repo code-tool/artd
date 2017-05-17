@@ -163,7 +163,9 @@ class ScopeConfigProcessor implements ScopeConfigProcessorInterface
         $scopeInfo = $this->scopeInfoFactory->makeForConfig($scopeConfig);
 
         $handleResult = $this->handleRules($scopeInfo, $scopeConfig);
-        $this->cleanScope($scopeInfo, $scopeConfig);
+        if (true === $handleResult->isSuccessful()) {
+            $this->cleanScope($scopeInfo, $scopeConfig);
+        }
 
         return $handleResult;
     }

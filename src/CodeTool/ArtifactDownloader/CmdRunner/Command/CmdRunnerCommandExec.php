@@ -60,7 +60,7 @@ class CmdRunnerCommandExec implements CommandInterface
      */
     public function __toString()
     {
-        static $suppressKeys = ['HISTSIZE, LS_COLORS', 'PS1'];
+        static $suppressKeys = ['HISTSIZE', 'LS_COLORS', 'PS1'];
 
         $envStr = '';
         $suppressed = false;

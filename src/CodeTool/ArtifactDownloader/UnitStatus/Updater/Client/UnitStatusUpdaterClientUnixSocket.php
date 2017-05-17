@@ -44,7 +44,11 @@ class UnitStatusUpdaterClientUnixSocket implements UnitStatusUpdaterClientInterf
             return $this->resultFactory->createError($errStr);
         }
 
-        if (false === socket_set_timeout($sHandle, $this->maxTimeout)) {
+        if (false === stream_set_blocking($sHandle, true)) {
+            return $this->resultFactory->createErrorFromGetLast('Can\'t set socket to blocking mode');
+        }
+
+        if (false === stream_set_timeout($sHandle, $this->maxTimeout)) {
             return $this->resultFactory->createErrorFromGetLast('Can\'t set socket timeout: ');
         }
 

@@ -17,6 +17,17 @@ use CodeTool\ArtifactDownloader\Scope\Config\Factory\ScopeConfigFactory;
 
 class ConfigProviderEtcdTest extends \PHPUnit_Framework_TestCase
 {
+    private $configStr;
+
+    private function getConfigStr()
+    {
+        if (null === $this->configStr) {
+            $this->configStr = file_get_contents(__DIR__ . '/../../../../resource/sample-config.json');
+        }
+
+        return $this->configStr;
+    }
+
     private function buildEtcdClientMockBuilder()
     {
         return $this->getMockBuilder(EtcdClient::class)
@@ -43,14 +54,12 @@ class ConfigProviderEtcdTest extends \PHPUnit_Framework_TestCase
 
     public function testGetConfigWithoutRevision()
     {
-        $etcdClientMockBuilder = $this->buildEtcdClientMockBuilder();
-        $defaultConfigStr = file_get_contents(__DIR__ . '/../../../../../resource/sample-config.json');
         $getResult = new EtcdClientResult(
             null,
-            new EtcdClientSingleNodeResponse(0, 'get', new EtcdClientResponseNode('', $defaultConfigStr, 0, 0))
+            new EtcdClientSingleNodeResponse(0, 'get', new EtcdClientResponseNode('', $this->getConfigStr(), 0, 0))
         );
 
-        $mock = $etcdClientMockBuilder->getMock();
+        $mock = $this->buildEtcdClientMockBuilder()->getMock();
         $mock->expects($this->once())
             ->method('get')
             ->with($this->equalTo('dummy_path'))
@@ -61,14 +70,12 @@ class ConfigProviderEtcdTest extends \PHPUnit_Framework_TestCase
 
     public function testGetConfigAfterRevision()
     {
-        $etcdClientMockBuilder = $this->buildEtcdClientMockBuilder();
-        $defaultConfigStr = file_get_contents(__DIR__ . '/../../../../../resource/sample-config.json');
         $watchResult = new EtcdClientResult(
             null,
-            new EtcdClientSingleNodeResponse(0, 'watch', new EtcdClientResponseNode('', $defaultConfigStr, 0, 0))
+            new EtcdClientSingleNodeResponse(0, 'watch', new EtcdClientResponseNode('', $this->getConfigStr(), 0, 0))
         );
 
-        $mock = $etcdClientMockBuilder->getMock();
+        $mock = $this->buildEtcdClientMockBuilder()->getMock();
         $mock->expects($this->once())
             ->method('watch')
             ->with($this->equalTo('dummy_path'), $this->equalTo(2))
@@ -79,9 +86,6 @@ class ConfigProviderEtcdTest extends \PHPUnit_Framework_TestCase
 
     public function testWatchAfterExpiredIndex()
     {
-        $etcdClientMockBuilder = $this->buildEtcdClientMockBuilder();
-        $defaultConfigStr = file_get_contents(__DIR__ . '/../../../../../resource/sample-config.json');
-
         $watchResult = new EtcdClientResult(
             new EtcdClientError(
                 'Index expired',
@@ -92,10 +96,10 @@ class ConfigProviderEtcdTest extends \PHPUnit_Framework_TestCase
 
         $getResult = new EtcdClientResult(
             null,
-            new EtcdClientSingleNodeResponse(0, 'get', new EtcdClientResponseNode('', $defaultConfigStr, 2, 0))
+            new EtcdClientSingleNodeResponse(0, 'get', new EtcdClientResponseNode('', $this->getConfigStr(), 2, 0))
         );
 
-        $etcdClientMock = $etcdClientMockBuilder->getMock();
+        $etcdClientMock = $this->buildEtcdClientMockBuilder()->getMock();
         $etcdClientMock->expects($this->at(0))
             ->method('watch')
             ->with($this->equalTo('dummy_path'), $this->equalTo(2))
@@ -111,9 +115,6 @@ class ConfigProviderEtcdTest extends \PHPUnit_Framework_TestCase
 
     public function testWatchAfterExpiredIndexWithoutNewModifiedIndex()
     {
-        $etcdClientMockBuilder = $this->buildEtcdClientMockBuilder();
-        $defaultConfigStr = file_get_contents(__DIR__ . '/../../../../../resource/sample-config.json');
-
         $watchResult1 = new EtcdClientResult(
             new EtcdClientError(
                 'Index expired',
@@ -124,15 +125,15 @@ class ConfigProviderEtcdTest extends \PHPUnit_Framework_TestCase
 
         $getResult = new EtcdClientResult(
             null,
-            new EtcdClientSingleNodeResponse(0, 'get', new EtcdClientResponseNode('', $defaultConfigStr, 1, 0))
+            new EtcdClientSingleNodeResponse(0, 'get', new EtcdClientResponseNode('', $this->getConfigStr(), 1, 0))
         );
 
         $watchResult2 = new EtcdClientResult(
             null,
-            new EtcdClientSingleNodeResponse(0, 'watch', new EtcdClientResponseNode('', $defaultConfigStr, 1001, 0))
+            new EtcdClientSingleNodeResponse(0, 'watch', new EtcdClientResponseNode('', $this->getConfigStr(), 1001, 0))
         );
 
-        $etcdClientMock = $etcdClientMockBuilder->getMock();
+        $etcdClientMock = $this->buildEtcdClientMockBuilder()->getMock();
         $etcdClientMock->expects($this->at(0))
             ->method('watch')
             ->with($this->equalTo('dummy_path'), $this->equalTo(2))

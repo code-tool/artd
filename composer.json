@@ -7,6 +7,7 @@
     }
   ],
   "require": {
+    "php": "^5.6 || ^7.0",
     "psr/log": "~1",
     "fool/echolog": "~1",
     "pimple/pimple": "~3.0",
@@ -15,7 +16,7 @@
     "adoy/fastcgi-client": "~1"
   },
   "require-dev": {
-    "phpunit/phpunit": "@stable"
+    "phpunit/phpunit": "^5.7"
   },
   "license": "MIT",
   "autoload": {
